@@ -6,6 +6,11 @@ from .tb_api_client.swagger_client import Asset, ApiException, EntityId, Device,
 from .tb_api_client.swagger_client import DeviceControllerApi, AssetControllerApi, EntityRelationControllerApi
 from .tb_api_client.swagger_client.apis.telementry_controller_api import TelemetryControllerApi
 
+from .tbEntitiesProxy import DeviceProxy
+
+tojson = lambda x: json.loads(str(x).replace("None", "'None'").replace("'", '"').replace("True", "true").replace("False", "false"))
+
+
 class tbHome(object):
     """
         The main home of the Thingsboard (TB or tb) objects.
@@ -28,6 +33,7 @@ class tbHome(object):
 
     def __init__(self, connectdata=None):
         self._swaggerAPI = swaggerAPI(connectdata=connectdata)
+        self._deviceHome = tbDeviceHome(self._swaggerAPI)
 
     @property
     def deviceHome(self):
@@ -163,12 +169,12 @@ class tbDeviceHome(dict):
         It is also a map that holds the deviceName->deviceProxy map.
 
     """
-    _swaggerApi = None
+    _swagger = None
 
     def __init__(self,swaggerApi):
-        self._swaggerApi = swaggerApi
+        self._swagger = swaggerApi
 
-    def createProxy(self,deviceName,overwrite=True,**kwargs):
+    def createProxy(self,deviceName,deviceType=None):
         """
             Creates a proxy device.
 
@@ -176,25 +182,82 @@ class tbDeviceHome(dict):
 
             createProxy(deviceName = "NewDevice")
 
-                    try to load deviceName from the TB server.
-                    if does not exist throw exception.
+                    Create a proxy for the device NewDevice.
+                    if does not exist raise exception.
 
-            createProxy(deviceName = "NewDevice",location=32,overwrite = True)
-                    Update attribute location in the device.
-                    if does not exist - create (if deviceType exists else throw exception).
-
-            createProxy(deviceName = "NewDevice",location=32,deviceType="Sonic",overwrite = False)
-                    Try to create a new device and set the attributes.
-                    if exists, raise exception.
+            createProxy(deviceName = "NewDevice",deviceType="blah")
+                    Create a proxy for the device NewDevice.
+                    if does not exist - create.
+                    if exists and type mismatch the deviceType - raise exception.
 
             :return returns the DeviceProxy object.
         """
 
-        # all the logic.
-        newDeviceProxy = Deviceproxy(deviceName,controller=self,**kwargs)
+        deviceData = self.get(deviceName)
+
+        if deviceType is None:
+            # kwargs is not emtpy.
+            if deviceData is not None:
+                newDeviceProxy = DeviceProxy(deviceData, swagger=self._swagger, home=self)
+            else:
+                raise ValueError("Device %s does not exist" % deviceName)
+
+        else:
+            if deviceData is None:
+                newdevice = Device(name = deviceName, type = deviceType)
+                self._swagger.deviceApi.save_device_using_post(newdevice)
+                newDeviceProxy = DeviceProxy(self.get(deviceName), swagger=self._swagger, home=self)
+            else:
+                if deviceData["type"] != deviceType:
+                    raise ValueError("Cannot create Proxy. The type of %s mismatch. The device type in Thingsboard is %s while requested type is %s " % (deviceName,deviceData["type"],deviceType))
+                newDeviceProxy = DeviceProxy(deviceData, swagger=self._swagger, home=self)
 
         self[deviceName] = newDeviceProxy
         return newDeviceProxy
+
+
+    def get(self,deviceName):
+        """
+            Gets the device data from the TB server.
+
+
+        :param deviceName: The name of the device.
+
+        :return:
+                return a dict:
+
+                .. code-block:: json
+
+                {
+                 'additional_info': <..>,
+                 'created_time': <timestamp>,
+                 'customer_id': {'id': <str> },
+                 'id': {'id': <str>},
+                 'name': <str>,
+                 'tenant_id': {'id': <str>},
+                 'type': <str>
+                }
+
+                if device exists, False otherwise.
+        """
+        ret = None
+        try:
+            data, _, _ = self._swagger.deviceApi.get_tenant_device_using_get_with_http_info(deviceName)
+            ret = tojson(data)
+        except ApiException as e:
+            if json.loads(e.body)['errorCode'] != 32:
+                raise e
+        return ret
+
+    def exists(self,deviceName):
+        """
+            Checks if the device exists in the TB server.
+
+        :param deviceName: The name of the device.
+
+        :return: True if device exists, false otherwise.
+        """
+        return False if self.get(deviceName) is None else True
 
 
     def deleteDevice(self,deviceName):

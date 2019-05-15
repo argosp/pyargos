@@ -1,32 +1,53 @@
-from pyargos import ApiException, Device
-
+from .tb_api_client.swagger_client import Asset, ApiException, EntityId, Device,  EntityRelation, EntityId
 import json
-
-tojson = lambda x: json.loads(
-    str(x).replace("None", "'None'").replace("'", '"').replace("True", "true").replace("False", "false"))
-
+tojson = lambda x: json.loads(str(x).replace("None", "'None'").replace("'", '"').replace("True", "true").replace("False", "false"))
 
 class AbstractProxy(object):
-    _DeviceType = None
+    _entityData = None
+
+    _swagger = None
+    _home    = None
 
     @property
     def deviceType(self):
         return self._DeviceType
 
-    def __init__(self, deviceName,controller,**kwargs):
+    @property
+    def id(self):
+        return self._entityData["id"]["id"]
+
+    @property
+    def type(self):
+        return self._entityData["type"]
+
+    @property
+    def name(self):
+        return self._entityData["name"]
+
+    @property
+    def tenant(self):
+        return self._entityData["tenant"]["id"]
+
+    @property
+    def additional_info(self):
+        return self._entityData["additional_info"]
+
+    def __init__(self, entityData,swagger,home):
         """
             Initializes a new proxy device.
 
             if kwargs is empty:
                 Load the device id from the TB server.
 
-
-
         :param deviceName:
         :param controller:
-        :param kwargs:
+        :param kwargs:  list of device attributes.
         """
-        self.deviceName = deviceName
+
+        self._entityData = entityData
+
+        self._swagger = swagger
+        self._home    = home
 
     def getCredentials(self):
         """
@@ -34,14 +55,11 @@ class AbstractProxy(object):
         :return:  str
         """
         try:
-            retval = self.controller.dca.get_device_credentials_by_device_id_using_get(self.deviceid)
+            retval = self._swagger.deviceApi.get_device_credentials_by_device_id_using_get(self.id)
             return retval.credentials_id
         except ApiException as e:
             return []
 
-    @property
-    def deviceId(self):
-        return self.deviceid
 
     def setAttribute(self, attributes,scope="SERVER_SCOPE"):
         """
@@ -51,7 +69,7 @@ class AbstractProxy(object):
         :param scope: can be with "SERVER_SCOPE" or "SHARED_SCOPE".
         :return:
         """
-        self.controller.tca.save_entity_attributesV2(self.deviceType, self.deviceid, scope, attributes)
+        self._swagger.deviceApi.tca.save_entity_attributesV2(self.type, self.id, scope, attributes)
 
     def getAttribute(self,name):
         raise NotImplementedError("TODO")
@@ -85,36 +103,15 @@ class DeviceProxy(AbstractProxy):
 
     """
 
-    def __init__(self, deviceName, controller, **kwargs):
-        super().__init__(deviceName, controller, **kwargs)
-        self._DeviceType = "DEVICE"
-
-
-        ## All the logic of the creation.
-
-        # try:
-        #     data, resp, header = self.deviceControllerApi.get_tenant_device_using_get_with_http_info(deviceName)
-        #     print('Device {} added to TB'.format(deviceName))
-        #     self.deviceid = data.id._id
-        # except ApiException as e:
-        #     if '404' in str(e):
-        #         if deviceType == '':
-        #             raise "Can't add device name {}".format(deviceName)
-        #         else:
-        #             newdevice = Device(name = deviceName, type = self.deviceType)
-        #             self.deviceControllerApi.save_device_using_post(newdevice)
-        #             data, resp, header = self.deviceControllerApi.get_tenant_device_using_get_with_http_info(deviceName)
-        #             self.deviceid = data.id._id
-        #             print("{} added to TB...".format(deviceName))
-        #             return
-
+    def __init__(self, deviceName, swagger,home, **kwargs):
+        super().__init__(deviceName, swagger,home, **kwargs)
 
 
 class AssetProxy(AbstractProxy):
 
-    def __init__(self, deviceName, controller, **kwargs):
-        super().__init__(deviceName, controller, **kwargs)
-        self._DeviceType = "DEVICE"
+    def __init__(self, deviceData, controller, **kwargs):
+        super().__init__(deviceData, controller, **kwargs)
+
 
 
     def addRelation(self,entity):
@@ -122,3 +119,4 @@ class AssetProxy(AbstractProxy):
             pass
         else:
             # this is asset.
+            pass
