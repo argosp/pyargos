@@ -101,12 +101,6 @@ class swaggerAPI(object):
                 }
 
         """
-        self._init_swaggerAPI(connectdata=connectdata)
-        self._deviceHome = tbDeviceHome()
-
-
-    def _init_swaggerAPI(self, connectdata):
-
         self._api_client         = self._getApiClient(connectdata)
         self._AssetApi           = AssetControllerApi(api_client=self._api_client)
         self._DeviceApi          = DeviceControllerApi(api_client=self._api_client)
@@ -114,7 +108,7 @@ class swaggerAPI(object):
         self._TelemetryApi       = TelemetryControllerApi(self._api_client)
 
 
-    def _getApiClient(self,conf=None):
+    def _getApiClient(self, connectdata=None):
         """
             Gets the JWT key from the TB server and initializes an api client.
 
@@ -137,26 +131,22 @@ class swaggerAPI(object):
 
             :return: api_client
         """
-        if conf is None:
+        if connectdata is None:
             configpath = os.path.join(os.path.expanduser("~"), ".pyargos", 'config.json')
             # load the config file.
             with open(configpath, "r") as cnfFile:
-                serverAttr = json.load(cnfFile)
-        else:
-            serverAttr = conf
+                connectdata = json.load(cnfFile)
 
+        #login = str(dict([(str(x[0]), str(x[1])) for x in serverAttr['login'].items()])).replace("'", '"')
+        login = str(connectdata["login"]).replace("'", '"') # make it a proper json.
 
-        login = str(dict([(str(x[0]), str(x[1])) for x in serverAttr['login'].items()])).replace("'", '"')
         headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
-        import pdb
-        pdb.set_trace()
-        token_response = requests.post('http://{ip}:{port}/api/auth/login'.format(**serverAttr['server']), data=login, headers=headers)
-
+        token_response = requests.post('http://{ip}:{port}/api/auth/login'.format(**connectdata['server']), data=login, headers=headers)
         token = json.loads(token_response.text)
 
         # set up the api-client.
         api_client_config = Configuration()
-        api_client_config.host = '{ip}:{port}'.format(**serverAttr['server'])
+        api_client_config.host = '{ip}:{port}'.format(**connectdata['server'])
         api_client_config.api_key['X-Authorization'] = 'Bearer %s' % token['token']
         api_client = ApiClient(api_client_config)
 
