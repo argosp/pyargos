@@ -26,8 +26,8 @@ class tbHome(object):
 
     _swaggerAPI = None
 
-    def __init__(self,conf=None):
-        self._swaggerAPI = swaggerAPI(conf=conf)
+    def __init__(self, connectdata=None):
+        self._swaggerAPI = swaggerAPI(connectdata=connectdata)
 
     @property
     def deviceHome(self):
@@ -41,6 +41,16 @@ class tbHome(object):
 class swaggerAPI(object):
     """
         Holds and initializes all the swagger api.
+
+        Connecting to the data base is done with the following structure:
+
+         .. code-block:: json
+
+        "login" : [<login name>,<pwd>],
+        "server" : {
+                "ip" : <ip>,
+                "port" : <port>
+        }
 
     """
 
@@ -71,14 +81,33 @@ class swaggerAPI(object):
         return self._TelemetryApi
 
 
-    def __init__(self,conf=None):
-        self._init_swaggerAPI(conf=conf)
+    def __init__(self, connectdata=None):
+        """
+            Initializes the swagger API
+
+        :param connectdata:
+            if connectdata is str -> read the file.
+            if connectdata is None -> read the file from .pyargos/config.
+            if connectdata is dictionary use it as is.
+
+            dictionary/json structure:
+
+            .. code-block:: json
+
+                "login" : [<login name>,<pwd>],
+                "server" : {
+                        "ip" : <ip>,
+                        "port" : <port>
+                }
+
+        """
+        self._init_swaggerAPI(connectdata=connectdata)
         self._deviceHome = tbDeviceHome()
 
 
-    def _init_swaggerAPI(self,conf):
+    def _init_swaggerAPI(self, connectdata):
 
-        self._api_client         = self._getApiClient(conf)
+        self._api_client         = self._getApiClient(connectdata)
         self._AssetApi           = AssetControllerApi(api_client=self._api_client)
         self._DeviceApi          = DeviceControllerApi(api_client=self._api_client)
         self._EntityRelationApi  = EntityRelationControllerApi(api_client=self._api_client)
@@ -97,7 +126,10 @@ class swaggerAPI(object):
 
             .. code-block:: json
 
-                "login" : [<login name>,<pwd>],
+                "login" : {
+                        "username" : <user name>,
+                        "password" : <password>
+                },
                 "server" : {
                         "ip" : <ip>,
                         "port" : <port>
@@ -114,10 +146,12 @@ class swaggerAPI(object):
             serverAttr = conf
 
 
-        #login = str(dict([(str(x[0]), str(x[1])) for x in serverAttr['login'].items()])).replace("'", '"')
-        login = serverAttr['login']
+        login = str(dict([(str(x[0]), str(x[1])) for x in serverAttr['login'].items()])).replace("'", '"')
         headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
+        import pdb
+        pdb.set_trace()
         token_response = requests.post('http://{ip}:{port}/api/auth/login'.format(**serverAttr['server']), data=login, headers=headers)
+
         token = json.loads(token_response.text)
 
         # set up the api-client.
@@ -127,7 +161,6 @@ class swaggerAPI(object):
         api_client = ApiClient(api_client_config)
 
         return api_client
-
 
 
 class tbDeviceHome(dict):
@@ -179,7 +212,6 @@ class tbDeviceHome(dict):
             self.deviceControllerApi.delete_device_using_delete(self[deviceName].deviceId)
         except ApiException as e:
             pass
-
 
 
 
