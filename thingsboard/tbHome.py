@@ -143,7 +143,6 @@ class swaggerAPI(object):
             with open(configpath, "r") as cnfFile:
                 connectdata = json.load(cnfFile)
 
-        #login = str(dict([(str(x[0]), str(x[1])) for x in serverAttr['login'].items()])).replace("'", '"')
         login = str(connectdata["login"]).replace("'", '"') # make it a proper json.
 
         headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
@@ -265,6 +264,13 @@ class tbDeviceHome(dict):
             self.deviceControllerApi.delete_device_using_delete(self[deviceName].deviceId)
         except ApiException as e:
             pass
+
+
+
+
+
+
+
 
 
 

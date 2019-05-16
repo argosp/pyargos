@@ -7,4 +7,7 @@ if __name__=="__main__":
     #print(home.deviceHome.exists("Device"))
     #print(home.deviceHome.exists("device"))
 
-    home.deviceHome.createProxy("Device","RawSonic")
+    Device = home.deviceHome.createProxy("Device")
+#    print(Device.getCredentials())
+    Device["newAtt"] = "ABC1"
+    print(Device.getAttributes())

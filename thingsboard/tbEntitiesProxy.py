@@ -3,7 +3,14 @@ import json
 tojson = lambda x: json.loads(str(x).replace("None", "'None'").replace("'", '"').replace("True", "true").replace("False", "false"))
 
 class AbstractProxy(object):
+    """
+        Abstract Proxy.
+
+        Implements the setting and getting of the attributes.
+
+    """
     _entityData = None
+    _entityType = None # DEVICE or ASSET
 
     _swagger = None
     _home    = None
@@ -19,6 +26,10 @@ class AbstractProxy(object):
     @property
     def type(self):
         return self._entityData["type"]
+
+    @property
+    def entityType(self):
+        return self._entityType
 
     @property
     def name(self):
@@ -49,6 +60,54 @@ class AbstractProxy(object):
         self._swagger = swagger
         self._home    = home
 
+
+    def setAttribute(self, attributes,scope="SERVER_SCOPE"):
+        """
+            Update the device attributes.
+
+        :param attributes: a dictionary of attributes to update.
+        :param scope: can be with "SERVER_SCOPE" or "SHARED_SCOPE".
+        :return:
+        """
+        self._swagger.telemetryApi.save_entity_attributesV2(self.entityType, self.id, scope, attributes)
+
+    def getAttributes(self,scope=None):
+        """
+            This doesn't work right now.
+            The problem is that I wrote the Telemetry controller and maybe there is a mistake there.
+            we should try to call the swagger from the CLI...
+
+            Get all the attributes of the device.
+        :param scope: can be None (for all scopes) or "SERVER_SCOPE" or "SHARED_SCOPE" or "CLIENT_SCOPE"
+        :return:
+            A dict with the parameters.
+        """
+        data,_,_ = self._swagger.telemetryApi.get_attributes(self.entityType, self.id, scope)
+        return data["result"]
+
+
+
+    def __setitem__(self, key, value):
+        """
+            Setting a SERVER_SCOPE attribute.
+
+        :param key:
+        :param value:
+        :return:
+        """
+        self.setAttribute({key:value},scope="SERVER_SCOPE")
+
+
+
+class DeviceProxy(AbstractProxy):
+    """
+        A proxy of the device in the TB server.
+    """
+
+    def __init__(self, deviceData, swagger, home, **kwargs):
+        super().__init__(deviceData, swagger, home, **kwargs)
+        self._entityType = "DEVICE"
+
     def getCredentials(self):
         """
                 Get the credentials of the device.
@@ -61,58 +120,11 @@ class AbstractProxy(object):
             return []
 
 
-    def setAttribute(self, attributes,scope="SERVER_SCOPE"):
-        """
-            Update the device attributes.
-
-        :param attributes: a dictionary of attributes to update.
-        :param scope: can be with "SERVER_SCOPE" or "SHARED_SCOPE".
-        :return:
-        """
-        self._swagger.deviceApi.tca.save_entity_attributesV2(self.type, self.id, scope, attributes)
-
-    def getAttribute(self,name):
-        raise NotImplementedError("TODO")
-
-    def publishTelemetry(self,**kwargs):
-        raise NotImplementedError("TODO")
-
-
-    def __setitem__(self, key, value):
-        """
-            Setting a SERVER_SCOPE attribute.
-
-        :param key:
-        :param value:
-        :return:
-        """
-        self.setAttribute(key,value,scope="SERVER_SCOPE")
-
-    def __getitem__(self, item):
-        return self.getAttribute(item)
-
-
-class DeviceProxy(AbstractProxy):
-    """
-        A proxy of the device in the TB server.
-
-        can be initialized in 2 ways:
-
-            1. A list of key-value.
-            2. by device name gets the device data from the server.
-
-    """
-
-    def __init__(self, deviceName, swagger,home, **kwargs):
-        super().__init__(deviceName, swagger,home, **kwargs)
-
-
 class AssetProxy(AbstractProxy):
 
-    def __init__(self, deviceData, controller, **kwargs):
-        super().__init__(deviceData, controller, **kwargs)
-
-
+    def __init__(self, assetData, controller, **kwargs):
+        super().__init__(assetData, controller, **kwargs)
+        self._entityType = "RELATION"
 
     def addRelation(self,entity):
         if isinstance(entity,DeviceProxy):
