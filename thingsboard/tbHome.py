@@ -1,14 +1,15 @@
 import os
 import json
 import requests
-from .tb_api_client.swagger_client import ApiClient,Configuration
-from .tb_api_client.swagger_client import Asset, ApiException, EntityId, Device,  EntityRelation, EntityId
+from .tb_api_client.swagger_client import ApiClient, Configuration
+from .tb_api_client.swagger_client import Asset, ApiException, EntityId, Device, EntityRelation, EntityId
 from .tb_api_client.swagger_client import DeviceControllerApi, AssetControllerApi, EntityRelationControllerApi
 from .tb_api_client.swagger_client.apis.telementry_controller_api import TelemetryControllerApi
 
-from .tbEntitiesProxy import DeviceProxy
+from .tbEntitiesProxy import DeviceProxy, AssetProxy
 
-tojson = lambda x: json.loads(str(x).replace("None", "'None'").replace("'", '"').replace("True", "true").replace("False", "false"))
+tojson = lambda x: json.loads(
+    str(x).replace("None", "'None'").replace("'", '"').replace("True", "true").replace("False", "false"))
 
 
 class tbHome(object):
@@ -33,7 +34,8 @@ class tbHome(object):
 
     def __init__(self, connectdata=None):
         self._swaggerAPI = swaggerAPI(connectdata=connectdata)
-        self._deviceHome = tbDeviceHome(self._swaggerAPI)
+        self._deviceHome = tbEntityHome(self._swaggerAPI, "device")
+        self._assetHome = tbEntityHome(self._swaggerAPI, "asset")
 
     @property
     def deviceHome(self):
@@ -42,6 +44,72 @@ class tbHome(object):
     @property
     def assetHome(self):
         return self._assetHome
+
+    def executeAction(self,actionJson):
+        """
+            Executes the required action.
+
+              Currently, there are 2 action:
+
+*   Add entity (device/asset):
+    --------------------------
+
+    {
+        "action" : "addEntity",
+        "entityType"   : "device|asset",
+        "name"   : <name>,
+        "type"   : <the type>
+    }
+    prints error if the entity exists and type != stored type.
+
+*    Update attributes (currently update only server scope).
+     -------------------------------------------------------
+     {
+        "action" : "updateAttributes",
+        "entityType"   : "device|asset",
+        "name"      : <name>,
+        "attributes" : {
+                <name>  : <value>
+        }
+
+     }
+
+*    Set relationships
+    --------------------------------------------------------
+    {
+        "action" : "addRelation",
+        "entityType"   : "device|asset",
+        "name"      : <name>,
+        "containedin": {
+            "entityType"   : "device|asset",
+            "name"      : <name>,
+        }
+    }
+
+
+    :param actionJson:
+                The JSON to execute.
+    :return:
+        """
+        getattr(self,"execute_%s"% actionJson['action'])(actionJson)
+
+    def execute_addEntity(self,action):
+        home = getattr(self,"%sHome"% action['entityType'])
+        home.createProxy(action['name'],action['type'])
+
+    def execute_updateAttributes(self,action):
+        entityHome = getattr(self, "%sHome" % action['entityType'])
+        entity = entityHome[action['name']]
+        entity.setAttribute(action["attributes"])
+
+    def execute_addRelation(self,action):
+        toentityHome  = getattr(self, "%sHome" % action['entityType'])
+        toentity      = toentityHome[action['name']]
+
+        fromentityHome = getattr(self, "%sHome" % action["containedin"]['entityType'])
+        fromentity     = fromentityHome[action["containedin"]['name']]
+
+        fromentity.addRelation(toentity)
 
 
 class swaggerAPI(object):
@@ -65,8 +133,8 @@ class swaggerAPI(object):
     #   Swagger API - these will be used internally.
     #
     _api_client = None
-    _AssetApi   = None
-    _DeviceApi  = None
+    _AssetApi = None
+    _DeviceApi = None
     _EntityRelationApi = None
     _TelemetryApi = None
 
@@ -79,13 +147,15 @@ class swaggerAPI(object):
         return self._DeviceApi
 
     @property
-    def enttityRelationApi(self):
+    def entityRelationApi(self):
         return self._EntityRelationApi
 
     @property
     def telemetryApi(self):
         return self._TelemetryApi
 
+    def getApi(self,entityType):
+        return getattr(self,"_%sApi"% entityType.title())
 
     def __init__(self, connectdata=None):
         """
@@ -107,12 +177,11 @@ class swaggerAPI(object):
                 }
 
         """
-        self._api_client         = self._getApiClient(connectdata)
-        self._AssetApi           = AssetControllerApi(api_client=self._api_client)
-        self._DeviceApi          = DeviceControllerApi(api_client=self._api_client)
-        self._EntityRelationApi  = EntityRelationControllerApi(api_client=self._api_client)
-        self._TelemetryApi       = TelemetryControllerApi(self._api_client)
-
+        self._api_client = self._getApiClient(connectdata)
+        self._AssetApi = AssetControllerApi(api_client=self._api_client)
+        self._DeviceApi = DeviceControllerApi(api_client=self._api_client)
+        self._EntityRelationApi = EntityRelationControllerApi(api_client=self._api_client)
+        self._TelemetryApi = TelemetryControllerApi(self._api_client)
 
     def _getApiClient(self, connectdata=None):
         """
@@ -143,10 +212,11 @@ class swaggerAPI(object):
             with open(configpath, "r") as cnfFile:
                 connectdata = json.load(cnfFile)
 
-        login = str(connectdata["login"]).replace("'", '"') # make it a proper json.
+        login = str(connectdata["login"]).replace("'", '"')  # make it a proper json.
 
         headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
-        token_response = requests.post('http://{ip}:{port}/api/auth/login'.format(**connectdata['server']), data=login, headers=headers)
+        token_response = requests.post('http://{ip}:{port}/api/auth/login'.format(**connectdata['server']), data=login,
+                                       headers=headers)
         token = json.loads(token_response.text)
 
         # set up the api-client.
@@ -158,69 +228,88 @@ class swaggerAPI(object):
         return api_client
 
 
-class tbDeviceHome(dict):
+class tbEntityHome(dict):
     """
-        This class manages the creation, removal and retrieving the data from the server.
+        This class manages the creation, removal and retrieving of an entity (ASSET or DEVICE for now) from the server.
+        The design pattern is a thin proxy. so that the proxy does not cache. Thincker clients can be
+        implemented in the future if necessary.
 
-        Inherits from a dictionary and holds the current instances of the
-        assets in it.
-
-        It is also a map that holds the deviceName->deviceProxy map.
-
+        Inherits from a dictionary and holds the current instances of the entity proxy.
     """
     _swagger = None
 
-    def __init__(self,swaggerApi):
-        self._swagger = swaggerApi
+    _entityType = None
+    _entityApi = None
+    _entityProxy = None
 
-    def createProxy(self,deviceName,deviceType=None):
+    def __init__(self, iswaggerApi, entityType):
         """
-            Creates a proxy device.
+            Initializes the Home.
+
+        :param iswaggerApi:
+                the swagger wrapper with all the api initialized and after authentication with the server.
+        :param entityType:
+                asset or device.
+        """
+        proxyClass = {"asset": AssetProxy, "device": DeviceProxy}
+        objClass = {"asset": Asset, "device": Device}
+
+        self._entityType = entityType.lower()
+        self._swagger = iswaggerApi
+        self._entityApi = iswaggerApi.getApi(self._entityType)
+        self._entityProxy = proxyClass[self._entityType]
+        self._entityObj = objClass[self._entityType]
+
+    def createProxy(self, entityName, entityType=None):
+        """
+            Creates a proxy entity.
 
             Call modes:
 
-            createProxy(deviceName = "NewDevice")
+            createProxy(entityName = "NewDevice")
 
-                    Create a proxy for the device NewDevice.
+                    Create a proxy for the entity NewDevice.
                     if does not exist raise exception.
 
-            createProxy(deviceName = "NewDevice",deviceType="blah")
-                    Create a proxy for the device NewDevice.
+            createProxy(entityName = "NewDevice",entityType="blah")
+                    Create a proxy for the entity NewDevice.
                     if does not exist - create.
-                    if exists and type mismatch the deviceType - raise exception.
+                    if exists and type mismatch the entityType - raise exception.
 
-            :return returns the DeviceProxy object.
+            :return returns the proxy object of the entity according to the home type.
         """
 
-        deviceData = self.get(deviceName)
+        entityData = self.getEntity(entityName)
 
-        if deviceType is None:
+        if entityType is None:
             # kwargs is not emtpy.
-            if deviceData is not None:
-                newDeviceProxy = DeviceProxy(deviceData, swagger=self._swagger, home=self)
+            if entityData is not None:
+                newEntityProxy = self._entityProxy(entityData, swagger=self._swagger, home=self)
             else:
-                raise ValueError("Device %s does not exist" % deviceName)
+                raise ValueError("Device %s does not exist" % entityName)
 
         else:
-            if deviceData is None:
-                newdevice = Device(name = deviceName, type = deviceType)
-                self._swagger.deviceApi.save_device_using_post(newdevice)
-                newDeviceProxy = DeviceProxy(self.get(deviceName), swagger=self._swagger, home=self)
+            if entityData is None:
+                newentity = self._entityObj(name=entityName, type=entityType)
+                saveFunc = getattr(self._entityApi, "save_%s_using_post" % self._entityType)
+                saveFunc(newentity)
+                newEntityProxy = self._entityProxy(self.getEntity(entityName), swagger=self._swagger, home=self)
             else:
-                if deviceData["type"] != deviceType:
-                    raise ValueError("Cannot create Proxy. The type of %s mismatch. The device type in Thingsboard is %s while requested type is %s " % (deviceName,deviceData["type"],deviceType))
-                newDeviceProxy = DeviceProxy(deviceData, swagger=self._swagger, home=self)
+                if entityData["type"] != entityType:
+                    raise ValueError(
+                        "Cannot create Proxy. The type of %s mismatch. The device type in Thingsboard is %s while requested type is %s " % (
+                        entityName, entityData["type"], entityType))
+                newEntityProxy = self._entityProxy(entityData, swagger=self._swagger, home=self)
 
-        self[deviceName] = newDeviceProxy
-        return newDeviceProxy
+        self[entityName] = newEntityProxy
+        return newEntityProxy
 
-
-    def get(self,deviceName):
+    def getEntity(self, entityName):
         """
             Gets the device data from the TB server.
 
 
-        :param deviceName: The name of the device.
+        :param entityName: The name of the device.
 
         :return:
                 return a dict:
@@ -239,182 +328,49 @@ class tbDeviceHome(dict):
 
                 if device exists, False otherwise.
         """
+        entityfuncmapping = {"asset":"assets"}
         ret = None
-        try:
-            data, _, _ = self._swagger.deviceApi.get_tenant_device_using_get_with_http_info(deviceName)
-            ret = tojson(data)
-        except ApiException as e:
-            if json.loads(e.body)['errorCode'] != 32:
-                raise e
+        if self._entityType =="device":
+            try:
+                entitytype = entityfuncmapping.get(self._entityType, self._entityType)
+                getFunc = getattr(self._entityApi, "get_tenant_%s_using_get_with_http_info" % entitytype)
+                data, _, _ = getFunc(entityName)
+                ret = tojson(data)
+            except ApiException as e:
+                if json.loads(e.body)['errorCode'] != 32:
+                    raise e
+        else:
+            # This is an ugly workaround since the tb_api_client is old.
+            # TODO: Lior, if you know how to generate a new one from the existing API it would
+            #       make life simpler...
+            data,_,_ = self._entityApi.get_tenant_assets_using_get_with_http_info(100)
+            assetlist = tojson(data)['data']
+            ret = [x for x in assetlist if x['name'] ==entityName]
+            ret = ret[0] if len(ret)>0 else None
+
         return ret
 
-    def exists(self,deviceName):
+    def exists(self, entityName):
         """
             Checks if the device exists in the TB server.
 
-        :param deviceName: The name of the device.
+        :param entityName: The name of the device.
 
         :return: True if device exists, false otherwise.
         """
-        return False if self.get(deviceName) is None else True
+        return False if self.get(entityName) is None else True
 
-
-    def deleteDevice(self,deviceName):
+    def delete(self, entityName):
         try:
-            self.deviceControllerApi.delete_device_using_delete(self[deviceName].deviceId)
+
+            deleteFunc = getattr(self._entityApi, "delete_%s_using_delete" % self._entityType)
+            deleteFunc(self[entityName].id)
         except ApiException as e:
             pass
 
-
-
-
-
-
-
-
-
-
-############################################################################################3
-############################################################################################3
-############################################################################################3
-############################################################################################3
-############################################################################################3
-#
-#
-# class tbController(object):
-#
-#     _Assets = None
-#     _Devices = None
-#
-#     @property
-#     def Assets(self):
-#         return self._Assets
-#
-#     @property
-#     def Devices(self):
-#         return self._Devices
-#
-#     def __init__(self, **kwargs):
-#         self._Devices = {}
-#         self._Assets = {}
-#
-#         login = '{' + '"username":"{username}", "password":"{password}"'.format(**kwargs) + '}'
-#         serverCred = {'ip': kwargs['ip'], 'port': kwargs['port']}  # works
-#
-#         self.api_client = getApiClient({"login":login, "server": serverCred})
-#         self.aca = AssetControllerApi(api_client=self.api_client)
-#         self.dca = DeviceControllerApi(api_client=self.api_client)
-#         self.Rel = RelationClass(self.api_client)
-#         self.erc = EntityRelationControllerApi(api_client=self.api_client)
-#         self.tca = TelemetryControllerApi(self.api_client)
-#
-#     def getDevices(self, customerid):  #works if device is assined to customer customer id must be supplied
-#         """
-#             doesn't work properly
-#         :param customerid:
-#         :return:
-#         """
-#         aa = self.dca.get_customer_devices_using_get(customerid, 1000)
-#         return aa
-#
-#
-#     def getTenantDevices(self, **kwargs):
-#         """
-#             doesn't work properly
-#         :param kwargs:
-#         :return:
-#         """
-#         # return  self.dca.getTenantDevices({'limit': '1000'})
-#         return self.dca.getTenantDevices(1000)
-#
-#
-#     def getDevice(self, devName):
-#         """
-#             This method returns the device instance with devName
-#             params:
-#                   devName : device instance to be returned
-#             return values
-#                 if device instance with the name devName
-#                 None if devName is not exists.
-#         """
-#
-#         for device in self.Devices:
-#             if device.deviceName == devName:
-#                 return device
-#         return None
-#
-#     def getAsset(self, assetName,assetType=None):
-#         """
-#             This method returns the asset instance with assetName
-#             params:
-#                   assetName : asste name to be returned
-#             return values
-#                 if asset instance with the name assetName
-#                 None if assetName is not exists.
-#         """
-#         if assetName in self.Assets:
-#             return self.Assets[assetName]
-#         else:
-#
-#
-#             if assetType is None:
-#                 raise ValueError("Asst %s is not found!. Must supply asset type")
-#
-#
-#         for asset in self.Assets:
-#             if asset.assetName == assetName:
-#                 return asset
-#         return None
-#
-#
-#     def addDevice(self, devName, devType):
-#         """
-#             adding device to thingboard
-#             params:
-#                 devName: Device name to be add
-#                 devType: device type
-#             if devName exists in thingsboard this methos will do nothing
-#             return value
-#                 this method does not return any value
-#         """
-#         if devName in self.Devices:
-#             dev = DeviceClass(self.dca, devName, devType, self.tca)
-#             self.Devices.append(dev)
-#
-#     def removeDevice(self, devName):
-#         """
-#                 remove device from thingboard
-#                 params:
-#                     devName: Device name to be add
-#                 if devName exists, the device will be removed from thingboard data base
-#                 return value
-#                     this method does not return any value
-#         """
-#         try:
-#             self.getDevice(devName).safeDeleteDevice()
-#             self.Devices.remove(devName)
-#         except:
-#             return
-#
-#
-#     def addAsset(self, assetName, assetType):
-#         if assetName in self.Assets:
-#             asset = AssetClass(self.aca, assetName, assetType, self.tca, self.erc )
-#             self.Assets.append(asset)
-#
-#     def removeAsset(self, assetName):
-#         try:
-#             self.getAsset(assetName).safeDeleteAsset()
-#             self.Assets.remove(assetName)
-#         except:
-#             return
-#
-#
-#     def getCredential(self, devName):
-#         try:
-#             self.getDevice(devName).getCredentials()
-#         except:
-#             return ''
-#
-#
-#
+    def __getitem__(self, item):
+        if item not in self:
+            ret = self.createProxy(item)
+        else:
+            ret = self.get(item)
+        return ret

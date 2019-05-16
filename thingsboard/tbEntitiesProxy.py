@@ -97,6 +97,11 @@ class AbstractProxy(object):
         """
         self.setAttribute({key:value},scope="SERVER_SCOPE")
 
+    def addRelation(self,entity):
+        from_id = EntityId(entity_type=self.entityType, id=self.id)
+        to_id = EntityId(entity_type=entity.entityType, id=entity.id)
+        new_relation = EntityRelation(_from=from_id, to=to_id, type='Contains', type_group='COMMON')
+        self._swagger.entityRelationApi.save_relation_using_post(new_relation)
 
 
 class DeviceProxy(AbstractProxy):
@@ -122,13 +127,7 @@ class DeviceProxy(AbstractProxy):
 
 class AssetProxy(AbstractProxy):
 
-    def __init__(self, assetData, controller, **kwargs):
-        super().__init__(assetData, controller, **kwargs)
-        self._entityType = "RELATION"
+    def __init__(self, deviceData, swagger, home, **kwargs):
+        super().__init__(deviceData, swagger, home, **kwargs)
+        self._entityType = "ASSET"
 
-    def addRelation(self,entity):
-        if isinstance(entity,DeviceProxy):
-            pass
-        else:
-            # this is asset.
-            pass

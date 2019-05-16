@@ -1,0 +1,34 @@
+{
+"actions" : [
+	         {
+		        "action" : "addEntity",
+		        "entityType"   : "device",
+		        "name"   : "testDevice",
+		        "type"   : "newType"
+		 },
+	         {
+		        "action" : "addEntity",
+		        "entityType"   : "asset",
+		        "name"   : "testAsset",
+		        "type"   : "anAsset"
+		 },
+		 {
+		        "action" : "updateAttributes",
+		        "entityType"   : "device",
+		        "name"      : "testDevice",
+		        "attributes" : {
+		                "A"  :1,
+				"B"  : "C"
+			}
+		 },
+	         {
+			"action" : "addRelation",
+			"entityType"   : "device",
+		        "name"      : "testDevice",
+		        "containedin": {
+		            "entityType"   : "asset",
+		            "name"      : "testAsset"
+        		}
+    		 }
+	   ]
+}
