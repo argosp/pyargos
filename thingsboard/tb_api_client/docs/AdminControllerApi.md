@@ -1,6 +1,6 @@
 # swagger_client.AdminControllerApi
 
-All URIs are relative to *http://localhost:8080*
+All URIs are relative to *https://127.0.0.1:8080*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
@@ -15,7 +15,7 @@ Method | HTTP request | Description
 
 checkUpdates
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -32,7 +32,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 # create an instance of the API class
 api_instance = swagger_client.AdminControllerApi(swagger_client.ApiClient(configuration))
 
-try: 
+try:
     # checkUpdates
     api_response = api_instance.check_updates_using_get()
     pprint(api_response)
@@ -63,7 +63,7 @@ This endpoint does not need any parameter.
 
 getAdminSettings
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -81,7 +81,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.AdminControllerApi(swagger_client.ApiClient(configuration))
 key = 'key_example' # str | key
 
-try: 
+try:
     # getAdminSettings
     api_response = api_instance.get_admin_settings_using_get(key)
     pprint(api_response)
@@ -115,7 +115,7 @@ Name | Type | Description  | Notes
 
 saveAdminSettings
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -133,7 +133,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.AdminControllerApi(swagger_client.ApiClient(configuration))
 admin_settings = swagger_client.AdminSettings() # AdminSettings | adminSettings
 
-try: 
+try:
     # saveAdminSettings
     api_response = api_instance.save_admin_settings_using_post(admin_settings)
     pprint(api_response)
@@ -167,7 +167,7 @@ Name | Type | Description  | Notes
 
 sendTestMail
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -185,7 +185,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.AdminControllerApi(swagger_client.ApiClient(configuration))
 admin_settings = swagger_client.AdminSettings() # AdminSettings | adminSettings
 
-try: 
+try:
     # sendTestMail
     api_instance.send_test_mail_using_post(admin_settings)
 except ApiException as e:

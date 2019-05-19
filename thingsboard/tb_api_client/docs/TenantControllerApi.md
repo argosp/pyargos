@@ -1,12 +1,12 @@
 # swagger_client.TenantControllerApi
 
-All URIs are relative to *http://localhost:8080*
+All URIs are relative to *https://127.0.0.1:8080*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**delete_tenant_using_delete**](TenantControllerApi.md#delete_tenant_using_delete) | **DELETE** /api/tenant/{tenantId} | deleteTenant
 [**get_tenant_by_id_using_get**](TenantControllerApi.md#get_tenant_by_id_using_get) | **GET** /api/tenant/{tenantId} | getTenantById
-[**get_tenants_using_get**](TenantControllerApi.md#get_tenants_using_get) | **GET** /api/tenants | getTenants
+[**get_tenants_using_get**](TenantControllerApi.md#get_tenants_using_get) | **GET** /api/tenants{?textSearch,idOffset,textOffset,limit} | getTenants
 [**save_tenant_using_post**](TenantControllerApi.md#save_tenant_using_post) | **POST** /api/tenant | saveTenant
 
 
@@ -15,7 +15,7 @@ Method | HTTP request | Description
 
 deleteTenant
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -33,7 +33,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.TenantControllerApi(swagger_client.ApiClient(configuration))
 tenant_id = 'tenant_id_example' # str | tenantId
 
-try: 
+try:
     # deleteTenant
     api_instance.delete_tenant_using_delete(tenant_id)
 except ApiException as e:
@@ -66,7 +66,7 @@ void (empty response body)
 
 getTenantById
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -84,7 +84,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.TenantControllerApi(swagger_client.ApiClient(configuration))
 tenant_id = 'tenant_id_example' # str | tenantId
 
-try: 
+try:
     # getTenantById
     api_response = api_instance.get_tenant_by_id_using_get(tenant_id)
     pprint(api_response)
@@ -118,7 +118,7 @@ Name | Type | Description  | Notes
 
 getTenants
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -139,7 +139,7 @@ text_search = 'text_search_example' # str | textSearch (optional)
 id_offset = 'id_offset_example' # str | idOffset (optional)
 text_offset = 'text_offset_example' # str | textOffset (optional)
 
-try: 
+try:
     # getTenants
     api_response = api_instance.get_tenants_using_get(limit, text_search=text_search, id_offset=id_offset, text_offset=text_offset)
     pprint(api_response)
@@ -176,7 +176,7 @@ Name | Type | Description  | Notes
 
 saveTenant
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -194,7 +194,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.TenantControllerApi(swagger_client.ApiClient(configuration))
 tenant = swagger_client.Tenant() # Tenant | tenant
 
-try: 
+try:
     # saveTenant
     api_response = api_instance.save_tenant_using_post(tenant)
     pprint(api_response)

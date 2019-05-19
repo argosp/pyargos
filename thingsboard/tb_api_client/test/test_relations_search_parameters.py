@@ -3,7 +3,7 @@
 """
     Thingsboard REST API
 
-    For instructions how to authorize requests please visit <a href='http://thingsboard.io/docs/reference/rest-api/'>REST API documentation page</a>.
+    For instructions how to authorize requests please visit <a href='http://thingsboard.io/docs/reference/rest-api/'>REST API documentation page</a>.  # noqa: E501
 
     OpenAPI spec version: 2.0
     Contact: info@thingsboard.io
@@ -13,17 +13,15 @@
 
 from __future__ import absolute_import
 
-import os
-import sys
 import unittest
 
 import swagger_client
+from swagger_client.models.relations_search_parameters import RelationsSearchParameters  # noqa: E501
 from swagger_client.rest import ApiException
-from swagger_client.models.relations_search_parameters import RelationsSearchParameters
 
 
 class TestRelationsSearchParameters(unittest.TestCase):
-    """ RelationsSearchParameters unit test stubs """
+    """RelationsSearchParameters unit test stubs"""
 
     def setUp(self):
         pass
@@ -32,11 +30,9 @@ class TestRelationsSearchParameters(unittest.TestCase):
         pass
 
     def testRelationsSearchParameters(self):
-        """
-        Test RelationsSearchParameters
-        """
+        """Test RelationsSearchParameters"""
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.relations_search_parameters.RelationsSearchParameters()
+        # model = swagger_client.models.relations_search_parameters.RelationsSearchParameters()  # noqa: E501
         pass
 
 

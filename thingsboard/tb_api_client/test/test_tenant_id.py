@@ -3,7 +3,7 @@
 """
     Thingsboard REST API
 
-    For instructions how to authorize requests please visit <a href='http://thingsboard.io/docs/reference/rest-api/'>REST API documentation page</a>.
+    For instructions how to authorize requests please visit <a href='http://thingsboard.io/docs/reference/rest-api/'>REST API documentation page</a>.  # noqa: E501
 
     OpenAPI spec version: 2.0
     Contact: info@thingsboard.io
@@ -13,17 +13,15 @@
 
 from __future__ import absolute_import
 
-import os
-import sys
 import unittest
 
 import swagger_client
+from swagger_client.models.tenant_id import TenantId  # noqa: E501
 from swagger_client.rest import ApiException
-from swagger_client.models.tenant_id import TenantId
 
 
 class TestTenantId(unittest.TestCase):
-    """ TenantId unit test stubs """
+    """TenantId unit test stubs"""
 
     def setUp(self):
         pass
@@ -32,11 +30,9 @@ class TestTenantId(unittest.TestCase):
         pass
 
     def testTenantId(self):
-        """
-        Test TenantId
-        """
+        """Test TenantId"""
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.tenant_id.TenantId()
+        # model = swagger_client.models.tenant_id.TenantId()  # noqa: E501
         pass
 
 

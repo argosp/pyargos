@@ -3,7 +3,7 @@
 """
     Thingsboard REST API
 
-    For instructions how to authorize requests please visit <a href='http://thingsboard.io/docs/reference/rest-api/'>REST API documentation page</a>.
+    For instructions how to authorize requests please visit <a href='http://thingsboard.io/docs/reference/rest-api/'>REST API documentation page</a>.  # noqa: E501
 
     OpenAPI spec version: 2.0
     Contact: info@thingsboard.io
@@ -13,17 +13,15 @@
 
 from __future__ import absolute_import
 
-import os
-import sys
 import unittest
 
 import swagger_client
+from swagger_client.models.text_page_data_dashboard_info import TextPageDataDashboardInfo  # noqa: E501
 from swagger_client.rest import ApiException
-from swagger_client.models.text_page_data_dashboard_info import TextPageDataDashboardInfo
 
 
 class TestTextPageDataDashboardInfo(unittest.TestCase):
-    """ TextPageDataDashboardInfo unit test stubs """
+    """TextPageDataDashboardInfo unit test stubs"""
 
     def setUp(self):
         pass
@@ -32,11 +30,9 @@ class TestTextPageDataDashboardInfo(unittest.TestCase):
         pass
 
     def testTextPageDataDashboardInfo(self):
-        """
-        Test TextPageDataDashboardInfo
-        """
+        """Test TextPageDataDashboardInfo"""
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.text_page_data_dashboard_info.TextPageDataDashboardInfo()
+        # model = swagger_client.models.text_page_data_dashboard_info.TextPageDataDashboardInfo()  # noqa: E501
         pass
 
 

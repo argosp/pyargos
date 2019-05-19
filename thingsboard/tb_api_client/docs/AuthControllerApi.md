@@ -1,24 +1,24 @@
 # swagger_client.AuthControllerApi
 
-All URIs are relative to *http://localhost:8080*
+All URIs are relative to *https://127.0.0.1:8080*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**activate_user_using_post**](AuthControllerApi.md#activate_user_using_post) | **POST** /api/noauth/activate | activateUser
 [**change_password_using_post**](AuthControllerApi.md#change_password_using_post) | **POST** /api/auth/changePassword | changePassword
-[**check_activate_token_using_get**](AuthControllerApi.md#check_activate_token_using_get) | **GET** /api/noauth/activate | checkActivateToken
-[**check_reset_token_using_get**](AuthControllerApi.md#check_reset_token_using_get) | **GET** /api/noauth/resetPassword | checkResetToken
+[**check_activate_token_using_get**](AuthControllerApi.md#check_activate_token_using_get) | **GET** /api/noauth/activate{?activateToken} | checkActivateToken
+[**check_reset_token_using_get**](AuthControllerApi.md#check_reset_token_using_get) | **GET** /api/noauth/resetPassword{?resetToken} | checkResetToken
 [**get_user_using_get**](AuthControllerApi.md#get_user_using_get) | **GET** /api/auth/user | getUser
 [**request_reset_password_by_email_using_post**](AuthControllerApi.md#request_reset_password_by_email_using_post) | **POST** /api/noauth/resetPasswordByEmail | requestResetPasswordByEmail
 [**reset_password_using_post**](AuthControllerApi.md#reset_password_using_post) | **POST** /api/noauth/resetPassword | resetPassword
 
 
 # **activate_user_using_post**
-> str activate_user_using_post(activate_token, password)
+> str activate_user_using_post(activate_request)
 
 activateUser
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -28,12 +28,11 @@ from pprint import pprint
 
 # create an instance of the API class
 api_instance = swagger_client.AuthControllerApi()
-activate_token = 'activate_token_example' # str | activateToken
-password = 'password_example' # str | password
+activate_request = 'activate_request_example' # str | activateRequest
 
-try: 
+try:
     # activateUser
-    api_response = api_instance.activate_user_using_post(activate_token, password)
+    api_response = api_instance.activate_user_using_post(activate_request)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling AuthControllerApi->activate_user_using_post: %s\n" % e)
@@ -43,8 +42,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **activate_token** | **str**| activateToken | 
- **password** | **str**| password | 
+ **activate_request** | **str**| activateRequest | 
 
 ### Return type
 
@@ -62,11 +60,11 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **change_password_using_post**
-> change_password_using_post(current_password, new_password)
+> change_password_using_post(change_password_request)
 
 changePassword
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -82,12 +80,11 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 
 # create an instance of the API class
 api_instance = swagger_client.AuthControllerApi(swagger_client.ApiClient(configuration))
-current_password = 'current_password_example' # str | currentPassword
-new_password = 'new_password_example' # str | newPassword
+change_password_request = 'change_password_request_example' # str | changePasswordRequest
 
-try: 
+try:
     # changePassword
-    api_instance.change_password_using_post(current_password, new_password)
+    api_instance.change_password_using_post(change_password_request)
 except ApiException as e:
     print("Exception when calling AuthControllerApi->change_password_using_post: %s\n" % e)
 ```
@@ -96,8 +93,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **current_password** | **str**| currentPassword | 
- **new_password** | **str**| newPassword | 
+ **change_password_request** | **str**| changePasswordRequest | 
 
 ### Return type
 
@@ -119,7 +115,7 @@ void (empty response body)
 
 checkActivateToken
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -131,7 +127,7 @@ from pprint import pprint
 api_instance = swagger_client.AuthControllerApi()
 activate_token = 'activate_token_example' # str | activateToken
 
-try: 
+try:
     # checkActivateToken
     api_response = api_instance.check_activate_token_using_get(activate_token)
     pprint(api_response)
@@ -165,7 +161,7 @@ No authorization required
 
 checkResetToken
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -177,7 +173,7 @@ from pprint import pprint
 api_instance = swagger_client.AuthControllerApi()
 reset_token = 'reset_token_example' # str | resetToken
 
-try: 
+try:
     # checkResetToken
     api_response = api_instance.check_reset_token_using_get(reset_token)
     pprint(api_response)
@@ -211,7 +207,7 @@ No authorization required
 
 getUser
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -228,7 +224,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 # create an instance of the API class
 api_instance = swagger_client.AuthControllerApi(swagger_client.ApiClient(configuration))
 
-try: 
+try:
     # getUser
     api_response = api_instance.get_user_using_get()
     pprint(api_response)
@@ -255,11 +251,11 @@ This endpoint does not need any parameter.
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **request_reset_password_by_email_using_post**
-> request_reset_password_by_email_using_post(email)
+> request_reset_password_by_email_using_post(reset_password_by_email_request)
 
 requestResetPasswordByEmail
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -269,11 +265,11 @@ from pprint import pprint
 
 # create an instance of the API class
 api_instance = swagger_client.AuthControllerApi()
-email = 'email_example' # str | email
+reset_password_by_email_request = 'reset_password_by_email_request_example' # str | resetPasswordByEmailRequest
 
-try: 
+try:
     # requestResetPasswordByEmail
-    api_instance.request_reset_password_by_email_using_post(email)
+    api_instance.request_reset_password_by_email_using_post(reset_password_by_email_request)
 except ApiException as e:
     print("Exception when calling AuthControllerApi->request_reset_password_by_email_using_post: %s\n" % e)
 ```
@@ -282,7 +278,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **email** | **str**| email | 
+ **reset_password_by_email_request** | **str**| resetPasswordByEmailRequest | 
 
 ### Return type
 
@@ -300,11 +296,11 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **reset_password_using_post**
-> str reset_password_using_post(reset_token, password)
+> str reset_password_using_post(reset_password_request)
 
 resetPassword
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -314,12 +310,11 @@ from pprint import pprint
 
 # create an instance of the API class
 api_instance = swagger_client.AuthControllerApi()
-reset_token = 'reset_token_example' # str | resetToken
-password = 'password_example' # str | password
+reset_password_request = 'reset_password_request_example' # str | resetPasswordRequest
 
-try: 
+try:
     # resetPassword
-    api_response = api_instance.reset_password_using_post(reset_token, password)
+    api_response = api_instance.reset_password_using_post(reset_password_request)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling AuthControllerApi->reset_password_using_post: %s\n" % e)
@@ -329,8 +324,7 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **reset_token** | **str**| resetToken | 
- **password** | **str**| password | 
+ **reset_password_request** | **str**| resetPasswordRequest | 
 
 ### Return type
 

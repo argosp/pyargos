@@ -3,7 +3,7 @@
 """
     Thingsboard REST API
 
-    For instructions how to authorize requests please visit <a href='http://thingsboard.io/docs/reference/rest-api/'>REST API documentation page</a>.
+    For instructions how to authorize requests please visit <a href='http://thingsboard.io/docs/reference/rest-api/'>REST API documentation page</a>.  # noqa: E501
 
     OpenAPI spec version: 2.0
     Contact: info@thingsboard.io
@@ -13,77 +13,68 @@
 
 from __future__ import absolute_import
 
-import os
-import sys
 import unittest
 
 import swagger_client
+from swagger_client.api.device_api_controller_api import DeviceApiControllerApi  # noqa: E501
 from swagger_client.rest import ApiException
-from swagger_client.apis.device_api_controller_api import DeviceApiControllerApi
 
 
 class TestDeviceApiControllerApi(unittest.TestCase):
-    """ DeviceApiControllerApi unit test stubs """
+    """DeviceApiControllerApi unit test stubs"""
 
     def setUp(self):
-        self.api = swagger_client.apis.device_api_controller_api.DeviceApiControllerApi()
+        self.api = swagger_client.api.device_api_controller_api.DeviceApiControllerApi()  # noqa: E501
 
     def tearDown(self):
         pass
 
     def test_get_device_attributes_using_get(self):
-        """
-        Test case for get_device_attributes_using_get
+        """Test case for get_device_attributes_using_get
 
-        getDeviceAttributes
+        getDeviceAttributes  # noqa: E501
         """
         pass
 
     def test_post_device_attributes_using_post(self):
-        """
-        Test case for post_device_attributes_using_post
+        """Test case for post_device_attributes_using_post
 
-        postDeviceAttributes
+        postDeviceAttributes  # noqa: E501
         """
         pass
 
     def test_post_rpc_request_using_post(self):
-        """
-        Test case for post_rpc_request_using_post
+        """Test case for post_rpc_request_using_post
 
-        postRpcRequest
+        postRpcRequest  # noqa: E501
         """
         pass
 
     def test_post_telemetry_using_post(self):
-        """
-        Test case for post_telemetry_using_post
+        """Test case for post_telemetry_using_post
 
-        postTelemetry
+        postTelemetry  # noqa: E501
         """
         pass
 
     def test_reply_to_command_using_post(self):
-        """
-        Test case for reply_to_command_using_post
+        """Test case for reply_to_command_using_post
 
-        replyToCommand
+        replyToCommand  # noqa: E501
         """
         pass
 
     def test_subscribe_to_attributes_using_get(self):
-        """
-        Test case for subscribe_to_attributes_using_get
+        """Test case for subscribe_to_attributes_using_get
 
-        subscribeToAttributes
+        subscribeToAttributes  # noqa: E501
         """
         pass
 
     def test_subscribe_to_commands_using_get(self):
-        """
-        Test case for subscribe_to_commands_using_get
+        """Test case for subscribe_to_commands_using_get
 
-        subscribeToCommands
+        subscribeToCommands  # noqa: E501
         """
         pass
 
