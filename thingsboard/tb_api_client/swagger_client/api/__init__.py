@@ -3,7 +3,7 @@ from __future__ import absolute_import
 # flake8: noqa
 
 # import apis into api package
-from swagger_client.api.admin_controller_api import AdminControllerApi
+from ..api.admin_controller_api import AdminControllerApi
 from swagger_client.api.alarm_controller_api import AlarmControllerApi
 from swagger_client.api.asset_controller_api import AssetControllerApi
 from swagger_client.api.audit_log_controller_api import AuditLogControllerApi
