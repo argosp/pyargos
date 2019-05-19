@@ -1,0 +1,25 @@
+from __future__ import absolute_import
+
+# flake8: noqa
+
+# import apis into api package
+from swagger_client.api.admin_controller_api import AdminControllerApi
+from swagger_client.api.alarm_controller_api import AlarmControllerApi
+from swagger_client.api.asset_controller_api import AssetControllerApi
+from swagger_client.api.audit_log_controller_api import AuditLogControllerApi
+from swagger_client.api.auth_controller_api import AuthControllerApi
+from swagger_client.api.component_descriptor_controller_api import ComponentDescriptorControllerApi
+from swagger_client.api.customer_controller_api import CustomerControllerApi
+from swagger_client.api.dashboard_controller_api import DashboardControllerApi
+from swagger_client.api.device_api_controller_api import DeviceApiControllerApi
+from swagger_client.api.device_controller_api import DeviceControllerApi
+from swagger_client.api.entity_relation_controller_api import EntityRelationControllerApi
+from swagger_client.api.entity_view_controller_api import EntityViewControllerApi
+from swagger_client.api.event_controller_api import EventControllerApi
+from swagger_client.api.rpc_controller_api import RpcControllerApi
+from swagger_client.api.rule_chain_controller_api import RuleChainControllerApi
+from swagger_client.api.telemetry_controller_api import TelemetryControllerApi
+from swagger_client.api.tenant_controller_api import TenantControllerApi
+from swagger_client.api.user_controller_api import UserControllerApi
+from swagger_client.api.widget_type_controller_api import WidgetTypeControllerApi
+from swagger_client.api.widgets_bundle_controller_api import WidgetsBundleControllerApi
