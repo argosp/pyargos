@@ -3,7 +3,7 @@
 """
     Thingsboard REST API
 
-    For instructions how to authorize requests please visit <a href='http://thingsboard.io/docs/reference/rest-api/'>REST API documentation page</a>.
+    For instructions how to authorize requests please visit <a href='http://thingsboard.io/docs/reference/rest-api/'>REST API documentation page</a>.  # noqa: E501
 
     OpenAPI spec version: 2.0
     Contact: info@thingsboard.io
@@ -13,53 +13,47 @@
 
 from __future__ import absolute_import
 
-import os
-import sys
 import unittest
 
 import swagger_client
+from swagger_client.api.admin_controller_api import AdminControllerApi  # noqa: E501
 from swagger_client.rest import ApiException
-from swagger_client.apis.admin_controller_api import AdminControllerApi
 
 
 class TestAdminControllerApi(unittest.TestCase):
-    """ AdminControllerApi unit test stubs """
+    """AdminControllerApi unit test stubs"""
 
     def setUp(self):
-        self.api = swagger_client.apis.admin_controller_api.AdminControllerApi()
+        self.api = swagger_client.api.admin_controller_api.AdminControllerApi()  # noqa: E501
 
     def tearDown(self):
         pass
 
     def test_check_updates_using_get(self):
-        """
-        Test case for check_updates_using_get
+        """Test case for check_updates_using_get
 
-        checkUpdates
+        checkUpdates  # noqa: E501
         """
         pass
 
     def test_get_admin_settings_using_get(self):
-        """
-        Test case for get_admin_settings_using_get
+        """Test case for get_admin_settings_using_get
 
-        getAdminSettings
+        getAdminSettings  # noqa: E501
         """
         pass
 
     def test_save_admin_settings_using_post(self):
-        """
-        Test case for save_admin_settings_using_post
+        """Test case for save_admin_settings_using_post
 
-        saveAdminSettings
+        saveAdminSettings  # noqa: E501
         """
         pass
 
     def test_send_test_mail_using_post(self):
-        """
-        Test case for send_test_mail_using_post
+        """Test case for send_test_mail_using_post
 
-        sendTestMail
+        sendTestMail  # noqa: E501
         """
         pass
 

@@ -1,12 +1,12 @@
 # swagger_client.ComponentDescriptorControllerApi
 
-All URIs are relative to *http://localhost:8080*
+All URIs are relative to *https://127.0.0.1:8080*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**get_component_descriptor_by_clazz_using_get**](ComponentDescriptorControllerApi.md#get_component_descriptor_by_clazz_using_get) | **GET** /api/component/{componentDescriptorClazz} | getComponentDescriptorByClazz
 [**get_component_descriptors_by_type_using_get**](ComponentDescriptorControllerApi.md#get_component_descriptors_by_type_using_get) | **GET** /api/components/{componentType} | getComponentDescriptorsByType
-[**get_plugin_actions_by_plugin_clazz_using_get**](ComponentDescriptorControllerApi.md#get_plugin_actions_by_plugin_clazz_using_get) | **GET** /api/components/actions/{pluginClazz} | getPluginActionsByPluginClazz
+[**get_component_descriptors_by_types_using_get**](ComponentDescriptorControllerApi.md#get_component_descriptors_by_types_using_get) | **GET** /api/components{?componentTypes} | getComponentDescriptorsByTypes
 
 
 # **get_component_descriptor_by_clazz_using_get**
@@ -14,7 +14,7 @@ Method | HTTP request | Description
 
 getComponentDescriptorByClazz
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -32,7 +32,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.ComponentDescriptorControllerApi(swagger_client.ApiClient(configuration))
 component_descriptor_clazz = 'component_descriptor_clazz_example' # str | componentDescriptorClazz
 
-try: 
+try:
     # getComponentDescriptorByClazz
     api_response = api_instance.get_component_descriptor_by_clazz_using_get(component_descriptor_clazz)
     pprint(api_response)
@@ -66,7 +66,7 @@ Name | Type | Description  | Notes
 
 getComponentDescriptorsByType
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -84,7 +84,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.ComponentDescriptorControllerApi(swagger_client.ApiClient(configuration))
 component_type = 'component_type_example' # str | componentType
 
-try: 
+try:
     # getComponentDescriptorsByType
     api_response = api_instance.get_component_descriptors_by_type_using_get(component_type)
     pprint(api_response)
@@ -113,12 +113,12 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **get_plugin_actions_by_plugin_clazz_using_get**
-> list[ComponentDescriptor] get_plugin_actions_by_plugin_clazz_using_get(plugin_clazz)
+# **get_component_descriptors_by_types_using_get**
+> list[ComponentDescriptor] get_component_descriptors_by_types_using_get(component_types)
 
-getPluginActionsByPluginClazz
+getComponentDescriptorsByTypes
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -134,21 +134,21 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 
 # create an instance of the API class
 api_instance = swagger_client.ComponentDescriptorControllerApi(swagger_client.ApiClient(configuration))
-plugin_clazz = 'plugin_clazz_example' # str | pluginClazz
+component_types = 'component_types_example' # str | componentTypes
 
-try: 
-    # getPluginActionsByPluginClazz
-    api_response = api_instance.get_plugin_actions_by_plugin_clazz_using_get(plugin_clazz)
+try:
+    # getComponentDescriptorsByTypes
+    api_response = api_instance.get_component_descriptors_by_types_using_get(component_types)
     pprint(api_response)
 except ApiException as e:
-    print("Exception when calling ComponentDescriptorControllerApi->get_plugin_actions_by_plugin_clazz_using_get: %s\n" % e)
+    print("Exception when calling ComponentDescriptorControllerApi->get_component_descriptors_by_types_using_get: %s\n" % e)
 ```
 
 ### Parameters
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **plugin_clazz** | **str**| pluginClazz | 
+ **component_types** | **str**| componentTypes | 
 
 ### Return type
 

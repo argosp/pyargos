@@ -1,6 +1,6 @@
 # swagger_client.DeviceControllerApi
 
-All URIs are relative to *http://localhost:8080*
+All URIs are relative to *https://127.0.0.1:8080*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
@@ -8,12 +8,13 @@ Method | HTTP request | Description
 [**assign_device_to_public_customer_using_post**](DeviceControllerApi.md#assign_device_to_public_customer_using_post) | **POST** /api/customer/public/device/{deviceId} | assignDeviceToPublicCustomer
 [**delete_device_using_delete**](DeviceControllerApi.md#delete_device_using_delete) | **DELETE** /api/device/{deviceId} | deleteDevice
 [**find_by_query_using_post1**](DeviceControllerApi.md#find_by_query_using_post1) | **POST** /api/devices | findByQuery
-[**get_customer_devices_using_get**](DeviceControllerApi.md#get_customer_devices_using_get) | **GET** /api/customer/{customerId}/devices | getCustomerDevices
+[**get_customer_devices_using_get**](DeviceControllerApi.md#get_customer_devices_using_get) | **GET** /api/customer/{customerId}/devices{?type,textSearch,idOffset,textOffset,limit} | getCustomerDevices
 [**get_device_by_id_using_get**](DeviceControllerApi.md#get_device_by_id_using_get) | **GET** /api/device/{deviceId} | getDeviceById
 [**get_device_credentials_by_device_id_using_get**](DeviceControllerApi.md#get_device_credentials_by_device_id_using_get) | **GET** /api/device/{deviceId}/credentials | getDeviceCredentialsByDeviceId
 [**get_device_types_using_get**](DeviceControllerApi.md#get_device_types_using_get) | **GET** /api/device/types | getDeviceTypes
-[**get_devices_by_ids_using_get**](DeviceControllerApi.md#get_devices_by_ids_using_get) | **GET** /api/devices | getDevicesByIds
-[**get_tenant_device_using_get**](DeviceControllerApi.md#get_tenant_device_using_get) | **GET** /api/tenant/devices | getTenantDevice
+[**get_devices_by_ids_using_get**](DeviceControllerApi.md#get_devices_by_ids_using_get) | **GET** /api/devices{?deviceIds} | getDevicesByIds
+[**get_tenant_device_using_get**](DeviceControllerApi.md#get_tenant_device_using_get) | **GET** /api/tenant/devices{?deviceName} | getTenantDevice
+[**get_tenant_devices_using_get**](DeviceControllerApi.md#get_tenant_devices_using_get) | **GET** /api/tenant/devices{?type,textSearch,idOffset,textOffset,limit} | getTenantDevices
 [**save_device_credentials_using_post**](DeviceControllerApi.md#save_device_credentials_using_post) | **POST** /api/device/credentials | saveDeviceCredentials
 [**save_device_using_post**](DeviceControllerApi.md#save_device_using_post) | **POST** /api/device | saveDevice
 [**unassign_device_from_customer_using_delete**](DeviceControllerApi.md#unassign_device_from_customer_using_delete) | **DELETE** /api/customer/device/{deviceId} | unassignDeviceFromCustomer
@@ -24,7 +25,7 @@ Method | HTTP request | Description
 
 assignDeviceToCustomer
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -43,7 +44,7 @@ api_instance = swagger_client.DeviceControllerApi(swagger_client.ApiClient(confi
 customer_id = 'customer_id_example' # str | customerId
 device_id = 'device_id_example' # str | deviceId
 
-try: 
+try:
     # assignDeviceToCustomer
     api_response = api_instance.assign_device_to_customer_using_post(customer_id, device_id)
     pprint(api_response)
@@ -78,7 +79,7 @@ Name | Type | Description  | Notes
 
 assignDeviceToPublicCustomer
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -96,7 +97,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.DeviceControllerApi(swagger_client.ApiClient(configuration))
 device_id = 'device_id_example' # str | deviceId
 
-try: 
+try:
     # assignDeviceToPublicCustomer
     api_response = api_instance.assign_device_to_public_customer_using_post(device_id)
     pprint(api_response)
@@ -130,7 +131,7 @@ Name | Type | Description  | Notes
 
 deleteDevice
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -148,7 +149,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.DeviceControllerApi(swagger_client.ApiClient(configuration))
 device_id = 'device_id_example' # str | deviceId
 
-try: 
+try:
     # deleteDevice
     api_instance.delete_device_using_delete(device_id)
 except ApiException as e:
@@ -181,7 +182,7 @@ void (empty response body)
 
 findByQuery
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -199,7 +200,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.DeviceControllerApi(swagger_client.ApiClient(configuration))
 query = swagger_client.DeviceSearchQuery() # DeviceSearchQuery | query
 
-try: 
+try:
     # findByQuery
     api_response = api_instance.find_by_query_using_post1(query)
     pprint(api_response)
@@ -233,7 +234,7 @@ Name | Type | Description  | Notes
 
 getCustomerDevices
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -256,7 +257,7 @@ text_search = 'text_search_example' # str | textSearch (optional)
 id_offset = 'id_offset_example' # str | idOffset (optional)
 text_offset = 'text_offset_example' # str | textOffset (optional)
 
-try: 
+try:
     # getCustomerDevices
     api_response = api_instance.get_customer_devices_using_get(customer_id, limit, type=type, text_search=text_search, id_offset=id_offset, text_offset=text_offset)
     pprint(api_response)
@@ -295,7 +296,7 @@ Name | Type | Description  | Notes
 
 getDeviceById
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -313,7 +314,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.DeviceControllerApi(swagger_client.ApiClient(configuration))
 device_id = 'device_id_example' # str | deviceId
 
-try: 
+try:
     # getDeviceById
     api_response = api_instance.get_device_by_id_using_get(device_id)
     pprint(api_response)
@@ -347,7 +348,7 @@ Name | Type | Description  | Notes
 
 getDeviceCredentialsByDeviceId
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -365,7 +366,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.DeviceControllerApi(swagger_client.ApiClient(configuration))
 device_id = 'device_id_example' # str | deviceId
 
-try: 
+try:
     # getDeviceCredentialsByDeviceId
     api_response = api_instance.get_device_credentials_by_device_id_using_get(device_id)
     pprint(api_response)
@@ -399,7 +400,7 @@ Name | Type | Description  | Notes
 
 getDeviceTypes
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -416,7 +417,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 # create an instance of the API class
 api_instance = swagger_client.DeviceControllerApi(swagger_client.ApiClient(configuration))
 
-try: 
+try:
     # getDeviceTypes
     api_response = api_instance.get_device_types_using_get()
     pprint(api_response)
@@ -447,7 +448,7 @@ This endpoint does not need any parameter.
 
 getDevicesByIds
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -465,7 +466,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.DeviceControllerApi(swagger_client.ApiClient(configuration))
 device_ids = 'device_ids_example' # str | deviceIds
 
-try: 
+try:
     # getDevicesByIds
     api_response = api_instance.get_devices_by_ids_using_get(device_ids)
     pprint(api_response)
@@ -499,7 +500,7 @@ Name | Type | Description  | Notes
 
 getTenantDevice
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -517,7 +518,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.DeviceControllerApi(swagger_client.ApiClient(configuration))
 device_name = 'device_name_example' # str | deviceName
 
-try: 
+try:
     # getTenantDevice
     api_response = api_instance.get_tenant_device_using_get(device_name)
     pprint(api_response)
@@ -546,12 +547,72 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **get_tenant_devices_using_get**
+> TextPageDataDevice get_tenant_devices_using_get(limit, type=type, text_search=text_search, id_offset=id_offset, text_offset=text_offset)
+
+getTenantDevices
+
+### Example
+```python
+from __future__ import print_function
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# Configure API key authorization: X-Authorization
+configuration = swagger_client.Configuration()
+configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['X-Authorization'] = 'Bearer'
+
+# create an instance of the API class
+api_instance = swagger_client.DeviceControllerApi(swagger_client.ApiClient(configuration))
+limit = 'limit_example' # str | limit
+type = 'type_example' # str | type (optional)
+text_search = 'text_search_example' # str | textSearch (optional)
+id_offset = 'id_offset_example' # str | idOffset (optional)
+text_offset = 'text_offset_example' # str | textOffset (optional)
+
+try:
+    # getTenantDevices
+    api_response = api_instance.get_tenant_devices_using_get(limit, type=type, text_search=text_search, id_offset=id_offset, text_offset=text_offset)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling DeviceControllerApi->get_tenant_devices_using_get: %s\n" % e)
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **limit** | **str**| limit | 
+ **type** | **str**| type | [optional] 
+ **text_search** | **str**| textSearch | [optional] 
+ **id_offset** | **str**| idOffset | [optional] 
+ **text_offset** | **str**| textOffset | [optional] 
+
+### Return type
+
+[**TextPageDataDevice**](TextPageDataDevice.md)
+
+### Authorization
+
+[X-Authorization](../README.md#X-Authorization)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: */*
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **save_device_credentials_using_post**
 > DeviceCredentials save_device_credentials_using_post(device_credentials)
 
 saveDeviceCredentials
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -569,7 +630,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.DeviceControllerApi(swagger_client.ApiClient(configuration))
 device_credentials = swagger_client.DeviceCredentials() # DeviceCredentials | deviceCredentials
 
-try: 
+try:
     # saveDeviceCredentials
     api_response = api_instance.save_device_credentials_using_post(device_credentials)
     pprint(api_response)
@@ -603,7 +664,7 @@ Name | Type | Description  | Notes
 
 saveDevice
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -621,7 +682,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.DeviceControllerApi(swagger_client.ApiClient(configuration))
 device = swagger_client.Device() # Device | device
 
-try: 
+try:
     # saveDevice
     api_response = api_instance.save_device_using_post(device)
     pprint(api_response)
@@ -655,7 +716,7 @@ Name | Type | Description  | Notes
 
 unassignDeviceFromCustomer
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -673,7 +734,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.DeviceControllerApi(swagger_client.ApiClient(configuration))
 device_id = 'device_id_example' # str | deviceId
 
-try: 
+try:
     # unassignDeviceFromCustomer
     api_response = api_instance.unassign_device_from_customer_using_delete(device_id)
     pprint(api_response)

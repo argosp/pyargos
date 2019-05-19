@@ -1,13 +1,13 @@
 # swagger_client.WidgetTypeControllerApi
 
-All URIs are relative to *http://localhost:8080*
+All URIs are relative to *https://127.0.0.1:8080*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**delete_widget_type_using_delete**](WidgetTypeControllerApi.md#delete_widget_type_using_delete) | **DELETE** /api/widgetType/{widgetTypeId} | deleteWidgetType
-[**get_bundle_widget_types_using_get**](WidgetTypeControllerApi.md#get_bundle_widget_types_using_get) | **GET** /api/widgetTypes | getBundleWidgetTypes
+[**get_bundle_widget_types_using_get**](WidgetTypeControllerApi.md#get_bundle_widget_types_using_get) | **GET** /api/widgetTypes{?isSystem,bundleAlias} | getBundleWidgetTypes
 [**get_widget_type_by_id_using_get**](WidgetTypeControllerApi.md#get_widget_type_by_id_using_get) | **GET** /api/widgetType/{widgetTypeId} | getWidgetTypeById
-[**get_widget_type_using_get**](WidgetTypeControllerApi.md#get_widget_type_using_get) | **GET** /api/widgetType | getWidgetType
+[**get_widget_type_using_get**](WidgetTypeControllerApi.md#get_widget_type_using_get) | **GET** /api/widgetType{?isSystem,bundleAlias,alias} | getWidgetType
 [**save_widget_type_using_post**](WidgetTypeControllerApi.md#save_widget_type_using_post) | **POST** /api/widgetType | saveWidgetType
 
 
@@ -16,7 +16,7 @@ Method | HTTP request | Description
 
 deleteWidgetType
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -34,7 +34,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.WidgetTypeControllerApi(swagger_client.ApiClient(configuration))
 widget_type_id = 'widget_type_id_example' # str | widgetTypeId
 
-try: 
+try:
     # deleteWidgetType
     api_instance.delete_widget_type_using_delete(widget_type_id)
 except ApiException as e:
@@ -67,7 +67,7 @@ void (empty response body)
 
 getBundleWidgetTypes
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -86,7 +86,7 @@ api_instance = swagger_client.WidgetTypeControllerApi(swagger_client.ApiClient(c
 is_system = 'is_system_example' # str | isSystem
 bundle_alias = 'bundle_alias_example' # str | bundleAlias
 
-try: 
+try:
     # getBundleWidgetTypes
     api_response = api_instance.get_bundle_widget_types_using_get(is_system, bundle_alias)
     pprint(api_response)
@@ -121,7 +121,7 @@ Name | Type | Description  | Notes
 
 getWidgetTypeById
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -139,7 +139,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.WidgetTypeControllerApi(swagger_client.ApiClient(configuration))
 widget_type_id = 'widget_type_id_example' # str | widgetTypeId
 
-try: 
+try:
     # getWidgetTypeById
     api_response = api_instance.get_widget_type_by_id_using_get(widget_type_id)
     pprint(api_response)
@@ -173,7 +173,7 @@ Name | Type | Description  | Notes
 
 getWidgetType
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -193,7 +193,7 @@ is_system = 'is_system_example' # str | isSystem
 bundle_alias = 'bundle_alias_example' # str | bundleAlias
 alias = 'alias_example' # str | alias
 
-try: 
+try:
     # getWidgetType
     api_response = api_instance.get_widget_type_using_get(is_system, bundle_alias, alias)
     pprint(api_response)
@@ -229,7 +229,7 @@ Name | Type | Description  | Notes
 
 saveWidgetType
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -247,7 +247,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.WidgetTypeControllerApi(swagger_client.ApiClient(configuration))
 widget_type = swagger_client.WidgetType() # WidgetType | widgetType
 
-try: 
+try:
     # saveWidgetType
     api_response = api_instance.save_widget_type_using_post(widget_type)
     pprint(api_response)

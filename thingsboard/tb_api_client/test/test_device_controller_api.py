@@ -3,7 +3,7 @@
 """
     Thingsboard REST API
 
-    For instructions how to authorize requests please visit <a href='http://thingsboard.io/docs/reference/rest-api/'>REST API documentation page</a>.
+    For instructions how to authorize requests please visit <a href='http://thingsboard.io/docs/reference/rest-api/'>REST API documentation page</a>.  # noqa: E501
 
     OpenAPI spec version: 2.0
     Contact: info@thingsboard.io
@@ -13,125 +13,117 @@
 
 from __future__ import absolute_import
 
-import os
-import sys
 import unittest
 
 import swagger_client
+from swagger_client.api.device_controller_api import DeviceControllerApi  # noqa: E501
 from swagger_client.rest import ApiException
-from swagger_client.apis.device_controller_api import DeviceControllerApi
 
 
 class TestDeviceControllerApi(unittest.TestCase):
-    """ DeviceControllerApi unit test stubs """
+    """DeviceControllerApi unit test stubs"""
 
     def setUp(self):
-        self.api = swagger_client.apis.device_controller_api.DeviceControllerApi()
+        self.api = swagger_client.api.device_controller_api.DeviceControllerApi()  # noqa: E501
 
     def tearDown(self):
         pass
 
     def test_assign_device_to_customer_using_post(self):
-        """
-        Test case for assign_device_to_customer_using_post
+        """Test case for assign_device_to_customer_using_post
 
-        assignDeviceToCustomer
+        assignDeviceToCustomer  # noqa: E501
         """
         pass
 
     def test_assign_device_to_public_customer_using_post(self):
-        """
-        Test case for assign_device_to_public_customer_using_post
+        """Test case for assign_device_to_public_customer_using_post
 
-        assignDeviceToPublicCustomer
+        assignDeviceToPublicCustomer  # noqa: E501
         """
         pass
 
     def test_delete_device_using_delete(self):
-        """
-        Test case for delete_device_using_delete
+        """Test case for delete_device_using_delete
 
-        deleteDevice
+        deleteDevice  # noqa: E501
         """
         pass
 
     def test_find_by_query_using_post1(self):
-        """
-        Test case for find_by_query_using_post1
+        """Test case for find_by_query_using_post1
 
-        findByQuery
+        findByQuery  # noqa: E501
         """
         pass
 
     def test_get_customer_devices_using_get(self):
-        """
-        Test case for get_customer_devices_using_get
+        """Test case for get_customer_devices_using_get
 
-        getCustomerDevices
+        getCustomerDevices  # noqa: E501
         """
         pass
 
     def test_get_device_by_id_using_get(self):
-        """
-        Test case for get_device_by_id_using_get
+        """Test case for get_device_by_id_using_get
 
-        getDeviceById
+        getDeviceById  # noqa: E501
         """
         pass
 
     def test_get_device_credentials_by_device_id_using_get(self):
-        """
-        Test case for get_device_credentials_by_device_id_using_get
+        """Test case for get_device_credentials_by_device_id_using_get
 
-        getDeviceCredentialsByDeviceId
+        getDeviceCredentialsByDeviceId  # noqa: E501
         """
         pass
 
     def test_get_device_types_using_get(self):
-        """
-        Test case for get_device_types_using_get
+        """Test case for get_device_types_using_get
 
-        getDeviceTypes
+        getDeviceTypes  # noqa: E501
         """
         pass
 
     def test_get_devices_by_ids_using_get(self):
-        """
-        Test case for get_devices_by_ids_using_get
+        """Test case for get_devices_by_ids_using_get
 
-        getDevicesByIds
+        getDevicesByIds  # noqa: E501
         """
         pass
 
     def test_get_tenant_device_using_get(self):
-        """
-        Test case for get_tenant_device_using_get
+        """Test case for get_tenant_device_using_get
 
-        getTenantDevice
+        getTenantDevice  # noqa: E501
+        """
+        pass
+
+    def test_get_tenant_devices_using_get(self):
+        """Test case for get_tenant_devices_using_get
+
+        getTenantDevices  # noqa: E501
         """
         pass
 
     def test_save_device_credentials_using_post(self):
-        """
-        Test case for save_device_credentials_using_post
+        """Test case for save_device_credentials_using_post
 
-        saveDeviceCredentials
+        saveDeviceCredentials  # noqa: E501
         """
         pass
 
     def test_save_device_using_post(self):
-        """
-        Test case for save_device_using_post
+        """Test case for save_device_using_post
 
-        saveDevice
+        saveDevice  # noqa: E501
         """
         pass
 
     def test_unassign_device_from_customer_using_delete(self):
-        """
-        Test case for unassign_device_from_customer_using_delete
+        """Test case for unassign_device_from_customer_using_delete
 
-        unassignDeviceFromCustomer
+        unassignDeviceFromCustomer  # noqa: E501
         """
         pass
 

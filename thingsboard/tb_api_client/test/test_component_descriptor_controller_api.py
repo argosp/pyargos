@@ -3,7 +3,7 @@
 """
     Thingsboard REST API
 
-    For instructions how to authorize requests please visit <a href='http://thingsboard.io/docs/reference/rest-api/'>REST API documentation page</a>.
+    For instructions how to authorize requests please visit <a href='http://thingsboard.io/docs/reference/rest-api/'>REST API documentation page</a>.  # noqa: E501
 
     OpenAPI spec version: 2.0
     Contact: info@thingsboard.io
@@ -13,45 +13,40 @@
 
 from __future__ import absolute_import
 
-import os
-import sys
 import unittest
 
 import swagger_client
+from swagger_client.api.component_descriptor_controller_api import ComponentDescriptorControllerApi  # noqa: E501
 from swagger_client.rest import ApiException
-from swagger_client.apis.component_descriptor_controller_api import ComponentDescriptorControllerApi
 
 
 class TestComponentDescriptorControllerApi(unittest.TestCase):
-    """ ComponentDescriptorControllerApi unit test stubs """
+    """ComponentDescriptorControllerApi unit test stubs"""
 
     def setUp(self):
-        self.api = swagger_client.apis.component_descriptor_controller_api.ComponentDescriptorControllerApi()
+        self.api = swagger_client.api.component_descriptor_controller_api.ComponentDescriptorControllerApi()  # noqa: E501
 
     def tearDown(self):
         pass
 
     def test_get_component_descriptor_by_clazz_using_get(self):
-        """
-        Test case for get_component_descriptor_by_clazz_using_get
+        """Test case for get_component_descriptor_by_clazz_using_get
 
-        getComponentDescriptorByClazz
+        getComponentDescriptorByClazz  # noqa: E501
         """
         pass
 
     def test_get_component_descriptors_by_type_using_get(self):
-        """
-        Test case for get_component_descriptors_by_type_using_get
+        """Test case for get_component_descriptors_by_type_using_get
 
-        getComponentDescriptorsByType
+        getComponentDescriptorsByType  # noqa: E501
         """
         pass
 
-    def test_get_plugin_actions_by_plugin_clazz_using_get(self):
-        """
-        Test case for get_plugin_actions_by_plugin_clazz_using_get
+    def test_get_component_descriptors_by_types_using_get(self):
+        """Test case for get_component_descriptors_by_types_using_get
 
-        getPluginActionsByPluginClazz
+        getComponentDescriptorsByTypes  # noqa: E501
         """
         pass
 

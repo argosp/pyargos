@@ -1,16 +1,16 @@
 # swagger_client.DeviceApiControllerApi
 
-All URIs are relative to *http://localhost:8080*
+All URIs are relative to *https://127.0.0.1:8080*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**get_device_attributes_using_get**](DeviceApiControllerApi.md#get_device_attributes_using_get) | **GET** /api/v1/{deviceToken}/attributes | getDeviceAttributes
+[**get_device_attributes_using_get**](DeviceApiControllerApi.md#get_device_attributes_using_get) | **GET** /api/v1/{deviceToken}/attributes{?clientKeys,sharedKeys} | getDeviceAttributes
 [**post_device_attributes_using_post**](DeviceApiControllerApi.md#post_device_attributes_using_post) | **POST** /api/v1/{deviceToken}/attributes | postDeviceAttributes
 [**post_rpc_request_using_post**](DeviceApiControllerApi.md#post_rpc_request_using_post) | **POST** /api/v1/{deviceToken}/rpc | postRpcRequest
 [**post_telemetry_using_post**](DeviceApiControllerApi.md#post_telemetry_using_post) | **POST** /api/v1/{deviceToken}/telemetry | postTelemetry
 [**reply_to_command_using_post**](DeviceApiControllerApi.md#reply_to_command_using_post) | **POST** /api/v1/{deviceToken}/rpc/{requestId} | replyToCommand
-[**subscribe_to_attributes_using_get**](DeviceApiControllerApi.md#subscribe_to_attributes_using_get) | **GET** /api/v1/{deviceToken}/attributes/updates | subscribeToAttributes
-[**subscribe_to_commands_using_get**](DeviceApiControllerApi.md#subscribe_to_commands_using_get) | **GET** /api/v1/{deviceToken}/rpc | subscribeToCommands
+[**subscribe_to_attributes_using_get**](DeviceApiControllerApi.md#subscribe_to_attributes_using_get) | **GET** /api/v1/{deviceToken}/attributes/updates{?timeout} | subscribeToAttributes
+[**subscribe_to_commands_using_get**](DeviceApiControllerApi.md#subscribe_to_commands_using_get) | **GET** /api/v1/{deviceToken}/rpc{?timeout} | subscribeToCommands
 
 
 # **get_device_attributes_using_get**
@@ -18,7 +18,7 @@ Method | HTTP request | Description
 
 getDeviceAttributes
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -38,7 +38,7 @@ device_token = 'device_token_example' # str | deviceToken
 client_keys = 'client_keys_example' # str | clientKeys (optional)
 shared_keys = 'shared_keys_example' # str | sharedKeys (optional)
 
-try: 
+try:
     # getDeviceAttributes
     api_response = api_instance.get_device_attributes_using_get(device_token, client_keys=client_keys, shared_keys=shared_keys)
     pprint(api_response)
@@ -74,7 +74,7 @@ Name | Type | Description  | Notes
 
 postDeviceAttributes
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -93,7 +93,7 @@ api_instance = swagger_client.DeviceApiControllerApi(swagger_client.ApiClient(co
 device_token = 'device_token_example' # str | deviceToken
 json = 'json_example' # str | json
 
-try: 
+try:
     # postDeviceAttributes
     api_response = api_instance.post_device_attributes_using_post(device_token, json)
     pprint(api_response)
@@ -128,7 +128,7 @@ Name | Type | Description  | Notes
 
 postRpcRequest
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -147,7 +147,7 @@ api_instance = swagger_client.DeviceApiControllerApi(swagger_client.ApiClient(co
 device_token = 'device_token_example' # str | deviceToken
 json = 'json_example' # str | json
 
-try: 
+try:
     # postRpcRequest
     api_response = api_instance.post_rpc_request_using_post(device_token, json)
     pprint(api_response)
@@ -182,7 +182,7 @@ Name | Type | Description  | Notes
 
 postTelemetry
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -201,7 +201,7 @@ api_instance = swagger_client.DeviceApiControllerApi(swagger_client.ApiClient(co
 device_token = 'device_token_example' # str | deviceToken
 json = 'json_example' # str | json
 
-try: 
+try:
     # postTelemetry
     api_response = api_instance.post_telemetry_using_post(device_token, json)
     pprint(api_response)
@@ -236,7 +236,7 @@ Name | Type | Description  | Notes
 
 replyToCommand
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -256,7 +256,7 @@ device_token = 'device_token_example' # str | deviceToken
 request_id = 56 # int | requestId
 json = 'json_example' # str | json
 
-try: 
+try:
     # replyToCommand
     api_response = api_instance.reply_to_command_using_post(device_token, request_id, json)
     pprint(api_response)
@@ -292,7 +292,7 @@ Name | Type | Description  | Notes
 
 subscribeToAttributes
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -311,7 +311,7 @@ api_instance = swagger_client.DeviceApiControllerApi(swagger_client.ApiClient(co
 device_token = 'device_token_example' # str | deviceToken
 timeout = 0 # int | timeout (optional) (default to 0)
 
-try: 
+try:
     # subscribeToAttributes
     api_response = api_instance.subscribe_to_attributes_using_get(device_token, timeout=timeout)
     pprint(api_response)
@@ -346,7 +346,7 @@ Name | Type | Description  | Notes
 
 subscribeToCommands
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -365,7 +365,7 @@ api_instance = swagger_client.DeviceApiControllerApi(swagger_client.ApiClient(co
 device_token = 'device_token_example' # str | deviceToken
 timeout = 0 # int | timeout (optional) (default to 0)
 
-try: 
+try:
     # subscribeToCommands
     api_response = api_instance.subscribe_to_commands_using_get(device_token, timeout=timeout)
     pprint(api_response)
