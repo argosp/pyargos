@@ -3,7 +3,7 @@
 """
     Thingsboard REST API
 
-    For instructions how to authorize requests please visit <a href='http://thingsboard.io/docs/reference/rest-api/'>REST API documentation page</a>.
+    For instructions how to authorize requests please visit <a href='http://thingsboard.io/docs/reference/rest-api/'>REST API documentation page</a>.  # noqa: E501
 
     OpenAPI spec version: 2.0
     Contact: info@thingsboard.io
@@ -13,17 +13,15 @@
 
 from __future__ import absolute_import
 
-import os
-import sys
 import unittest
 
 import swagger_client
+from swagger_client.models.deferred_result_response_entity import DeferredResultResponseEntity  # noqa: E501
 from swagger_client.rest import ApiException
-from swagger_client.models.deferred_result_response_entity import DeferredResultResponseEntity
 
 
 class TestDeferredResultResponseEntity(unittest.TestCase):
-    """ DeferredResultResponseEntity unit test stubs """
+    """DeferredResultResponseEntity unit test stubs"""
 
     def setUp(self):
         pass
@@ -32,11 +30,9 @@ class TestDeferredResultResponseEntity(unittest.TestCase):
         pass
 
     def testDeferredResultResponseEntity(self):
-        """
-        Test DeferredResultResponseEntity
-        """
+        """Test DeferredResultResponseEntity"""
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.deferred_result_response_entity.DeferredResultResponseEntity()
+        # model = swagger_client.models.deferred_result_response_entity.DeferredResultResponseEntity()  # noqa: E501
         pass
 
 

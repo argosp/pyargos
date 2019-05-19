@@ -3,8 +3,8 @@
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**assigned_customers** | [**list[ShortCustomerInfo]**](ShortCustomerInfo.md) |  | [optional] 
 **created_time** | **int** |  | [optional] 
-**customer_id** | [**CustomerId**](CustomerId.md) |  | [optional] 
 **id** | [**DashboardId**](DashboardId.md) |  | [optional] 
 **name** | **str** |  | [optional] 
 **tenant_id** | [**TenantId**](TenantId.md) |  | [optional] 

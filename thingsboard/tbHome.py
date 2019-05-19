@@ -328,25 +328,14 @@ class tbEntityHome(dict):
 
                 if device exists, False otherwise.
         """
-        entityfuncmapping = {"asset":"assets"}
         ret = None
-        if self._entityType =="device":
-            try:
-                entitytype = entityfuncmapping.get(self._entityType, self._entityType)
-                getFunc = getattr(self._entityApi, "get_tenant_%s_using_get_with_http_info" % entitytype)
-                data, _, _ = getFunc(entityName)
-                ret = tojson(data)
-            except ApiException as e:
-                if json.loads(e.body)['errorCode'] != 32:
-                    raise e
-        else:
-            # This is an ugly workaround since the tb_api_client is old.
-            # TODO: Lior, if you know how to generate a new one from the existing API it would
-            #       make life simpler...
-            data,_,_ = self._entityApi.get_tenant_assets_using_get_with_http_info(100)
-            assetlist = tojson(data)['data']
-            ret = [x for x in assetlist if x['name'] ==entityName]
-            ret = ret[0] if len(ret)>0 else None
+        try:
+            getFunc = getattr(self._entityApi, "get_tenant_%s_using_get_with_http_info" % self._entityType)
+            data, _, _ = getFunc(entityName)
+            ret = tojson(data)
+        except ApiException as e:
+            if json.loads(e.body)['errorCode'] != 32:
+                raise e
 
         return ret
 

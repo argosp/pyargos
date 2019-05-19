@@ -3,7 +3,7 @@
 """
     Thingsboard REST API
 
-    For instructions how to authorize requests please visit <a href='http://thingsboard.io/docs/reference/rest-api/'>REST API documentation page</a>.
+    For instructions how to authorize requests please visit <a href='http://thingsboard.io/docs/reference/rest-api/'>REST API documentation page</a>.  # noqa: E501
 
     OpenAPI spec version: 2.0
     Contact: info@thingsboard.io
@@ -13,53 +13,54 @@
 
 from __future__ import absolute_import
 
-import os
-import sys
 import unittest
 
 import swagger_client
+from swagger_client.api.widgets_bundle_controller_api import WidgetsBundleControllerApi  # noqa: E501
 from swagger_client.rest import ApiException
-from swagger_client.apis.widgets_bundle_controller_api import WidgetsBundleControllerApi
 
 
 class TestWidgetsBundleControllerApi(unittest.TestCase):
-    """ WidgetsBundleControllerApi unit test stubs """
+    """WidgetsBundleControllerApi unit test stubs"""
 
     def setUp(self):
-        self.api = swagger_client.apis.widgets_bundle_controller_api.WidgetsBundleControllerApi()
+        self.api = swagger_client.api.widgets_bundle_controller_api.WidgetsBundleControllerApi()  # noqa: E501
 
     def tearDown(self):
         pass
 
     def test_delete_widgets_bundle_using_delete(self):
-        """
-        Test case for delete_widgets_bundle_using_delete
+        """Test case for delete_widgets_bundle_using_delete
 
-        deleteWidgetsBundle
+        deleteWidgetsBundle  # noqa: E501
         """
         pass
 
     def test_get_widgets_bundle_by_id_using_get(self):
-        """
-        Test case for get_widgets_bundle_by_id_using_get
+        """Test case for get_widgets_bundle_by_id_using_get
 
-        getWidgetsBundleById
+        getWidgetsBundleById  # noqa: E501
         """
         pass
 
     def test_get_widgets_bundles_using_get(self):
-        """
-        Test case for get_widgets_bundles_using_get
+        """Test case for get_widgets_bundles_using_get
 
-        getWidgetsBundles
+        getWidgetsBundles  # noqa: E501
+        """
+        pass
+
+    def test_get_widgets_bundles_using_get1(self):
+        """Test case for get_widgets_bundles_using_get1
+
+        getWidgetsBundles  # noqa: E501
         """
         pass
 
     def test_save_widgets_bundle_using_post(self):
-        """
-        Test case for save_widgets_bundle_using_post
+        """Test case for save_widgets_bundle_using_post
 
-        saveWidgetsBundle
+        saveWidgetsBundle  # noqa: E501
         """
         pass
 

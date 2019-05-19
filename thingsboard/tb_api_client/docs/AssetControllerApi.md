@@ -1,6 +1,6 @@
 # swagger_client.AssetControllerApi
 
-All URIs are relative to *http://localhost:8080*
+All URIs are relative to *https://127.0.0.1:8080*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
@@ -10,9 +10,10 @@ Method | HTTP request | Description
 [**find_by_query_using_post**](AssetControllerApi.md#find_by_query_using_post) | **POST** /api/assets | findByQuery
 [**get_asset_by_id_using_get**](AssetControllerApi.md#get_asset_by_id_using_get) | **GET** /api/asset/{assetId} | getAssetById
 [**get_asset_types_using_get**](AssetControllerApi.md#get_asset_types_using_get) | **GET** /api/asset/types | getAssetTypes
-[**get_assets_by_ids_using_get**](AssetControllerApi.md#get_assets_by_ids_using_get) | **GET** /api/assets | getAssetsByIds
-[**get_customer_assets_using_get**](AssetControllerApi.md#get_customer_assets_using_get) | **GET** /api/customer/{customerId}/assets | getCustomerAssets
-[**get_tenant_assets_using_get**](AssetControllerApi.md#get_tenant_assets_using_get) | **GET** /api/tenant/assets | getTenantAssets
+[**get_assets_by_ids_using_get**](AssetControllerApi.md#get_assets_by_ids_using_get) | **GET** /api/assets{?assetIds} | getAssetsByIds
+[**get_customer_assets_using_get**](AssetControllerApi.md#get_customer_assets_using_get) | **GET** /api/customer/{customerId}/assets{?type,textSearch,idOffset,textOffset,limit} | getCustomerAssets
+[**get_tenant_asset_using_get**](AssetControllerApi.md#get_tenant_asset_using_get) | **GET** /api/tenant/assets{?assetName} | getTenantAsset
+[**get_tenant_assets_using_get**](AssetControllerApi.md#get_tenant_assets_using_get) | **GET** /api/tenant/assets{?type,textSearch,idOffset,textOffset,limit} | getTenantAssets
 [**save_asset_using_post**](AssetControllerApi.md#save_asset_using_post) | **POST** /api/asset | saveAsset
 [**unassign_asset_from_customer_using_delete**](AssetControllerApi.md#unassign_asset_from_customer_using_delete) | **DELETE** /api/customer/asset/{assetId} | unassignAssetFromCustomer
 
@@ -22,7 +23,7 @@ Method | HTTP request | Description
 
 assignAssetToCustomer
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -41,7 +42,7 @@ api_instance = swagger_client.AssetControllerApi(swagger_client.ApiClient(config
 customer_id = 'customer_id_example' # str | customerId
 asset_id = 'asset_id_example' # str | assetId
 
-try: 
+try:
     # assignAssetToCustomer
     api_response = api_instance.assign_asset_to_customer_using_post(customer_id, asset_id)
     pprint(api_response)
@@ -76,7 +77,7 @@ Name | Type | Description  | Notes
 
 assignAssetToPublicCustomer
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -94,7 +95,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.AssetControllerApi(swagger_client.ApiClient(configuration))
 asset_id = 'asset_id_example' # str | assetId
 
-try: 
+try:
     # assignAssetToPublicCustomer
     api_response = api_instance.assign_asset_to_public_customer_using_post(asset_id)
     pprint(api_response)
@@ -128,7 +129,7 @@ Name | Type | Description  | Notes
 
 deleteAsset
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -146,7 +147,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.AssetControllerApi(swagger_client.ApiClient(configuration))
 asset_id = 'asset_id_example' # str | assetId
 
-try: 
+try:
     # deleteAsset
     api_instance.delete_asset_using_delete(asset_id)
 except ApiException as e:
@@ -179,7 +180,7 @@ void (empty response body)
 
 findByQuery
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -197,7 +198,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.AssetControllerApi(swagger_client.ApiClient(configuration))
 query = swagger_client.AssetSearchQuery() # AssetSearchQuery | query
 
-try: 
+try:
     # findByQuery
     api_response = api_instance.find_by_query_using_post(query)
     pprint(api_response)
@@ -231,7 +232,7 @@ Name | Type | Description  | Notes
 
 getAssetById
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -249,7 +250,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.AssetControllerApi(swagger_client.ApiClient(configuration))
 asset_id = 'asset_id_example' # str | assetId
 
-try: 
+try:
     # getAssetById
     api_response = api_instance.get_asset_by_id_using_get(asset_id)
     pprint(api_response)
@@ -283,7 +284,7 @@ Name | Type | Description  | Notes
 
 getAssetTypes
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -300,7 +301,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 # create an instance of the API class
 api_instance = swagger_client.AssetControllerApi(swagger_client.ApiClient(configuration))
 
-try: 
+try:
     # getAssetTypes
     api_response = api_instance.get_asset_types_using_get()
     pprint(api_response)
@@ -331,7 +332,7 @@ This endpoint does not need any parameter.
 
 getAssetsByIds
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -349,7 +350,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.AssetControllerApi(swagger_client.ApiClient(configuration))
 asset_ids = 'asset_ids_example' # str | assetIds
 
-try: 
+try:
     # getAssetsByIds
     api_response = api_instance.get_assets_by_ids_using_get(asset_ids)
     pprint(api_response)
@@ -383,7 +384,7 @@ Name | Type | Description  | Notes
 
 getCustomerAssets
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -406,7 +407,7 @@ text_search = 'text_search_example' # str | textSearch (optional)
 id_offset = 'id_offset_example' # str | idOffset (optional)
 text_offset = 'text_offset_example' # str | textOffset (optional)
 
-try: 
+try:
     # getCustomerAssets
     api_response = api_instance.get_customer_assets_using_get(customer_id, limit, type=type, text_search=text_search, id_offset=id_offset, text_offset=text_offset)
     pprint(api_response)
@@ -440,12 +441,64 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **get_tenant_asset_using_get**
+> Asset get_tenant_asset_using_get(asset_name)
+
+getTenantAsset
+
+### Example
+```python
+from __future__ import print_function
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# Configure API key authorization: X-Authorization
+configuration = swagger_client.Configuration()
+configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['X-Authorization'] = 'Bearer'
+
+# create an instance of the API class
+api_instance = swagger_client.AssetControllerApi(swagger_client.ApiClient(configuration))
+asset_name = 'asset_name_example' # str | assetName
+
+try:
+    # getTenantAsset
+    api_response = api_instance.get_tenant_asset_using_get(asset_name)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling AssetControllerApi->get_tenant_asset_using_get: %s\n" % e)
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **asset_name** | **str**| assetName | 
+
+### Return type
+
+[**Asset**](Asset.md)
+
+### Authorization
+
+[X-Authorization](../README.md#X-Authorization)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: */*
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **get_tenant_assets_using_get**
 > TextPageDataAsset get_tenant_assets_using_get(limit, type=type, text_search=text_search, id_offset=id_offset, text_offset=text_offset)
 
 getTenantAssets
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -467,7 +520,7 @@ text_search = 'text_search_example' # str | textSearch (optional)
 id_offset = 'id_offset_example' # str | idOffset (optional)
 text_offset = 'text_offset_example' # str | textOffset (optional)
 
-try: 
+try:
     # getTenantAssets
     api_response = api_instance.get_tenant_assets_using_get(limit, type=type, text_search=text_search, id_offset=id_offset, text_offset=text_offset)
     pprint(api_response)
@@ -505,7 +558,7 @@ Name | Type | Description  | Notes
 
 saveAsset
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -523,7 +576,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.AssetControllerApi(swagger_client.ApiClient(configuration))
 asset = swagger_client.Asset() # Asset | asset
 
-try: 
+try:
     # saveAsset
     api_response = api_instance.save_asset_using_post(asset)
     pprint(api_response)
@@ -557,7 +610,7 @@ Name | Type | Description  | Notes
 
 unassignAssetFromCustomer
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -575,7 +628,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.AssetControllerApi(swagger_client.ApiClient(configuration))
 asset_id = 'asset_id_example' # str | assetId
 
-try: 
+try:
     # unassignAssetFromCustomer
     api_response = api_instance.unassign_asset_from_customer_using_delete(asset_id)
     pprint(api_response)
