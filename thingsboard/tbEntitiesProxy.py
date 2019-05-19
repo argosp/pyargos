@@ -43,6 +43,10 @@ class AbstractProxy(object):
     def additional_info(self):
         return self._entityData["additional_info"]
 
+    def __str__(self):
+        ret = "Type %s, info %s" % (self._entityType,self._entityData)
+        return ret
+
     def __init__(self, entityData,swagger,home):
         """
             Initializes a new proxy device.
@@ -83,6 +87,7 @@ class AbstractProxy(object):
             A dict with the parameters.
         """
         data,_,_ = self._swagger.telemetryApi.get_attributes(self.entityType, self.id, scope)
+        print(data)
         return data["result"]
 
 

@@ -304,6 +304,8 @@ class tbEntityHome(dict):
         self[entityName] = newEntityProxy
         return newEntityProxy
 
+
+
     def getEntity(self, entityName):
         """
             Gets the device data from the TB server.
