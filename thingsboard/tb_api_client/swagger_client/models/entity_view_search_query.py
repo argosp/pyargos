@@ -16,7 +16,7 @@ import re  # noqa: F401
 
 import six
 
-from swagger_client.models.relations_search_parameters import RelationsSearchParameters  # noqa: F401,E501
+from  ..models.relations_search_parameters import RelationsSearchParameters  # noqa: F401,E501
 
 
 class EntityViewSearchQuery(object):

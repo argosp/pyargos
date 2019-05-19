@@ -16,8 +16,8 @@ import re  # noqa: F401
 
 import six
 
-from swagger_client.models.device_credentials_id import DeviceCredentialsId  # noqa: F401,E501
-from swagger_client.models.device_id import DeviceId  # noqa: F401,E501
+from  ..models.device_credentials_id import DeviceCredentialsId  # noqa: F401,E501
+from  ..models.device_id import DeviceId  # noqa: F401,E501
 
 
 class DeviceCredentials(object):

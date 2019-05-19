@@ -16,8 +16,8 @@ import re  # noqa: F401
 
 import six
 
-from swagger_client.models.text_page_link import TextPageLink  # noqa: F401,E501
-from swagger_client.models.user import User  # noqa: F401,E501
+from  ..models.text_page_link import TextPageLink  # noqa: F401,E501
+from  ..models.user import User  # noqa: F401,E501
 
 
 class TextPageDataUser(object):

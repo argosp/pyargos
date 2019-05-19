@@ -16,8 +16,8 @@ import re  # noqa: F401
 
 import six
 
-from swagger_client.models.tenant_id import TenantId  # noqa: F401,E501
-from swagger_client.models.widgets_bundle_id import WidgetsBundleId  # noqa: F401,E501
+from  ..models.tenant_id import TenantId  # noqa: F401,E501
+from  ..models.widgets_bundle_id import WidgetsBundleId  # noqa: F401,E501
 
 
 class WidgetsBundle(object):

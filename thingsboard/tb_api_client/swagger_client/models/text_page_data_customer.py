@@ -16,8 +16,8 @@ import re  # noqa: F401
 
 import six
 
-from swagger_client.models.customer import Customer  # noqa: F401,E501
-from swagger_client.models.text_page_link import TextPageLink  # noqa: F401,E501
+from  ..models.customer import Customer  # noqa: F401,E501
+from  ..models.text_page_link import TextPageLink  # noqa: F401,E501
 
 
 class TextPageDataCustomer(object):

@@ -16,8 +16,8 @@ import re  # noqa: F401
 
 import six
 
-from swagger_client.models.audit_log import AuditLog  # noqa: F401,E501
-from swagger_client.models.time_page_link import TimePageLink  # noqa: F401,E501
+from  ..models.audit_log import AuditLog  # noqa: F401,E501
+from  ..models.time_page_link import TimePageLink  # noqa: F401,E501
 
 
 class TimePageDataAuditLog(object):

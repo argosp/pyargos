@@ -16,7 +16,7 @@ import re  # noqa: F401
 
 import six
 
-from swagger_client.models.admin_settings_id import AdminSettingsId  # noqa: F401,E501
+from  ..models.admin_settings_id import AdminSettingsId  # noqa: F401,E501
 
 
 class AdminSettings(object):

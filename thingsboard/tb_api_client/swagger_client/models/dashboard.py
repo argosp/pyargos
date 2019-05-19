@@ -16,9 +16,9 @@ import re  # noqa: F401
 
 import six
 
-from swagger_client.models.dashboard_id import DashboardId  # noqa: F401,E501
-from swagger_client.models.short_customer_info import ShortCustomerInfo  # noqa: F401,E501
-from swagger_client.models.tenant_id import TenantId  # noqa: F401,E501
+from  ..models.dashboard_id import DashboardId  # noqa: F401,E501
+from  ..models.short_customer_info import ShortCustomerInfo  # noqa: F401,E501
+from  ..models.tenant_id import TenantId  # noqa: F401,E501
 
 
 class Dashboard(object):

@@ -16,9 +16,9 @@ import re  # noqa: F401
 
 import six
 
-from swagger_client.models.alarm_id import AlarmId  # noqa: F401,E501
-from swagger_client.models.entity_id import EntityId  # noqa: F401,E501
-from swagger_client.models.tenant_id import TenantId  # noqa: F401,E501
+from  ..models.alarm_id import AlarmId  # noqa: F401,E501
+from  ..models.entity_id import EntityId  # noqa: F401,E501
+from  ..models.tenant_id import TenantId  # noqa: F401,E501
 
 
 class Alarm(object):

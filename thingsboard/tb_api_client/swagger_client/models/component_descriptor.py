@@ -16,7 +16,7 @@ import re  # noqa: F401
 
 import six
 
-from swagger_client.models.component_descriptor_id import ComponentDescriptorId  # noqa: F401,E501
+from  ..models.component_descriptor_id import ComponentDescriptorId  # noqa: F401,E501
 
 
 class ComponentDescriptor(object):

@@ -16,9 +16,9 @@ import re  # noqa: F401
 
 import six
 
-from swagger_client.models.asset_id import AssetId  # noqa: F401,E501
-from swagger_client.models.customer_id import CustomerId  # noqa: F401,E501
-from swagger_client.models.tenant_id import TenantId  # noqa: F401,E501
+from  ..models.asset_id import AssetId  # noqa: F401,E501
+from  ..models.customer_id import CustomerId  # noqa: F401,E501
+from  ..models.tenant_id import TenantId  # noqa: F401,E501
 
 
 class Asset(object):

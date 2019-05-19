@@ -16,7 +16,7 @@ import re  # noqa: F401
 
 import six
 
-from swagger_client.models.entity_id import EntityId  # noqa: F401,E501
+from  ..models.entity_id import EntityId  # noqa: F401,E501
 
 
 class EntityRelationInfo(object):
