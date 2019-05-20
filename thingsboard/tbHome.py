@@ -2,9 +2,10 @@ import os
 import json
 import requests
 from .tb_api_client.swagger_client import ApiClient, Configuration
-from .tb_api_client.swagger_client import Asset, ApiException, EntityId, Device, EntityRelation, EntityId
+from .tb_api_client.swagger_client import Asset, EntityId, Device, EntityRelation, EntityId
 from .tb_api_client.swagger_client import DeviceControllerApi, AssetControllerApi, EntityRelationControllerApi
-from .tb_api_client.swagger_client.apis.telementry_controller_api import TelemetryControllerApi
+from .tb_api_client.swagger_client.api.telemetry_controller_api import TelemetryControllerApi
+from .tb_api_client.swagger_client.rest import ApiException
 
 from .tbEntitiesProxy import DeviceProxy, AssetProxy
 
