@@ -16,6 +16,8 @@ class AbstractProxy(object):
     _swagger = None
     _home    = None
 
+
+
     @property
     def deviceType(self):
         return self._DeviceType
@@ -45,8 +47,7 @@ class AbstractProxy(object):
         return self._entityData["additional_info"]
 
     def __str__(self):
-        ret = "Type %s, info %s" % (self._entityType,self._entityData)
-        return ret
+        return str(self._entityData)
 
     def __init__(self, entityData,swagger,home):
         """
@@ -74,7 +75,7 @@ class AbstractProxy(object):
         :param scope: can be with "SERVER_SCOPE" or "SHARED_SCOPE".
         :return:
         """
-        self._swagger.telemetryApi.save_entity_attributesV2(self.entityType, self.id, scope, attributes)
+        self._swagger.telemetryApi.save_entity_attributes_v2_using_post(self.entityType, self.id, scope, request=attributes)
 
     def getAttributes(self,scope=None):
         """
@@ -87,11 +88,13 @@ class AbstractProxy(object):
         :return:
             A dict with the parameters.
         """
-        data,_,_ = self._swagger.telemetryApi.get_attributes(self.entityType, self.id, scope)
-        print(data)
-        return data["result"]
+        #data,_,_ = self._swagger.telemetryApi.get_attributes_using_get(self.entityType, self.id)
+        print(self._swagger.telemetryApi.get_attributes_using_get_with_http_info(self.entityType, self.id))
+        #return data["result"]
 
 
+    def delAttributes(self,attributeName,scope="SERVER_SCOPE"):
+        self._swagger.telemetryApi.delete_entity_attributes_using_delete1_with_http_info(self.entityType, self.id,scope=scope,keys=attributeName)
 
     def __setitem__(self, key, value):
         """

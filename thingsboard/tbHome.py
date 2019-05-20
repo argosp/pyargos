@@ -2,10 +2,11 @@ import os
 import json
 import requests
 from .tb_api_client.swagger_client import ApiClient, Configuration
-from .tb_api_client.swagger_client import Asset, EntityId, Device, EntityRelation, EntityId
-from .tb_api_client.swagger_client import DeviceControllerApi, AssetControllerApi, EntityRelationControllerApi
-from .tb_api_client.swagger_client.api.telemetry_controller_api import TelemetryControllerApi
+from .tb_api_client.swagger_client import Asset, Device
 from .tb_api_client.swagger_client.rest import ApiException
+from .tb_api_client.swagger_client import DeviceControllerApi, AssetControllerApi, EntityRelationControllerApi
+from .tb_api_client.swagger_client import TelemetryControllerApi
+
 
 from .tbEntitiesProxy import DeviceProxy, AssetProxy
 
@@ -37,6 +38,10 @@ class tbHome(object):
         self._swaggerAPI = swaggerAPI(connectdata=connectdata)
         self._deviceHome = tbEntityHome(self._swaggerAPI, "device")
         self._assetHome = tbEntityHome(self._swaggerAPI, "asset")
+
+    @property
+    def swaggerAPI(self):
+        return self._swaggerAPI
 
     @property
     def deviceHome(self):
@@ -139,6 +144,13 @@ class swaggerAPI(object):
     _EntityRelationApi = None
     _TelemetryApi = None
 
+
+    _token = None
+
+    @property
+    def token(self):
+        return self._token
+    
     @property
     def assetApi(self):
         return self._AssetApi
@@ -219,6 +231,8 @@ class swaggerAPI(object):
         token_response = requests.post('http://{ip}:{port}/api/auth/login'.format(**connectdata['server']), data=login,
                                        headers=headers)
         token = json.loads(token_response.text)
+
+        self._token = token
 
         # set up the api-client.
         api_client_config = Configuration()
@@ -305,8 +319,6 @@ class tbEntityHome(dict):
         self[entityName] = newEntityProxy
         return newEntityProxy
 
-
-
     def getEntity(self, entityName):
         """
             Gets the device data from the TB server.
@@ -357,6 +369,7 @@ class tbEntityHome(dict):
 
             deleteFunc = getattr(self._entityApi, "delete_%s_using_delete" % self._entityType)
             deleteFunc(self[entityName].id)
+            del self[entityName]
         except ApiException as e:
             pass
 
