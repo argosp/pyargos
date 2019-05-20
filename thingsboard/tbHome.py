@@ -40,6 +40,10 @@ class tbHome(object):
         self._assetHome = tbEntityHome(self._swaggerAPI, "asset")
 
     @property
+    def swaggerAPI(self):
+        return self._swaggerAPI
+
+    @property
     def deviceHome(self):
         return self._deviceHome
 
@@ -365,6 +369,7 @@ class tbEntityHome(dict):
 
             deleteFunc = getattr(self._entityApi, "delete_%s_using_delete" % self._entityType)
             deleteFunc(self[entityName].id)
+            del self[entityName]
         except ApiException as e:
             pass
 

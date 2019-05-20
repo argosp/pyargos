@@ -1,6 +1,13 @@
-version = (0,0,1)
+version = (0,0,2)
 
 """
+Version 0.0.2
+-------------
+
+* switched to the new swagger wrapping. 
+
+getAttributes still doesnt work. 
+
 Version 0.0.1
 --------------
 
