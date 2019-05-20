@@ -1,4 +1,5 @@
-from .tb_api_client.swagger_client import Asset, ApiException, EntityId, Device,  EntityRelation, EntityId
+from .tb_api_client.swagger_client import Asset, EntityId, Device,  EntityRelation, EntityId
+from .tb_api_client.swagger_client.rest import ApiException
 import json
 tojson = lambda x: json.loads(str(x).replace("None", "'None'").replace("'", '"').replace("True", "true").replace("False", "false"))
 

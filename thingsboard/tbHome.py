@@ -2,9 +2,11 @@ import os
 import json
 import requests
 from .tb_api_client.swagger_client import ApiClient, Configuration
-from .tb_api_client.swagger_client import Asset, ApiException, EntityId, Device, EntityRelation, EntityId
+from .tb_api_client.swagger_client import Asset, Device
+from .tb_api_client.swagger_client.rest import ApiException
 from .tb_api_client.swagger_client import DeviceControllerApi, AssetControllerApi, EntityRelationControllerApi
-from .tb_api_client.swagger_client.apis.telementry_controller_api import TelemetryControllerApi
+from .tb_api_client.swagger_client import TelemetryControllerApi
+
 
 from .tbEntitiesProxy import DeviceProxy, AssetProxy
 
@@ -138,6 +140,13 @@ class swaggerAPI(object):
     _EntityRelationApi = None
     _TelemetryApi = None
 
+
+    _token = None
+
+    @property
+    def token(self):
+        return self._token
+    
     @property
     def assetApi(self):
         return self._AssetApi
@@ -218,6 +227,8 @@ class swaggerAPI(object):
         token_response = requests.post('http://{ip}:{port}/api/auth/login'.format(**connectdata['server']), data=login,
                                        headers=headers)
         token = json.loads(token_response.text)
+
+        self._token = token
 
         # set up the api-client.
         api_client_config = Configuration()
