@@ -252,7 +252,7 @@ class TelemetryControllerApi(object):
         auth_settings = ['X-Authorization']  # noqa: E501
 
         return self.api_client.call_api(
-            '/api/plugins/telemetry/{entityType}/{entityId}/{scope}{?keys}', 'DELETE',
+            '/api/plugins/telemetry/{entityType}/{entityId}/{scope}', 'DELETE',
             path_params,
             query_params,
             header_params,
@@ -716,7 +716,7 @@ class TelemetryControllerApi(object):
         auth_settings = ['X-Authorization']  # noqa: E501
 
         return self.api_client.call_api(
-            '/api/plugins/telemetry/{entityType}/{entityId}/values/attributes/{scope}{?keys}', 'GET',
+            '/api/plugins/telemetry/{entityType}/{entityId}/values/attributes/{scope}', 'GET',
             path_params,
             query_params,
             header_params,
@@ -825,7 +825,7 @@ class TelemetryControllerApi(object):
         auth_settings = ['X-Authorization']  # noqa: E501
 
         return self.api_client.call_api(
-            '/api/plugins/telemetry/{entityType}/{entityId}/values/attributes{?keys}', 'GET',
+            '/api/plugins/telemetry/{entityType}/{entityId}/values/attributes', 'GET',
             path_params,
             query_params,
             header_params,
