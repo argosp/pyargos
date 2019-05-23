@@ -1125,7 +1125,7 @@ class DeviceControllerApi(object):
         auth_settings = ['X-Authorization']  # noqa: E501
 
         return self.api_client.call_api(
-            '/api/tenant/devices{?type,textSearch,idOffset,textOffset,limit}', 'GET',
+            '/api/tenant/devices', 'GET',
             path_params,
             query_params,
             header_params,

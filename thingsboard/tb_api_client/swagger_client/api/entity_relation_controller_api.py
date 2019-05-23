@@ -151,7 +151,7 @@ class EntityRelationControllerApi(object):
         auth_settings = ['X-Authorization']  # noqa: E501
 
         return self.api_client.call_api(
-            '/api/relation{?relationTypeGroup,fromId,fromType,relationType,toId,toType}', 'DELETE',
+            '/api/relation', 'DELETE',
             path_params,
             query_params,
             header_params,
@@ -389,7 +389,7 @@ class EntityRelationControllerApi(object):
         auth_settings = ['X-Authorization']  # noqa: E501
 
         return self.api_client.call_api(
-            '/api/relations{?relationTypeGroup,fromId,fromType,relationType}', 'GET',
+            '/api/relations', 'GET',
             path_params,
             query_params,
             header_params,
@@ -498,7 +498,7 @@ class EntityRelationControllerApi(object):
         auth_settings = ['X-Authorization']  # noqa: E501
 
         return self.api_client.call_api(
-            '/api/relations{?relationTypeGroup,fromId,fromType}', 'GET',
+            '/api/relations', 'GET',
             path_params,
             query_params,
             header_params,
@@ -821,7 +821,7 @@ class EntityRelationControllerApi(object):
         auth_settings = ['X-Authorization']  # noqa: E501
 
         return self.api_client.call_api(
-            '/api/relations{?relationTypeGroup,toId,toType}', 'GET',
+            '/api/relations', 'GET',
             path_params,
             query_params,
             header_params,
@@ -930,7 +930,7 @@ class EntityRelationControllerApi(object):
         auth_settings = ['X-Authorization']  # noqa: E501
 
         return self.api_client.call_api(
-            '/api/relations/info{?relationTypeGroup,fromId,fromType}', 'GET',
+            '/api/relations/info', 'GET',
             path_params,
             query_params,
             header_params,
