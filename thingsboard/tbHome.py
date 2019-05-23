@@ -347,7 +347,7 @@ class tbEntityHome(dict):
         try:
             getFunc = getattr(self._entityApi, "get_tenant_%s_using_get_with_http_info" % self._entityType)
             data, _, _ = getFunc(entityName)
-            ret = tojson(data)
+            ret = data.to_dict()
         except ApiException as e:
             if json.loads(e.body)['errorCode'] != 32:
                 raise e
@@ -372,6 +372,24 @@ class tbEntityHome(dict):
             del self[entityName]
         except ApiException as e:
             pass
+
+    def getAllEntitiesName(self, limit):
+        ret = None
+        try:
+            getFunc = getattr(self._entityApi, "get_tenant_%ss_using_get_with_http_info" % self._entityType)
+            data, _, _ = getFunc(limit)
+            ret = data.to_dict()['data']
+            ret = list(map(lambda x: x['name'], ret))
+        except ApiException as e:
+            if json.loads(e.body)['errorCode'] != 32:
+                raise e
+
+        return ret
+
+    def deleteAllEntities(self):
+        entitiesName = self.getAllEntitiesName(limit=10000)
+        for entityName in entitiesName:
+            self.delete(entityName)
 
     def __getitem__(self, item):
         if item not in self:

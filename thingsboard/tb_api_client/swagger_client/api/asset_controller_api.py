@@ -697,7 +697,7 @@ class AssetControllerApi(object):
         auth_settings = ['X-Authorization']  # noqa: E501
 
         return self.api_client.call_api(
-            '/api/assets{?assetIds}', 'GET',
+            '/api/assets', 'GET',
             path_params,
             query_params,
             header_params,
@@ -915,7 +915,7 @@ class AssetControllerApi(object):
         auth_settings = ['X-Authorization']  # noqa: E501
 
         return self.api_client.call_api(
-            '/api/tenant/assets{?assetName}', 'GET',
+            '/api/tenant/assets', 'GET',
             path_params,
             query_params,
             header_params,
@@ -1028,7 +1028,7 @@ class AssetControllerApi(object):
         auth_settings = ['X-Authorization']  # noqa: E501
 
         return self.api_client.call_api(
-            '/api/tenant/assets{?type,textSearch,idOffset,textOffset,limit}', 'GET',
+            '/api/tenant/assets', 'GET',
             path_params,
             query_params,
             header_params,
