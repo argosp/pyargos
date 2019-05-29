@@ -58,22 +58,24 @@ class Experiment(object):
                 if entitiesCreation['Number'] == 1:
                     entityName = entitiesCreation['Name']
                 else:
-                    entityName = '%s%d' % (entitiesCreation['Name'], entityNum + 1)
-                trialTemplate['Entities'].append({ 'Name': entityName,
-                                                   'entityType': entityType,
-                                                            'Type': entitiesCreation['Type'],
-                                                            'attributes': {'longitude': 0, 'latidude': 0},
-                                                            'contains': []})
+                    entityName = '%s_%d' % (entitiesCreation['Name'], entityNum + 1)
                 entityHome = getattr(self._home, "%sHome" % (entitiesCreation['entityType'].lower()))
                 entityProxy = entityHome.createProxy(entityName, entitiesCreation['Type'])
+                windowEntitiesNames = []
                 try:
                     for window in trialTemplate['properties']['calculationWindows'][entitiesCreation['Type']]:
                         windowEntityName = self._getWindowEntityName(entityName, window)
                         windowEntityType = 'calculated_%s' % entitiesCreation['Type']
                         windowEntityProxy = entityHome.createProxy(windowEntityName, windowEntityType)
                         entityProxy.addRelation(windowEntityProxy)
+                        windowEntitiesNames.append(windowEntityName)
                 except KeyError:
                     pass
+                trialTemplate['Entities'].append({'Name': entityName,
+                                                  'entityType': entityType,
+                                                  'Type': entitiesCreation['Type'],
+                                                  'attributes': {'longitude': 0, 'latidude': 0},
+                                                  'contains': windowEntitiesNames})
         with open(os.path.join(self._trialPath ,'trialTemplate.json'), 'w') as trialTemplateJSON:
             json.dump(trialTemplate, trialTemplateJSON, indent=4, sort_keys=True)
 
@@ -113,16 +115,22 @@ class Experiment(object):
             with open(os.path.join(self._trialPath, 'execution', '%s.json' % trialName), 'r') as trialJSON:
                 trialJson = json.load(trialJSON)
         else:
-            with open(os.path.join(self._trialPath, 'design', '%s.json' % trialName), 'r') as trialJSON:
-                trialJson = json.load(trialJSON)
+            try:
+                with open(os.path.join(self._trialPath, 'design', '%s.json' % trialName), 'r') as trialJSON:
+                    trialJson = json.load(trialJSON)
+            except FileNotFoundError:
+                raise FileNotFoundError('A trial named "%s" does not exist' % trialName)
             with open(os.path.join(self._trialPath, 'execution', '%s.json' % trialName), 'w') as trialJSON:
                 json.dump(trialJson, trialJSON, indent=4, sort_keys=True)
         return trialJson
 
 
     def getTrialJSON_from_design(self, trialName):
-        with open(os.path.join(self._trialPath, 'design', '%s.json' % trialName), 'r') as trialJSON:
-            trialJson = json.load(trialJSON)
+        try:
+            with open(os.path.join(self._trialPath, 'design', '%s.json' % trialName), 'r') as trialJSON:
+                trialJson = json.load(trialJSON)
+        except FileNotFoundError:
+            raise FileNotFoundError('A trial named "%s" does not exist' % trialName)
         return trialJson
 
 
@@ -173,11 +181,11 @@ class Experiment(object):
             self._setEntityForTrialInTB(entityProxy, entityJSON)
             try:
                 for window in self.getWindows(entityJSON["Type"]):
-                    windowEntityJSON = entityJSON
+                    windowEntityJSON = entityJSON.copy()
                     windowEntityJSON['Type'] = 'calculated_%s' % entityJSON['Type']
-                    windowEntityName = self._getWindowEntityName(entityJSON['Name'], window)
-                    windowEntityProxy = entityTypeHome.createProxy(windowEntityName)
-                    self._setEntityForTrialInTB(windowEntityProxy, entityJSON)
+                    windowEntityJSON['Name'] = self._getWindowEntityName(entityJSON['Name'], window)
+                    windowEntityProxy = entityTypeHome.createProxy(windowEntityJSON['Name'])
+                    self._setEntityForTrialInTB(windowEntityProxy, windowEntityJSON)
             except KeyError:
                 pass
 
@@ -201,9 +209,11 @@ class Experiment(object):
             self._setEntityForTrialInTB(entityProxy, entityJSON)
             try:
                 for window in self.getWindows(entityJSON["Type"]):
-                    windowEntityName = self._getWindowEntityName(entityJSON['Name'], window)
-                    windowEntityProxy = entityTypeHome.createProxy(windowEntityName)
-                    self._setEntityForTrialInTB(windowEntityProxy, entityJSON)
+                    windowEntityJSON = entityJSON.copy()
+                    windowEntityJSON['Type'] = 'calculated_%s' % entityJSON['Type']
+                    windowEntityJSON['Name'] = self._getWindowEntityName(entityJSON['Name'], window)
+                    windowEntityProxy = entityTypeHome.createProxy(windowEntityJSON['Name'])
+                    self._setEntityForTrialInTB(windowEntityProxy, windowEntityJSON)
             except KeyError:
                 pass
 
@@ -218,14 +228,14 @@ class Experiment(object):
             containedEntityHome = getattr(self._home, "%sHome" % (containedEntity[0].lower()))
             containedEntityProxy = containedEntityHome.createProxy(containedEntity[1])
             entityProxy.addRelation(containedEntityProxy)
-        try:
-            entityTypeHome = getattr(self._home, '%sHome' % JSON['entityType'].lower())
-            for window in self.getWindows(JSON["Type"]):
-                windowEntityName = self._getWindowEntityName(JSON['Name'], window)
-                windowEntityProxy = entityTypeHome.createProxy(windowEntityName)
-                entityProxy.addRelation(windowEntityProxy)
-        except KeyError:
-            pass
+        # try:
+        #     entityTypeHome = getattr(self._home, '%sHome' % JSON['entityType'].lower())
+        #     for window in self.getWindows(JSON["Type"]):
+        #         windowEntityName = self._getWindowEntityName(JSON['Name'], window)
+        #         windowEntityProxy = entityTypeHome.createProxy(windowEntityName)
+        #         entityProxy.addRelation(windowEntityProxy)
+        # except KeyError:
+        #     pass
 
 
     def _prepareEntity(self, entityProxy, JSON):
