@@ -60,14 +60,13 @@ class Experiment(object):
                 else:
                     entityName = '%s_%d' % (entitiesCreation['Name'], entityNum + 1)
                 entityHome = getattr(self._home, "%sHome" % (entitiesCreation['entityType'].lower()))
-                entityProxy = entityHome.createProxy(entityName, entitiesCreation['Type'])
+                entityHome.createProxy(entityName, entitiesCreation['Type'])
                 windowEntitiesNames = []
                 try:
                     for window in trialTemplate['properties']['calculationWindows'][entitiesCreation['Type']]:
                         windowEntityName = self._getWindowEntityName(entityName, window)
                         windowEntityType = 'calculated_%s' % entitiesCreation['Type']
-                        windowEntityProxy = entityHome.createProxy(windowEntityName, windowEntityType)
-                        entityProxy.addRelation(windowEntityProxy)
+                        entityHome.createProxy(windowEntityName, windowEntityType)
                         windowEntitiesNames.append(windowEntityName)
                 except KeyError:
                     pass
