@@ -56,9 +56,11 @@ class Experiment(object):
             entityType = entitiesCreation['entityType']
             for entityNum in range(entitiesCreation['Number']):
                 if entitiesCreation['Number'] == 1:
-                    entityName = entitiesCreation['Name']
+                    entityName = entitiesCreation['nameFormat']
+                    id = None
                 else:
-                    entityName = '%s_%d' % (entitiesCreation['Name'], entityNum + 1)
+                    id = entityNum + 1
+                    entityName = entitiesCreation['nameFormat'].format(id)
                 entityHome = getattr(self._home, "%sHome" % (entitiesCreation['entityType'].lower()))
                 entityHome.createProxy(entityName, entitiesCreation['Type'])
                 windowEntitiesNames = []
@@ -73,7 +75,7 @@ class Experiment(object):
                 trialTemplate['Entities'].append({'Name': entityName,
                                                   'entityType': entityType,
                                                   'Type': entitiesCreation['Type'],
-                                                  'attributes': {'longitude': 0, 'latidude': 0},
+                                                  'attributes': {'longitude': 0, 'latidude': 0, 'id': id},
                                                   'contains': windowEntitiesNames})
         with open(os.path.join(self._trialPath ,'trialTemplate.json'), 'w') as trialTemplateJSON:
             json.dump(trialTemplate, trialTemplateJSON, indent=4, sort_keys=True)

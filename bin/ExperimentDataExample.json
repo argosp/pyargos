@@ -9,13 +9,13 @@
       "entityType": "DEVICE",
       "Number": 3,
       "Type": "RawSonic",
-      "Name": "Sonic"
+      "nameFormat": "Sonic{:04d}"
     },
     {
       "entityType": "ASSET",
       "Number": 1,
       "Type": "Belt",
-      "Name": "SonicBelt"
+      "nameFormat": "SonicBelt"
     }
   ]
 }
