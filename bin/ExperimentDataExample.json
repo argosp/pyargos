@@ -9,7 +9,7 @@
       "entityType": "DEVICE",
       "Number": 3,
       "Type": "RawSonic",
-      "nameFormat": "Sonic{:04d}"
+      "nameFormat": "Sonic{id:04d}"
     },
     {
       "entityType": "ASSET",
