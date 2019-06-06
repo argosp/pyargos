@@ -3,7 +3,7 @@
 """
     Thingsboard REST API
 
-    For instructions how to authorize requests please visit <a href='http://thingsboard.io/docs/reference/rest-api/'>REST API documentation page</a>.
+    For instructions how to authorize requests please visit <a href='http://thingsboard.io/docs/reference/rest-api/'>REST API documentation page</a>.  # noqa: E501
 
     OpenAPI spec version: 2.0
     Contact: info@thingsboard.io
@@ -11,8 +11,7 @@
 """
 
 
-import sys
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages  # noqa: H301
 
 NAME = "swagger-client"
 VERSION = "1.0.0"
@@ -36,6 +35,6 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     long_description="""\
-    For instructions how to authorize requests please visit &lt;a href&#x3D;&#39;http://thingsboard.io/docs/reference/rest-api/&#39;&gt;REST API documentation page&lt;/a&gt;.
+    For instructions how to authorize requests please visit &lt;a href&#x3D;&#39;http://thingsboard.io/docs/reference/rest-api/&#39;&gt;REST API documentation page&lt;/a&gt;.  # noqa: E501
     """
 )

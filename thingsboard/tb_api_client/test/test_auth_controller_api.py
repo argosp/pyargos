@@ -3,7 +3,7 @@
 """
     Thingsboard REST API
 
-    For instructions how to authorize requests please visit <a href='http://thingsboard.io/docs/reference/rest-api/'>REST API documentation page</a>.
+    For instructions how to authorize requests please visit <a href='http://thingsboard.io/docs/reference/rest-api/'>REST API documentation page</a>.  # noqa: E501
 
     OpenAPI spec version: 2.0
     Contact: info@thingsboard.io
@@ -13,77 +13,68 @@
 
 from __future__ import absolute_import
 
-import os
-import sys
 import unittest
 
 import swagger_client
+from swagger_client.api.auth_controller_api import AuthControllerApi  # noqa: E501
 from swagger_client.rest import ApiException
-from swagger_client.apis.auth_controller_api import AuthControllerApi
 
 
 class TestAuthControllerApi(unittest.TestCase):
-    """ AuthControllerApi unit test stubs """
+    """AuthControllerApi unit test stubs"""
 
     def setUp(self):
-        self.api = swagger_client.apis.auth_controller_api.AuthControllerApi()
+        self.api = swagger_client.api.auth_controller_api.AuthControllerApi()  # noqa: E501
 
     def tearDown(self):
         pass
 
     def test_activate_user_using_post(self):
-        """
-        Test case for activate_user_using_post
+        """Test case for activate_user_using_post
 
-        activateUser
+        activateUser  # noqa: E501
         """
         pass
 
     def test_change_password_using_post(self):
-        """
-        Test case for change_password_using_post
+        """Test case for change_password_using_post
 
-        changePassword
+        changePassword  # noqa: E501
         """
         pass
 
     def test_check_activate_token_using_get(self):
-        """
-        Test case for check_activate_token_using_get
+        """Test case for check_activate_token_using_get
 
-        checkActivateToken
+        checkActivateToken  # noqa: E501
         """
         pass
 
     def test_check_reset_token_using_get(self):
-        """
-        Test case for check_reset_token_using_get
+        """Test case for check_reset_token_using_get
 
-        checkResetToken
+        checkResetToken  # noqa: E501
         """
         pass
 
     def test_get_user_using_get(self):
-        """
-        Test case for get_user_using_get
+        """Test case for get_user_using_get
 
-        getUser
+        getUser  # noqa: E501
         """
         pass
 
     def test_request_reset_password_by_email_using_post(self):
-        """
-        Test case for request_reset_password_by_email_using_post
+        """Test case for request_reset_password_by_email_using_post
 
-        requestResetPasswordByEmail
+        requestResetPasswordByEmail  # noqa: E501
         """
         pass
 
     def test_reset_password_using_post(self):
-        """
-        Test case for reset_password_using_post
+        """Test case for reset_password_using_post
 
-        resetPassword
+        resetPassword  # noqa: E501
         """
         pass
 

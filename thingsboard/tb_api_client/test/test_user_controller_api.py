@@ -3,7 +3,7 @@
 """
     Thingsboard REST API
 
-    For instructions how to authorize requests please visit <a href='http://thingsboard.io/docs/reference/rest-api/'>REST API documentation page</a>.
+    For instructions how to authorize requests please visit <a href='http://thingsboard.io/docs/reference/rest-api/'>REST API documentation page</a>.  # noqa: E501
 
     OpenAPI spec version: 2.0
     Contact: info@thingsboard.io
@@ -13,77 +13,82 @@
 
 from __future__ import absolute_import
 
-import os
-import sys
 import unittest
 
 import swagger_client
+from swagger_client.api.user_controller_api import UserControllerApi  # noqa: E501
 from swagger_client.rest import ApiException
-from swagger_client.apis.user_controller_api import UserControllerApi
 
 
 class TestUserControllerApi(unittest.TestCase):
-    """ UserControllerApi unit test stubs """
+    """UserControllerApi unit test stubs"""
 
     def setUp(self):
-        self.api = swagger_client.apis.user_controller_api.UserControllerApi()
+        self.api = swagger_client.api.user_controller_api.UserControllerApi()  # noqa: E501
 
     def tearDown(self):
         pass
 
     def test_delete_user_using_delete(self):
-        """
-        Test case for delete_user_using_delete
+        """Test case for delete_user_using_delete
 
-        deleteUser
+        deleteUser  # noqa: E501
         """
         pass
 
     def test_get_activation_link_using_get(self):
-        """
-        Test case for get_activation_link_using_get
+        """Test case for get_activation_link_using_get
 
-        getActivationLink
+        getActivationLink  # noqa: E501
         """
         pass
 
     def test_get_customer_users_using_get(self):
-        """
-        Test case for get_customer_users_using_get
+        """Test case for get_customer_users_using_get
 
-        getCustomerUsers
+        getCustomerUsers  # noqa: E501
         """
         pass
 
     def test_get_tenant_admins_using_get(self):
-        """
-        Test case for get_tenant_admins_using_get
+        """Test case for get_tenant_admins_using_get
 
-        getTenantAdmins
+        getTenantAdmins  # noqa: E501
         """
         pass
 
     def test_get_user_by_id_using_get(self):
-        """
-        Test case for get_user_by_id_using_get
+        """Test case for get_user_by_id_using_get
 
-        getUserById
+        getUserById  # noqa: E501
+        """
+        pass
+
+    def test_get_user_token_using_get(self):
+        """Test case for get_user_token_using_get
+
+        getUserToken  # noqa: E501
+        """
+        pass
+
+    def test_is_user_token_access_enabled_using_get(self):
+        """Test case for is_user_token_access_enabled_using_get
+
+        isUserTokenAccessEnabled  # noqa: E501
         """
         pass
 
     def test_save_user_using_post(self):
-        """
-        Test case for save_user_using_post
+        """Test case for save_user_using_post
 
-        saveUser
+        saveUser  # noqa: E501
         """
         pass
 
     def test_send_activation_email_using_post(self):
-        """
-        Test case for send_activation_email_using_post
+        """Test case for send_activation_email_using_post
 
-        sendActivationEmail
+        sendActivationEmail  # noqa: E501
         """
         pass
 

@@ -1,16 +1,20 @@
 # swagger_client.EntityRelationControllerApi
 
-All URIs are relative to *http://localhost:8080*
+All URIs are relative to *https://127.0.0.1:8080*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**delete_relation_using_delete**](EntityRelationControllerApi.md#delete_relation_using_delete) | **DELETE** /api/relation | deleteRelation
-[**delete_relations_using_delete**](EntityRelationControllerApi.md#delete_relations_using_delete) | **DELETE** /api/relations | deleteRelations
-[**find_by_from_using_get**](EntityRelationControllerApi.md#find_by_from_using_get) | **GET** /api/relations | findByFrom
+[**delete_relation_using_delete**](EntityRelationControllerApi.md#delete_relation_using_delete) | **DELETE** /api/relation{?relationTypeGroup,fromId,fromType,relationType,toId,toType} | deleteRelation
+[**delete_relations_using_delete**](EntityRelationControllerApi.md#delete_relations_using_delete) | **DELETE** /api/relations{?entityId,entityType,id,type} | deleteRelations
+[**find_by_from_using_get**](EntityRelationControllerApi.md#find_by_from_using_get) | **GET** /api/relations{?relationTypeGroup,fromId,fromType,relationType} | findByFrom
+[**find_by_from_using_get1**](EntityRelationControllerApi.md#find_by_from_using_get1) | **GET** /api/relations{?relationTypeGroup,fromId,fromType} | findByFrom
 [**find_by_query_using_post2**](EntityRelationControllerApi.md#find_by_query_using_post2) | **POST** /api/relations | findByQuery
+[**find_by_to_using_get**](EntityRelationControllerApi.md#find_by_to_using_get) | **GET** /api/relations{?relationTypeGroup,toId,toType,relationType} | findByTo
+[**find_by_to_using_get1**](EntityRelationControllerApi.md#find_by_to_using_get1) | **GET** /api/relations{?relationTypeGroup,toId,toType} | findByTo
+[**find_info_by_from_using_get**](EntityRelationControllerApi.md#find_info_by_from_using_get) | **GET** /api/relations/info{?relationTypeGroup,fromId,fromType} | findInfoByFrom
 [**find_info_by_query_using_post**](EntityRelationControllerApi.md#find_info_by_query_using_post) | **POST** /api/relations/info | findInfoByQuery
-[**find_info_by_to_using_get**](EntityRelationControllerApi.md#find_info_by_to_using_get) | **GET** /api/relations/info | findInfoByTo
-[**get_relation_using_get**](EntityRelationControllerApi.md#get_relation_using_get) | **GET** /api/relation | getRelation
+[**find_info_by_to_using_get**](EntityRelationControllerApi.md#find_info_by_to_using_get) | **GET** /api/relations/info{?relationTypeGroup,toId,toType} | findInfoByTo
+[**get_relation_using_get**](EntityRelationControllerApi.md#get_relation_using_get) | **GET** /api/relation{?relationTypeGroup,fromId,fromType,relationType,toId,toType} | getRelation
 [**save_relation_using_post**](EntityRelationControllerApi.md#save_relation_using_post) | **POST** /api/relation | saveRelation
 
 
@@ -19,7 +23,7 @@ Method | HTTP request | Description
 
 deleteRelation
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -42,7 +46,7 @@ to_id = 'to_id_example' # str | toId
 to_type = 'to_type_example' # str | toType
 relation_type_group = 'relation_type_group_example' # str | relationTypeGroup (optional)
 
-try: 
+try:
     # deleteRelation
     api_instance.delete_relation_using_delete(from_id, from_type, relation_type, to_id, to_type, relation_type_group=relation_type_group)
 except ApiException as e:
@@ -80,7 +84,7 @@ void (empty response body)
 
 deleteRelations
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -101,7 +105,7 @@ entity_type = 'entity_type_example' # str | entityType
 id = 'id_example' # str | 
 type = 'type_example' # str | 
 
-try: 
+try:
     # deleteRelations
     api_instance.delete_relations_using_delete(entity_id, entity_type, id, type)
 except ApiException as e:
@@ -133,11 +137,69 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **find_by_from_using_get**
-> list[EntityRelation] find_by_from_using_get(from_id, from_type, relation_type_group=relation_type_group)
+> list[EntityRelation] find_by_from_using_get(from_id, from_type, relation_type, relation_type_group=relation_type_group)
 
 findByFrom
 
-### Example 
+### Example
+```python
+from __future__ import print_function
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# Configure API key authorization: X-Authorization
+configuration = swagger_client.Configuration()
+configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['X-Authorization'] = 'Bearer'
+
+# create an instance of the API class
+api_instance = swagger_client.EntityRelationControllerApi(swagger_client.ApiClient(configuration))
+from_id = 'from_id_example' # str | fromId
+from_type = 'from_type_example' # str | fromType
+relation_type = 'relation_type_example' # str | relationType
+relation_type_group = 'relation_type_group_example' # str | relationTypeGroup (optional)
+
+try:
+    # findByFrom
+    api_response = api_instance.find_by_from_using_get(from_id, from_type, relation_type, relation_type_group=relation_type_group)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling EntityRelationControllerApi->find_by_from_using_get: %s\n" % e)
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **from_id** | **str**| fromId | 
+ **from_type** | **str**| fromType | 
+ **relation_type** | **str**| relationType | 
+ **relation_type_group** | **str**| relationTypeGroup | [optional] 
+
+### Return type
+
+[**list[EntityRelation]**](EntityRelation.md)
+
+### Authorization
+
+[X-Authorization](../README.md#X-Authorization)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: */*
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **find_by_from_using_get1**
+> list[EntityRelation] find_by_from_using_get1(from_id, from_type, relation_type_group=relation_type_group)
+
+findByFrom
+
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -157,12 +219,12 @@ from_id = 'from_id_example' # str | fromId
 from_type = 'from_type_example' # str | fromType
 relation_type_group = 'relation_type_group_example' # str | relationTypeGroup (optional)
 
-try: 
+try:
     # findByFrom
-    api_response = api_instance.find_by_from_using_get(from_id, from_type, relation_type_group=relation_type_group)
+    api_response = api_instance.find_by_from_using_get1(from_id, from_type, relation_type_group=relation_type_group)
     pprint(api_response)
 except ApiException as e:
-    print("Exception when calling EntityRelationControllerApi->find_by_from_using_get: %s\n" % e)
+    print("Exception when calling EntityRelationControllerApi->find_by_from_using_get1: %s\n" % e)
 ```
 
 ### Parameters
@@ -193,7 +255,7 @@ Name | Type | Description  | Notes
 
 findByQuery
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -211,7 +273,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.EntityRelationControllerApi(swagger_client.ApiClient(configuration))
 query = swagger_client.EntityRelationsQuery() # EntityRelationsQuery | query
 
-try: 
+try:
     # findByQuery
     api_response = api_instance.find_by_query_using_post2(query)
     pprint(api_response)
@@ -240,12 +302,182 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **find_by_to_using_get**
+> list[EntityRelation] find_by_to_using_get(to_id, to_type, relation_type, relation_type_group=relation_type_group)
+
+findByTo
+
+### Example
+```python
+from __future__ import print_function
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# Configure API key authorization: X-Authorization
+configuration = swagger_client.Configuration()
+configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['X-Authorization'] = 'Bearer'
+
+# create an instance of the API class
+api_instance = swagger_client.EntityRelationControllerApi(swagger_client.ApiClient(configuration))
+to_id = 'to_id_example' # str | toId
+to_type = 'to_type_example' # str | toType
+relation_type = 'relation_type_example' # str | relationType
+relation_type_group = 'relation_type_group_example' # str | relationTypeGroup (optional)
+
+try:
+    # findByTo
+    api_response = api_instance.find_by_to_using_get(to_id, to_type, relation_type, relation_type_group=relation_type_group)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling EntityRelationControllerApi->find_by_to_using_get: %s\n" % e)
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **to_id** | **str**| toId | 
+ **to_type** | **str**| toType | 
+ **relation_type** | **str**| relationType | 
+ **relation_type_group** | **str**| relationTypeGroup | [optional] 
+
+### Return type
+
+[**list[EntityRelation]**](EntityRelation.md)
+
+### Authorization
+
+[X-Authorization](../README.md#X-Authorization)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: */*
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **find_by_to_using_get1**
+> list[EntityRelation] find_by_to_using_get1(to_id, to_type, relation_type_group=relation_type_group)
+
+findByTo
+
+### Example
+```python
+from __future__ import print_function
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# Configure API key authorization: X-Authorization
+configuration = swagger_client.Configuration()
+configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['X-Authorization'] = 'Bearer'
+
+# create an instance of the API class
+api_instance = swagger_client.EntityRelationControllerApi(swagger_client.ApiClient(configuration))
+to_id = 'to_id_example' # str | toId
+to_type = 'to_type_example' # str | toType
+relation_type_group = 'relation_type_group_example' # str | relationTypeGroup (optional)
+
+try:
+    # findByTo
+    api_response = api_instance.find_by_to_using_get1(to_id, to_type, relation_type_group=relation_type_group)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling EntityRelationControllerApi->find_by_to_using_get1: %s\n" % e)
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **to_id** | **str**| toId | 
+ **to_type** | **str**| toType | 
+ **relation_type_group** | **str**| relationTypeGroup | [optional] 
+
+### Return type
+
+[**list[EntityRelation]**](EntityRelation.md)
+
+### Authorization
+
+[X-Authorization](../README.md#X-Authorization)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: */*
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **find_info_by_from_using_get**
+> list[EntityRelationInfo] find_info_by_from_using_get(from_id, from_type, relation_type_group=relation_type_group)
+
+findInfoByFrom
+
+### Example
+```python
+from __future__ import print_function
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# Configure API key authorization: X-Authorization
+configuration = swagger_client.Configuration()
+configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['X-Authorization'] = 'Bearer'
+
+# create an instance of the API class
+api_instance = swagger_client.EntityRelationControllerApi(swagger_client.ApiClient(configuration))
+from_id = 'from_id_example' # str | fromId
+from_type = 'from_type_example' # str | fromType
+relation_type_group = 'relation_type_group_example' # str | relationTypeGroup (optional)
+
+try:
+    # findInfoByFrom
+    api_response = api_instance.find_info_by_from_using_get(from_id, from_type, relation_type_group=relation_type_group)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling EntityRelationControllerApi->find_info_by_from_using_get: %s\n" % e)
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **from_id** | **str**| fromId | 
+ **from_type** | **str**| fromType | 
+ **relation_type_group** | **str**| relationTypeGroup | [optional] 
+
+### Return type
+
+[**list[EntityRelationInfo]**](EntityRelationInfo.md)
+
+### Authorization
+
+[X-Authorization](../README.md#X-Authorization)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: */*
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **find_info_by_query_using_post**
 > list[EntityRelationInfo] find_info_by_query_using_post(query)
 
 findInfoByQuery
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -263,7 +495,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.EntityRelationControllerApi(swagger_client.ApiClient(configuration))
 query = swagger_client.EntityRelationsQuery() # EntityRelationsQuery | query
 
-try: 
+try:
     # findInfoByQuery
     api_response = api_instance.find_info_by_query_using_post(query)
     pprint(api_response)
@@ -297,7 +529,7 @@ Name | Type | Description  | Notes
 
 findInfoByTo
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -317,7 +549,7 @@ to_id = 'to_id_example' # str | toId
 to_type = 'to_type_example' # str | toType
 relation_type_group = 'relation_type_group_example' # str | relationTypeGroup (optional)
 
-try: 
+try:
     # findInfoByTo
     api_response = api_instance.find_info_by_to_using_get(to_id, to_type, relation_type_group=relation_type_group)
     pprint(api_response)
@@ -353,7 +585,7 @@ Name | Type | Description  | Notes
 
 getRelation
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -376,7 +608,7 @@ to_id = 'to_id_example' # str | toId
 to_type = 'to_type_example' # str | toType
 relation_type_group = 'relation_type_group_example' # str | relationTypeGroup (optional)
 
-try: 
+try:
     # getRelation
     api_response = api_instance.get_relation_using_get(from_id, from_type, relation_type, to_id, to_type, relation_type_group=relation_type_group)
     pprint(api_response)
@@ -415,7 +647,7 @@ Name | Type | Description  | Notes
 
 saveRelation
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -433,7 +665,7 @@ configuration.api_key['X-Authorization'] = 'YOUR_API_KEY'
 api_instance = swagger_client.EntityRelationControllerApi(swagger_client.ApiClient(configuration))
 relation = swagger_client.EntityRelation() # EntityRelation | relation
 
-try: 
+try:
     # saveRelation
     api_instance.save_relation_using_post(relation)
 except ApiException as e:

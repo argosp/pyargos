@@ -1,11 +1,11 @@
 # swagger_client.EventControllerApi
 
-All URIs are relative to *http://localhost:8080*
+All URIs are relative to *https://127.0.0.1:8080*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**get_events_using_get**](EventControllerApi.md#get_events_using_get) | **GET** /api/events/{entityType}/{entityId}/{eventType} | getEvents
-[**get_events_using_get1**](EventControllerApi.md#get_events_using_get1) | **GET** /api/events/{entityType}/{entityId} | getEvents
+[**get_events_using_get**](EventControllerApi.md#get_events_using_get) | **GET** /api/events/{entityType}/{entityId}/{eventType}{?tenantId,limit,startTime,endTime,ascOrder,offset} | getEvents
+[**get_events_using_get1**](EventControllerApi.md#get_events_using_get1) | **GET** /api/events/{entityType}/{entityId}{?tenantId,limit,startTime,endTime,ascOrder,offset} | getEvents
 
 
 # **get_events_using_get**
@@ -13,7 +13,7 @@ Method | HTTP request | Description
 
 getEvents
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -39,7 +39,7 @@ end_time = 789 # int | endTime (optional)
 asc_order = false # bool | ascOrder (optional) (default to false)
 offset = 'offset_example' # str | offset (optional)
 
-try: 
+try:
     # getEvents
     api_response = api_instance.get_events_using_get(entity_type, entity_id, event_type, tenant_id, limit, start_time=start_time, end_time=end_time, asc_order=asc_order, offset=offset)
     pprint(api_response)
@@ -81,7 +81,7 @@ Name | Type | Description  | Notes
 
 getEvents
 
-### Example 
+### Example
 ```python
 from __future__ import print_function
 import time
@@ -106,7 +106,7 @@ end_time = 789 # int | endTime (optional)
 asc_order = false # bool | ascOrder (optional) (default to false)
 offset = 'offset_example' # str | offset (optional)
 
-try: 
+try:
     # getEvents
     api_response = api_instance.get_events_using_get1(entity_type, entity_id, tenant_id, limit, start_time=start_time, end_time=end_time, asc_order=asc_order, offset=offset)
     pprint(api_response)

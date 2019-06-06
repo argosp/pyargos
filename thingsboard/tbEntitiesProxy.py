@@ -1,6 +1,5 @@
-from .tb_api_client.swagger_client import Asset, ApiException, EntityId, Device,  EntityRelation, EntityId
-import json
-tojson = lambda x: json.loads(str(x).replace("None", "'None'").replace("'", '"').replace("True", "true").replace("False", "false"))
+from .tb_api_client.swagger_client import Asset, EntityId, Device,  EntityRelation, EntityId
+from .tb_api_client.swagger_client.rest import ApiException
 
 class AbstractProxy(object):
     """
@@ -15,9 +14,6 @@ class AbstractProxy(object):
     _swagger = None
     _home    = None
 
-    @property
-    def deviceType(self):
-        return self._DeviceType
 
     @property
     def id(self):
@@ -43,6 +39,9 @@ class AbstractProxy(object):
     def additional_info(self):
         return self._entityData["additional_info"]
 
+    def __str__(self):
+        return str(self._entityData)
+
     def __init__(self, entityData,swagger,home):
         """
             Initializes a new proxy device.
@@ -61,7 +60,7 @@ class AbstractProxy(object):
         self._home    = home
 
 
-    def setAttribute(self, attributes,scope="SERVER_SCOPE"):
+    def setAttributes(self, attributes,scope="SERVER_SCOPE"):
         """
             Update the device attributes.
 
@@ -69,7 +68,7 @@ class AbstractProxy(object):
         :param scope: can be with "SERVER_SCOPE" or "SHARED_SCOPE".
         :return:
         """
-        self._swagger.telemetryApi.save_entity_attributesV2(self.entityType, self.id, scope, attributes)
+        self._swagger.telemetryApi.save_entity_attributes_v2_using_post(self.entityType, self.id, scope, request=attributes)
 
     def getAttributes(self,scope=None):
         """
@@ -82,10 +81,14 @@ class AbstractProxy(object):
         :return:
             A dict with the parameters.
         """
-        data,_,_ = self._swagger.telemetryApi.get_attributes(self.entityType, self.id, scope)
-        return data["result"]
+        #data,_,_ = self._swagger.telemetryApi.get_attributes_using_get(self.entityType, self.id)
+        print(self._swagger.telemetryApi.get_attributes_using_get_with_http_info(self.entityType, self.id))
+
+        #return data["result"]
 
 
+    def delAttributes(self,attributeName,scope="SERVER_SCOPE"):
+        self._swagger.telemetryApi.delete_entity_attributes_using_delete1_with_http_info(self.entityType, self.id,scope=scope,keys=attributeName)
 
     def __setitem__(self, key, value):
         """
@@ -95,13 +98,27 @@ class AbstractProxy(object):
         :param value:
         :return:
         """
-        self.setAttribute({key:value},scope="SERVER_SCOPE")
+        self.setAttributes({key:value},scope="SERVER_SCOPE")
 
     def addRelation(self,entity):
         from_id = EntityId(entity_type=self.entityType, id=self.id)
         to_id = EntityId(entity_type=entity.entityType, id=entity.id)
         new_relation = EntityRelation(_from=from_id, to=to_id, type='Contains', type_group='COMMON')
         self._swagger.entityRelationApi.save_relation_using_post(new_relation)
+
+
+    def getRelations(self):
+        return self._swagger.entityRelationApi.find_by_from_using_get1_with_http_info(self.id,self.entityType)
+
+    def delRelations(self):
+        relations = self.getRelations()[0]
+        for relation in relations:
+            relationDict = relation.to_dict()
+            self._swagger.entityRelationApi.delete_relation_using_delete_with_http_info(relationDict['_from']['id'],
+                                                                                        relationDict['_from']['entity_type'],
+                                                                                        relationDict['type'],
+                                                                                        relationDict['to']['id'],
+                                                                                        relationDict['to']['entity_type'])
 
 
 class DeviceProxy(AbstractProxy):
