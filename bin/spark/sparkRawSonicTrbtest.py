@@ -15,6 +15,7 @@ credentialMap = {}
 
 connectionMap = {}
 window_in_seconds = None
+sliding_in_seconds = 60
 
 with open('/home/yehudaa/Projects/2019/TestExp/experimentConfiguration.json') as credentialOpen:
     credentialMap = json.load(credentialOpen)
@@ -32,7 +33,7 @@ def getClient(deviceName):
     else:
         tbh = tbHome(credentialMap["connection"])
         accessToken = tbh.deviceHome.createProxy(deviceName).getCredentials()
-        client = mqtt.Client("Me")
+        client = mqtt.Client("Me_%s"%deviceName)
         client.on_connect = on_connect
 
         client.username_pw_set(str(accessToken), password=None)
@@ -79,29 +80,31 @@ def process(time, rdd):
         wordsDataFrame = spark.createDataFrame(rowRdd)
         # print(wordsDataFrame.toPandas())
         for x in wordsDataFrame.toPandas().groupby("Device"):
+
             data = x[1].set_index('Time')[['T', 'u', 'v', 'w']]
 
             # print('----------%s----------'%(deviceName))
-            resampledData = data.resample('%ds' % (window_in_seconds)).count()
+            resampledData = data.resample('%ds' % (sliding_in_seconds)).count()
             print(resampledData[['T']].rename(columns={'T':'count'}))
             numOfTimeIntervals = len(resampledData)
-            if (numOfTimeIntervals > 2):
+            numOfTimeIntervalsNeeded = int(window_in_seconds/sliding_in_seconds)
+            if (numOfTimeIntervals >= numOfTimeIntervalsNeeded+2):
                 deviceName = "%s_%ds" % (x[0], window_in_seconds)
                 # deviceName = "Device_10s"
-                startTime = pandas.datetime.time(resampledData.index[numOfTimeIntervals-2])
-                endTime = pandas.datetime.time(resampledData.index[numOfTimeIntervals-2] + pandas.Timedelta('%ds' % (window_in_seconds)))
+                startTime = pandas.datetime.time(resampledData.index[-numOfTimeIntervalsNeeded-1])# - pandas.Timedelta('%ds' % (window_in_seconds)))
+                endTime = pandas.datetime.time(resampledData.index[-1])
                 data = data.between_time(startTime, endTime)
                 trbCalc = TurbulenceCalculatorSpark(data, identifier={'samplingWindow': "%ds" % (window_in_seconds)}, metadata=None)
                 calculatedParams = trbCalc.uu().vv().ww().compute()
 
                 timeCalc = calculatedParams.index[0]
                 values = calculatedParams.T.to_dict()[timeCalc]
-                values['count'] = resampledData.iloc[numOfTimeIntervals-2]['T']
+                values['count'] = len(data)
                 values['frequency'] = values['count']/window_in_seconds
 
                 # print(timeCalc,values)
                 client = getClient(deviceName)
-                client.publish('v1/devices/me/telemetry', str({"ts": int(1000 * (datetime.timestamp(timeCalc))),
+                client.publish('v1/devices/me/telemetry', str({"ts": int(1000 * (datetime.timestamp(resampledData.index[-numOfTimeIntervalsNeeded-1]))),
                                                                "values": values
                                                                }
                                                               )
@@ -127,12 +130,12 @@ if __name__ == "__main__":
     window_in_seconds = pandas.Timedelta(args.window).seconds
     sc = SparkContext(appName="PythonStreamingDirectKafkaWordCount")
     sc.setLogLevel("WARN")
-    ssc = StreamingContext(sc, window_in_seconds)
+    ssc = StreamingContext(sc, sliding_in_seconds)
     brokers = args.broker
     topic = args.topic
     kvs = KafkaUtils.createDirectStream(ssc, [topic], {"metadata.broker.list": brokers})
     lines = kvs.map(lambda x: x[1])
-    linesAsJson = lines.map(lambda x: json.loads(x)).window(3 * window_in_seconds, window_in_seconds)
+    linesAsJson = lines.map(lambda x: json.loads(x)).window(120 + window_in_seconds, sliding_in_seconds)
     try:
         linesAsJson.foreachRDD(process)
     except('Stop Iteration'):
