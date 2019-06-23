@@ -48,7 +48,7 @@ Python wrappings for the argos project
 ## Running a demo device 
 =========================
 
-Install the [paho package] (https://anaconda.org/wheeler-microfluidics/paho-mqtt)
+Install the [paho package](https://anaconda.org/wheeler-microfluidics/paho-mqtt)
 
 Run the demoDevice from the CLI. 
 
