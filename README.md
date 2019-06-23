@@ -5,11 +5,7 @@ Python wrappings for the argos project
 ==========
 
 - Install anaconda python 3.7 
-
-
-
-
-
+- Add the pyargos to the PYTHONPATH 
 
 
 ## Loading a trial using the CLI
@@ -30,15 +26,33 @@ Python wrappings for the argos project
 
 4. Now after you done all the configurations, you are ready to setup the experiment.
    Setup your current directory as ExpExample(you must be under an experiment directory)
-   You setup with this line: python yourpath/pyargos/bin/trialManager.py --expConfig experimentConfiguration.json --setup
-   * "yourpath" is your path to the directory which contains pyargos. 
+   You setup with this line: 
+   ```
+   python yourpath/pyargos/bin/trialManager.py --expConfig experimentConfiguration.json --setup
+   ```
+   Where "yourpath" is the path to the directory which contains pyargos. 
    This creates a json file, which called "trialTemplate.json", under ExpExample/experimentData/trials.
 
 5. Copy the trialTemplate.json to the ExpExample/experimentData/trials/design directory.
-   Now edit trialTemplate.json as you wish.
+   The name of the file will be the name of the trial. 
+   Now edit trialTemplate.json to add the attributes and relations that are related to the trial. 
+   
    You can edit for each entity the "Name"/ "Type"/ "attributes"/ "entityType"/ "contains"(*Under "contains" you have a list of lists like [entityType, entityName] which set a relation of type "Contains" from your current entity to the entities in the list)
-   Change the name of the copied template. It will be the name of this trial.
 
-6. Now we can finally upload our trial to thingsboard.
-   You do it with this line: python yourpath/pyargos/bin/trialManager.py --expConfig experimentConfiguration.json --load trialName
-   trialName is the name you chose last step.
+6. Upload the trial to thingsboard.
+   ```
+    python yourpath/pyargos/bin/trialManager.py --expConfig experimentConfiguration.json --load trialName
+   ```
+   where trialName is the name of the trial you chose last step.
+
+## Running a demo device 
+=========================
+
+Install the [paho package] (https://anaconda.org/wheeler-microfluidics/paho-mqtt)
+
+Run the demoDevice from the CLI. 
+
+
+
+
+
