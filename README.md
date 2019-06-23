@@ -19,12 +19,14 @@ create a virtual environment with python 3.6.5.**
    Change it to your configurations.
 
 3. In ExpExampe/experimentData you can find ExperimentData.json which contains the information about the entities(devices/assets) you want to create.
-   The "properties"/"claculationWindows" part is irrelevant for you and you can leave it empty(delete all the items under "calculationWindows"). (It creates another "window" devices of each type specified, with a name "{deviceName}_{window}s' for each window specified).
-   Under "Entities" you specify the etities you want to create.
-   "entityType": The entity type ("DEVICE" or "ASSET")
-   "Number": How many entities like this you want. (*In the "nameFormat" key you have {id}, that will run from 1 to the Number value)
-   "Type": The type of the device/asset.
-   "nameFormat": The format of the name. (For example, if Number=3 and namFormat="name_{id:02d}", you will get 3 devices with names: "name_01", "name_02", "name_03")
+   - The "properties"/"claculationWindows" part creates another devices of each type specified, with a name "{deviceName}_{window}s' for each window specified. 
+   This device is used for the streaming calculations. 
+      
+   - "Entities" you specify the etities you want to create.
+         - "entityType": The entity type ("DEVICE" or "ASSET")
+         - "Number": How many entities like this you want. (*In the "nameFormat" key you have {id}, that will run from 1 to the Number value)
+         - "Type": The type of the device/asset.
+         - "nameFormat": The format of the name. (For example, if Number=3 and namFormat="name_{id:02d}", you will get 3 devices with names: "name_01", "name_02", "name_03")
 
 4. Now after you done all the configurations, you are ready to setup the experiment.
    Setup your current directory as ExpExample(you must be under an experiment directory)
