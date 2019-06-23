@@ -8,7 +8,7 @@ Python wrappings for the argos project
 - Add the pyargos to the PYTHONPATH 
 
 **When using pySpark-streaming it is necessary to 
-create a virtual environment with python 3.6.5. **
+create a virtual environment with python 3.6.5.**
 
 ## Loading a trial using the CLI
 ===================================
