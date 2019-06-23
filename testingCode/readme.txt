@@ -1,4 +1,7 @@
--------------------------How to use the thingsboard setup----------------------------
+# How to use the thingsboard setup
+===================================
+
+
 1. You need to make a directory like ExpExample (it will be your experiment directory).
 
 2. In ExpExample you can find experimentConfiguration.json which configures the thingsboard you work on(IP, port and account information).
