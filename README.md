@@ -35,7 +35,7 @@ create a virtual environment with python 3.6.5.**
    Setup your current directory as ExpExample(you must be under an experiment directory)
    You setup with this line: 
    ```
-   python yourpath/pyargos/bin/trialManager.py --expConfig experimentConfiguration.json --setup
+   python yourpath/pyargos/bin/trialManager.py --expConf experimentConfiguration.json --setup
    ```
    Where "yourpath" is the path to the directory which contains pyargos. 
    This creates a json file, which called "trialTemplate.json", under ExpExample/experimentData/trials.
@@ -48,7 +48,7 @@ create a virtual environment with python 3.6.5.**
 
 6. Upload the trial to thingsboard.
    ```
-    python yourpath/pyargos/bin/trialManager.py --expConfig experimentConfiguration.json --load trialName
+    python yourpath/pyargos/bin/trialManager.py --expConf experimentConfiguration.json --load trialName
    ```
    where trialName is the name of the trial you chose last step.
 
