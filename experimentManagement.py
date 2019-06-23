@@ -140,7 +140,7 @@ class Experiment(object):
         return trialJson
 
 
-    def setAttributeInTrial(self, trialName, entityType, entityName, attrMap):
+    def setAttributeInTrial(self, trialName, entityType, entityName, attrMap, updateLevel=0):
         """
             Also updates the JSON of the trial
             Set the attribute for the required entity and all the entities it contains.
@@ -148,6 +148,7 @@ class Experiment(object):
         :param entityType:
         :param entityName:
         :param attrMap:
+        :param updateLevel: how much recursive steps to update
         :return:
         """
         pass

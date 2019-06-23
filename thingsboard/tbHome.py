@@ -373,13 +373,27 @@ class tbEntityHome(dict):
         except ApiException as e:
             pass
 
-    def getAllEntitiesName(self, limit):
+    def getAllEntitiesName(self, limit=10000):
         ret = None
         try:
             getFunc = getattr(self._entityApi, "get_tenant_%ss_using_get_with_http_info" % self._entityType)
             data, _, _ = getFunc(limit)
             ret = data.to_dict()['data']
-            ret = list(map(lambda x: x['name'], ret))
+            #ret = list(map(lambda x: x['name'], ret))
+            ret = [x['name'] for x in ret]
+        except ApiException as e:
+            if json.loads(e.body)['errorCode'] != 32:
+                raise e
+
+        return ret
+
+    def getAllEntitiesNameByType(self, type, limit=10000):
+        ret = None
+        try:
+            getFunc = getattr(self._entityApi, "get_tenant_%ss_using_get_with_http_info" % self._entityType)
+            data, _, _ = getFunc(limit)
+            ret = data.to_dict()['data']
+            ret = [x['name'] for x in ret if x['type']==type]
         except ApiException as e:
             if json.loads(e.body)['errorCode'] != 32:
                 raise e
