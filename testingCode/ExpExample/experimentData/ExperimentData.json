@@ -1,0 +1,34 @@
+{
+  "properties": {
+    "calculationWindows": {
+        "deviceType1" : [1],
+        "deviceType2" : [10, 20, 30]
+    }
+  },
+  "Entities": [
+    {
+      "entityType": "DEVICE",
+      "Number": 10,
+      "Type": "deviceType1",
+      "nameFormat": "cool_{id:04d}"
+    },
+    {
+      "entityType": "DEVICE",
+      "Number": 5,
+      "Type": "deviceType2",
+      "nameFormat": "nice{id:d}"
+    },
+    {
+      "entityType": "ASSET",
+      "Number": 1,
+      "Type": "assetType1",
+      "nameFormat": "testAsset"
+    },
+    {
+      "entityType": "ASSET",
+      "Number": 3,
+      "Type": "assetType2",
+      "nameFormat": "asset2-{id:d}"
+    }
+  ]
+}

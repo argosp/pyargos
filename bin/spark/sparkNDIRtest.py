@@ -92,6 +92,9 @@ def process(time, rdd):
             resampledData = data.resample('%ds' % (window_in_seconds))
             dataToPublish = resampledData[['ppm']].count().rename(columns={'ppm': 'count'})
             if (len(dataToPublish) > 2):
+                windowDeviceName = '%s_%ds' % (deviceName, window_in_seconds)
+                client = getClient(windowDeviceName)
+
                 meanData = resampledData.mean()
                 stdData = resampledData.std()
                 quantile1Data = resampledData.quantile(0.1)
@@ -126,8 +129,7 @@ def process(time, rdd):
 
 
                 # print(timeCalc,values)
-                windowDeviceName = '%s_%ds' % (deviceName, window_in_seconds)
-                client = getClient(windowDeviceName)
+
                 client.publish('v1/devices/me/telemetry', str({"ts": int(1000 * (datetime.timestamp(timeCalc))),
                                                                "values": values
                                                                }

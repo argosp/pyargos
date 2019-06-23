@@ -80,7 +80,6 @@ def process(time, rdd):
         wordsDataFrame = spark.createDataFrame(rowRdd)
         # print(wordsDataFrame.toPandas())
         for x in wordsDataFrame.toPandas().groupby("Device"):
-
             data = x[1].set_index('Time')[['T', 'u', 'v', 'w']]
 
             # print('----------%s----------'%(deviceName))
@@ -90,6 +89,7 @@ def process(time, rdd):
             numOfTimeIntervalsNeeded = int(window_in_seconds/sliding_in_seconds)
             if (numOfTimeIntervals >= numOfTimeIntervalsNeeded+2):
                 deviceName = "%s_%ds" % (x[0], window_in_seconds)
+                client = getClient(deviceName)
                 # deviceName = "Device_10s"
                 startTime = pandas.datetime.time(resampledData.index[-numOfTimeIntervalsNeeded-1])# - pandas.Timedelta('%ds' % (window_in_seconds)))
                 endTime = pandas.datetime.time(resampledData.index[-1])
@@ -103,7 +103,7 @@ def process(time, rdd):
                 values['frequency'] = values['count']/window_in_seconds
 
                 # print(timeCalc,values)
-                client = getClient(deviceName)
+
                 client.publish('v1/devices/me/telemetry', str({"ts": int(1000 * (datetime.timestamp(resampledData.index[-numOfTimeIntervalsNeeded-1]))),
                                                                "values": values
                                                                }
