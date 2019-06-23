@@ -7,6 +7,8 @@ Python wrappings for the argos project
 - Install anaconda python 3.7 
 - Add the pyargos to the PYTHONPATH 
 
+**When using pySpark-streaming it is necessary to 
+create a virtual environment with python 3.6.5. **
 
 ## Loading a trial using the CLI
 ===================================
@@ -48,7 +50,7 @@ Python wrappings for the argos project
 ## Running a demo device 
 =========================
 
-Install the [paho package](https://anaconda.org/wheeler-microfluidics/paho-mqtt)
+Install the [paho package](https://anaconda.org/wheeler-microfluidics/paho-mqtt) in conda environment.
 
 Run the demoDevice from the CLI. 
 
