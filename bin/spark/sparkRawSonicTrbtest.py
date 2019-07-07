@@ -10,6 +10,7 @@ from pymeteo.analytics.turbulencecalculator import TurbulenceCalculatorSpark
 import paho.mqtt.client as mqtt
 from pyargos.thingsboard.tbHome import tbHome
 import argparse
+import numpy
 
 credentialMap = {}
 
@@ -17,8 +18,8 @@ connectionMap = {}
 window_in_seconds = None
 sliding_in_seconds = 60
 
-with open('/home/yehudaa/Projects/2019/TestExp/experimentConfiguration.json') as credentialOpen:
-    credentialMap = json.load(credentialOpen)
+# with open('/home/yehudaa/Projects/2019/TestExp/experimentConfiguration.json', 'r') as credentialOpen:
+#     credentialMap = json.load(credentialOpen)
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
@@ -95,10 +96,11 @@ def process(time, rdd):
                 endTime = pandas.datetime.time(resampledData.index[-1])
                 data = data.between_time(startTime, endTime)
                 trbCalc = TurbulenceCalculatorSpark(data, identifier={'samplingWindow': "%ds" % (window_in_seconds)}, metadata=None)
-                calculatedParams = trbCalc.uu().vv().ww().compute()
-
+                calculatedParams = trbCalc.uu().vv().ww().wT().uv().uw().vw().w3().w4().TKE().wTKE().Ustar().Rvw().Ruw().MOLength().StabilityMOLength().compute()
                 timeCalc = calculatedParams.index[0]
                 values = calculatedParams.T.to_dict()[timeCalc]
+                values['wind_speed'] = numpy.hypot(values['v_bar'], values['u_bar'])
+                values['wind_dir'] = numpy.arctan2(values['v_bar'], values['u_bar'])
                 values['count'] = len(data)
                 values['frequency'] = values['count']/window_in_seconds
 
@@ -122,17 +124,23 @@ if __name__ == "__main__":
     globals()
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--window", dest="window", help="The spark window time", required=True, type=str)
-    parser.add_argument("--broker", dest="broker", help="The broker", required=True, type=str)
-    parser.add_argument("--topic", dest="topic", help="The topic", required=True, type=str)
+    parser.add_argument("--sparkConf", dest="sparkConf", help="The spark configuration json", required=True)
     args = parser.parse_args()
 
-    window_in_seconds = pandas.Timedelta(args.window).seconds
+    with open(args.sparkConf, "r") as sparkConfFile:
+        sparkConf = json.load(sparkConfFile)
+
+    window_in_seconds = pandas.Timedelta(sparkConf['window']).seconds
+    sliding_in_seconds = pandas.Timedelta(sparkConf['slidingWindow']).seconds
+
+    with open(sparkConf['expConf'], "r") as expConf:
+        credentialMap = json.load(expConf)
+
     sc = SparkContext(appName="PythonStreamingDirectKafkaWordCount")
     sc.setLogLevel("WARN")
-    ssc = StreamingContext(sc, sliding_in_seconds)
-    brokers = args.broker
-    topic = args.topic
+    ssc = StreamingContext(sc, 60)
+    brokers = sparkConf['broker']
+    topic = sparkConf['topic']
     kvs = KafkaUtils.createDirectStream(ssc, [topic], {"metadata.broker.list": brokers})
     lines = kvs.map(lambda x: x[1])
     linesAsJson = lines.map(lambda x: json.loads(x)).window(120 + window_in_seconds, sliding_in_seconds)

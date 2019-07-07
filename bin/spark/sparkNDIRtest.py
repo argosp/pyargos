@@ -8,6 +8,8 @@ from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
 import paho.mqtt.client as mqtt
 from pyargos.thingsboard.tbHome import tbHome
+import argparse
+from pyproj import Proj, transform
 
 credentialMap = {}
 
@@ -16,8 +18,20 @@ window_in_seconds = None
 maxMap = {}
 dosageMap = {}
 
-with open('/home/yehudaa/Projects/2019/TestExp/experimentConfiguration.json') as credentialOpen:
-    credentialMap = json.load(credentialOpen)
+# with open('/home/yehudaa/Projects/2019/TestExp/experimentConfiguration.json', 'r') as credentialOpen:
+#     credentialMap = json.load(credentialOpen)
+
+def convertToITM(lon, lat):
+    ITM_Proj = Proj('+proj=tmerc +lat_0=31.734393611111113 +lon_0=35.20451694444445 +k=1.0000067 +x_0=219529.584 +y_0=626907.39 +ellps=GRS80 +towgs84=-24.002400,-17.103200,-17.844400,-0.33077,-1.852690,1.669690,5.424800 +units=m +no_defs')
+    GRS80_Proj = Proj('+init=EPSG:4326')
+    x, y = transform(GRS80_Proj, ITM_Proj, lon, lat)
+    return x, y
+
+def convertDataToITM(data):
+    for time in data.index:
+        latitude, longitude = convertToITM(data.loc[time]['longitude'] ,data.loc[time]['latitude'])
+        data.at[time, 'longitude'] = longitude
+        data.at[time, 'latitude'] = latitude
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
@@ -127,6 +141,7 @@ def process(time, rdd):
                 timeCalc = dataToPublish.index[1]
                 values = dataToPublish.iloc[1].to_dict()
 
+                convertDataToITM(dataToPublish)
 
                 # print(timeCalc,values)
 
@@ -135,8 +150,8 @@ def process(time, rdd):
                                                                }
                                                               )
                                )
-                client.publish('v1/devices/me/attributes', str({'latitude':values['latitude'],
-                                                                'longitude':values['longitude']
+                client.publish('v1/devices/me/attributes', str({'latitude':dataToPublish.iloc[1]['latitude'],
+                                                                'longitude':dataToPublish.iloc[1]['longitude']
                                                                 }
                                                                )
                                )
@@ -151,17 +166,28 @@ if __name__ == "__main__":
     # use padnas timedelta to set windows_in_seconds with total_seconds().
 
     globals()
-    windowInput = '10s'
-    window_in_seconds = pandas.Timedelta(windowInput).seconds
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--sparkConf", dest="sparkConf", help="The spark configuration json", required=True)
+    args = parser.parse_args()
+
+    with open(args.sparkConf, "r") as sparkConfFile:
+        sparkConf = json.load(sparkConfFile)
+
+    window_in_seconds = pandas.Timedelta(sparkConf['window']).seconds
+    sliding_in_seconds = pandas.Timedelta(sparkConf['slidingWindow']).seconds
+
+    with open(sparkConf['expConf'], "r") as expConf:
+        credentialMap = json.load(expConf)
 
     sc = SparkContext(appName="PythonStreamingDirectKafkaWordCount")
     sc.setLogLevel("WARN")
-    ssc = StreamingContext(sc, window_in_seconds)
-    brokers, topic = sys.argv[1:]
+    ssc = StreamingContext(sc, 10)
+    brokers = sparkConf['broker']
+    topic = sparkConf['topic']
     kvs = KafkaUtils.createDirectStream(ssc, [topic], {"metadata.broker.list": brokers})
     lines = kvs.map(lambda x: x[1])
-    linesAsJson = lines.map(lambda x: json.loads(x)).window(3 * window_in_seconds, window_in_seconds)
+    linesAsJson = lines.map(lambda x: json.loads(x)).window(20 + window_in_seconds, sliding_in_seconds)
     try:
         linesAsJson.foreachRDD(process)
     except('Stop Iteration'):
