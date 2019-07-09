@@ -5,10 +5,33 @@ import pyargos.thingsboard as tb
 
 class Experiment(object):
 
-    _experimentDataPath = None
+    _experimentPath = None
     _trialPath = None
+    _experimentDataJSON = None
+    _home = None
 
-    def getWindows(self,type):
+    @property
+    def _trialPath(self):
+        return os.path.join(self._experimentPath, 'experimentData', 'trials')
+
+
+    def __init__(self, JSON):
+        """
+            Initialize home.
+            read the experiment JSON.
+
+        """
+        self._experimentPath = os.getcwd()
+        if os.path.exists(os.path.join(self._experimentPath, 'experimentData', 'ExperimentData.json')):
+            #self._trialPath = os.path.join(self._experimentPath, 'experimentData', 'trials')
+            with open(os.path.join(self._experimentDataPath, 'experimentData', 'ExperimentData.json'), 'r') as experimentDataJSON:
+                self._experimentDataJSON = json.load(experimentDataJSON)
+            self._home = tb.tbHome(JSON['connection'])
+        else:
+            raise EnvironmentError('Current directory is not an experiment directory')
+
+
+    def _getWindows(self,type):
         """
         Return the windows of the type.
 
@@ -18,23 +41,6 @@ class Experiment(object):
         :return:
         """
         return self._experimentDataJSON['properties']['calculationWindows'][type]
-
-
-    def __init__(self, JSON):
-        """
-            Initialize home.
-            read the experiment JSON.
-
-        """
-        currentDirectory = os.getcwd()
-        if os.path.exists(os.path.join(currentDirectory, 'experimentData', 'ExperimentData.json')):
-            self._experimentDataPath = os.path.join(currentDirectory, 'experimentData')
-            self._trialPath = os.path.join(self._experimentDataPath, 'trials')
-            with open(os.path.join(self._experimentDataPath, 'ExperimentData.json'), 'r') as experimentDataJSON:
-                self._experimentDataJSON = json.load(experimentDataJSON)
-            self._home = tb.tbHome(JSON['connection'])
-        else:
-            raise EnvironmentError('Current directory is not an experiment directory')
 
 
     def setup(self):
@@ -140,7 +146,7 @@ class Experiment(object):
         return trialJson
 
 
-    def setAttributeInTrial(self, trialName, entityType, entityName, attrMap, updateLevel=0):
+    def setAttributesInTrial(self, trialName, entityType, entityName, attrMap, updateLevel=None):
         """
             Also updates the JSON of the trial
             Set the attribute for the required entity and all the entities it contains.
@@ -151,7 +157,60 @@ class Experiment(object):
         :param updateLevel: how much recursive steps to update
         :return:
         """
-        pass
+        if updateLevel is None:
+            if type(trialName) is str:
+                trialJSON = self.getTrialJSON(trialName)
+            else:
+                trialJSON = trialName
+
+            for i, entityJSON in enumerate(trialJSON['Entities']):
+                if entityJSON['Name']==entityName and entityJSON['entityType']==entityType:
+                    break
+
+            trialJSON['Entities'][i]['attributes'].update(attrMap)
+            # entityTypeHome = getattr(self._home, '%sHome' % entityType.lower())
+            # entityProxy = entityTypeHome.createProxy(entityName)
+            # entityProxy.setAttributes(attrMap)
+            if not entityJSON['contains']:
+                path = os.path.join(self._trialPath, 'execution', '%s.json' % trialName)
+                with open(path, 'w') as trialFile:
+                    json.dump(trialName, trialFile)
+                os.chdir(self._trialPath)
+                os.system('git commit -a -m Attributes of %s: %s, have been updated in trial: %s. Attributes: %s' % (entityType, entityName, trialName, attrMap))
+            else:
+                for contatinedEntity in entityJSON['contains']:
+                    self.setAttributesInTrial(trialJSON, contatinedEntity[0], contatinedEntity[1], attrMap)
+        else:
+            if updateLevel < 0:
+                path = os.path.join(self._trialPath, 'execution', '%s.json' % trialName)
+                with open(path, 'w') as trialFile:
+                    json.dump(trialName, trialFile)
+                os.chdir(self._trialPath)
+                os.system('git commit -a -m Attributes of %s: %s, have been updated in trial: %s. Attributes: %s' % (entityType, entityName, trialName, attrMap))
+            else:
+                if type(trialName) is str:
+                    trialJSON = self.getTrialJSON(trialName)
+                else:
+                    trialJSON = trialName
+
+                for i, entityJSON in enumerate(trialJSON['Entities']):
+                    if entityJSON['Name'] == entityName and entityJSON['entityType'] == entityType:
+                        break
+
+                trialJSON['Entities'][i]['attributes'].update(attrMap)
+                # entityTypeHome = getattr(self._home, '%sHome' % entityType.lower())
+                # entityProxy = entityTypeHome.createProxy(entityName)
+                # entityProxy.setAttributes(attrMap)
+                if not entityJSON['contains']:
+                    path = os.path.join(self._trialPath, 'execution', '%s.json' % trialName)
+                    with open(path, 'w') as trialFile:
+                        json.dump(trialName, trialFile)
+                    os.chdir(self._trialPath)
+                    os.system('git commit -a -m Attributes of %s: %s, have been updated in trial: %s. Attributes: %s' % (entityType, entityName, trialName, attrMap))
+                else:
+                    for contatinedEntity in entityJSON['contains']:
+                        self.setAttributesInTrial(trialJSON, contatinedEntity[0], contatinedEntity[1], attrMap,
+                                                 updateLevel - 1)
 
 
     def getTrial(self, trialName=None):
@@ -196,6 +255,7 @@ class Experiment(object):
             # except KeyError:
             #     pass
 
+
     def loadTrialFromDesign(self, trialName):
         """
         Loads the trial to the TB server.
@@ -215,7 +275,7 @@ class Experiment(object):
             entityProxy = entityTypeHome.createProxy(entityJSON['Name'])
             self._setEntityForTrialInTB(entityProxy, entityJSON)
             try:
-                for window in self.getWindows(entityJSON["Type"]):
+                for window in self._getWindows(entityJSON["Type"]):
                     windowEntityJSON = entityJSON.copy()
                     windowEntityJSON['Type'] = 'calculated_%s' % entityJSON['Type']
                     windowEntityJSON['Name'] = self._getWindowEntityName(entityJSON['Name'], window)
@@ -223,6 +283,7 @@ class Experiment(object):
                     self._setEntityForTrialInTB(windowEntityProxy, windowEntityJSON)
             except KeyError:
                 pass
+
 
     def _setEntityForTrialInTB(self, entityProxy, JSON):
         self._prepareEntity(entityProxy, JSON)
