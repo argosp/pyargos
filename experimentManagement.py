@@ -1,30 +1,33 @@
 import os
 import json
+import pandas
 import pyargos.thingsboard as tb
 
 
 class Experiment(object):
 
     _experimentPath = None
-    _trialPath = None
     _experimentDataJSON = None
     _home = None
 
     @property
-    def _trialPath(self):
+    def trialsPath(self):
         return os.path.join(self._experimentPath, 'experimentData', 'trials')
 
 
-    def __init__(self, JSON):
+    def __init__(self, configJsonPath):
         """
             Initialize home.
             read the experiment JSON.
 
         """
-        self._experimentPath = os.getcwd()
+        with open(configJsonPath, 'r') as jsonFile:
+            JSON = json.load(jsonFile)
+
+        self._experimentPath = JSON['experimentPath']
+
         if os.path.exists(os.path.join(self._experimentPath, 'experimentData', 'ExperimentData.json')):
-            #self._trialPath = os.path.join(self._experimentPath, 'experimentData', 'trials')
-            with open(os.path.join(self._experimentDataPath, 'experimentData', 'ExperimentData.json'), 'r') as experimentDataJSON:
+            with open(os.path.join(self._experimentPath, 'experimentData', 'ExperimentData.json'), 'r') as experimentDataJSON:
                 self._experimentDataJSON = json.load(experimentDataJSON)
             self._home = tb.tbHome(JSON['connection'])
         else:
@@ -88,7 +91,7 @@ class Experiment(object):
                                                   'Type': entitiesCreation['Type'],
                                                   'attributes': {'longitude': 0, 'latitude': 0, 'id': id},
                                                   'contains': windowEntitiesNames})
-        with open(os.path.join(self._trialPath ,'trialTemplate.json'), 'w') as trialTemplateJSON:
+        with open(os.path.join(self.trialsPath , 'trialTemplate.json'), 'w') as trialTemplateJSON:
             json.dump(trialTemplate, trialTemplateJSON, indent=4, sort_keys=True)
 
 
@@ -113,7 +116,7 @@ class Experiment(object):
         :return:
             A pandas series. | list
         """
-        return [x.split('.')[0] for x in os.listdir(os.path.join(self._trialPath, 'design'))]
+        return [x.split('.')[0] for x in os.listdir(os.path.join(self.trialsPath, 'design'))]
 
 
     def getTrialJSON(self, trialName):
@@ -123,23 +126,23 @@ class Experiment(object):
         :param trialType: 'design' / 'execution'
         :return:
         """
-        if os.path.exists(os.path.join(self._trialPath, 'execution', '%s.json' % trialName)):
-            with open(os.path.join(self._trialPath, 'execution', '%s.json' % trialName), 'r') as trialJSON:
+        if os.path.exists(os.path.join(self.trialsPath, 'execution', '%s.json' % trialName)):
+            with open(os.path.join(self.trialsPath, 'execution', '%s.json' % trialName), 'r') as trialJSON:
                 trialJson = json.load(trialJSON)
         else:
             try:
-                with open(os.path.join(self._trialPath, 'design', '%s.json' % trialName), 'r') as trialJSON:
+                with open(os.path.join(self.trialsPath, 'design', '%s.json' % trialName), 'r') as trialJSON:
                     trialJson = json.load(trialJSON)
             except FileNotFoundError:
                 raise FileNotFoundError('A trial named "%s" does not exist' % trialName)
-            with open(os.path.join(self._trialPath, 'execution', '%s.json' % trialName), 'w') as trialJSON:
+            with open(os.path.join(self.trialsPath, 'execution', '%s.json' % trialName), 'w') as trialJSON:
                 json.dump(trialJson, trialJSON, indent=4, sort_keys=True)
         return trialJson
 
 
     def getTrialJSON_from_design(self, trialName):
         try:
-            with open(os.path.join(self._trialPath, 'design', '%s.json' % trialName), 'r') as trialJSON:
+            with open(os.path.join(self.trialsPath, 'design', '%s.json' % trialName), 'r') as trialJSON:
                 trialJson = json.load(trialJSON)
         except FileNotFoundError:
             raise FileNotFoundError('A trial named "%s" does not exist' % trialName)
@@ -172,20 +175,20 @@ class Experiment(object):
             # entityProxy = entityTypeHome.createProxy(entityName)
             # entityProxy.setAttributes(attrMap)
             if not entityJSON['contains']:
-                path = os.path.join(self._trialPath, 'execution', '%s.json' % trialName)
+                path = os.path.join(self.trialsPath, 'execution', '%s.json' % trialName)
                 with open(path, 'w') as trialFile:
                     json.dump(trialName, trialFile)
-                os.chdir(self._trialPath)
+                os.chdir(self.trialsPath)
                 os.system('git commit -a -m Attributes of %s: %s, have been updated in trial: %s. Attributes: %s' % (entityType, entityName, trialName, attrMap))
             else:
                 for contatinedEntity in entityJSON['contains']:
                     self.setAttributesInTrial(trialJSON, contatinedEntity[0], contatinedEntity[1], attrMap)
         else:
             if updateLevel < 0:
-                path = os.path.join(self._trialPath, 'execution', '%s.json' % trialName)
+                path = os.path.join(self.trialsPath, 'execution', '%s.json' % trialName)
                 with open(path, 'w') as trialFile:
                     json.dump(trialName, trialFile)
-                os.chdir(self._trialPath)
+                os.chdir(self.trialsPath)
                 os.system('git commit -a -m Attributes of %s: %s, have been updated in trial: %s. Attributes: %s' % (entityType, entityName, trialName, attrMap))
             else:
                 if type(trialName) is str:
@@ -202,10 +205,10 @@ class Experiment(object):
                 # entityProxy = entityTypeHome.createProxy(entityName)
                 # entityProxy.setAttributes(attrMap)
                 if not entityJSON['contains']:
-                    path = os.path.join(self._trialPath, 'execution', '%s.json' % trialName)
+                    path = os.path.join(self.trialsPath, 'execution', '%s.json' % trialName)
                     with open(path, 'w') as trialFile:
                         json.dump(trialName, trialFile)
-                    os.chdir(self._trialPath)
+                    os.chdir(self.trialsPath)
                     os.system('git commit -a -m Attributes of %s: %s, have been updated in trial: %s. Attributes: %s' % (entityType, entityName, trialName, attrMap))
                 else:
                     for contatinedEntity in entityJSON['contains']:
@@ -213,19 +216,49 @@ class Experiment(object):
                                                  updateLevel - 1)
 
 
-    def getTrial(self, trialName=None):
+    def getTrialsEntities(self):
         """
-        Return a pandas with the definition of the trial.
+        Return a pandas with the definition of all the trials.
 
         The pandas columns are:
 
-        trialName, entityType, entityName, type attributeName attributeValue
+        trialName, entityType, entityName, type, attributeName, attributeValue
 
-        :param trialName: if NOne, return the pandas for all trials.
-        :return:
-           a pandas.
+        :return: a pandas.
         """
-        pass
+
+        trialStates = ['design', 'execution']
+        columnNames = ['trialName', 'trialState', 'entityType', 'entityName', 'Type', 'attributeName', 'attributeValue']
+        # trialsDict = {'Trial Name': [],
+        #               'Trial State': [],
+        #               'Attribute Name': [],
+        #               'Attribute Value': []
+        #               }
+        trialsDict = {}
+        for i in range(len(columnNames)):
+            trialsDict[columnNames] = []
+        for trialName in self.getTrialList():
+            for trialState in trialStates:
+                print(os.path.join(self.trialsPath, trialState, '%s.json' % trialName))
+                with open(os.path.join(self.trialsPath, trialState, '%s.json' % trialName), 'r') as trialFile:
+                    trialJSON = json.load(trialFile)
+                for entityJSON in trialJSON['Entities']:
+                    for attributeName, attributeValue in entityJSON['attributes'].items():
+                        # trialsDict['Trial Name'].append(trialName)
+                        # trialsDict['Trial State'].append(trialState)
+                        # trialsDict['Attribute Name'].append(attributeName)
+                        # trialsDict['Attribute Value'].append(attributeValue)
+                        valuesList = [trialName, trialState, entityJSON['entityType'], entityJSON['Name'], entityJSON['Type'], attributeName, attributeValue]
+                        for i in range(len(columnNames)):
+                            trialsDict[i].append(valuesList[i])
+                        # trialsDict[columnNames[0]].append(trialName)
+                        # trialsDict[columnNames[1]].append(trialState)
+                        # trialsDict[columnNames[2]].append(entityJSON['entityType'])
+                        # trialsDict[columnNames[3]].append(entityJSON['Name'])
+                        # trialsDict[columnNames[4]].append(entityJSON['Type'])
+                        # trialsDict[columnNames[5]].append(attributeName)
+                        # trialsDict[columnNames[6]].append(attributeValue)
+        return pandas.DataFrame(trialsDict)
 
 
     def loadTrial(self, trialName):

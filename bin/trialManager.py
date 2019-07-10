@@ -9,10 +9,7 @@ parser.add_argument("--load", dest="loadName", default=None, help="Loads a given
 parser.add_argument("--updateAttr", dest="attrJSON", default=None, help='Update attributs according to a given JSON')
 args = parser.parse_args()
 
-with open(args.expConf,"r") as expConf:
-    config = json.load(expConf)
-
-exp = Experiment(config)
+exp = Experiment(args.expConf)
 
 if args.setupFlag:
     exp.setup()
