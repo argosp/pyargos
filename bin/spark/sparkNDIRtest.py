@@ -133,15 +133,15 @@ def process(time, rdd):
                                                      ppm_quantile9=quantile9Data['ppm'],
                                                      ppm_max=maxMap[deviceName],
                                                      ppm_dosage=dosageMap[deviceName],
-                                                     latitude=meanData['latitude'],
-                                                     longitude=meanData['longitude'],
+                                                     # latitude=meanData['latitude'],
+                                                     # longitude=meanData['longitude'],
                                                      frequency=dataToPublish['count']/window_in_seconds
                                                      )
 
                 timeCalc = dataToPublish.index[1]
                 values = dataToPublish.iloc[1].to_dict()
 
-                convertDataToITM(dataToPublish)
+                # convertDataToITM(dataToPublish)
 
                 # print(timeCalc,values)
 
