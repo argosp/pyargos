@@ -70,7 +70,7 @@ class AbstractProxy(object):
         """
         self._swagger.telemetryApi.save_entity_attributes_v2_using_post(self.entityType, self.id, scope, request=attributes)
 
-    def getAttributes(self, keys):
+    def getAttributes(self):
         """
             This doesn't work right now.
             The problem is that I wrote the Telemetry controller and maybe there is a mistake there.
@@ -82,7 +82,7 @@ class AbstractProxy(object):
             A dict with the parameters.
         """
         #data,_,_ = self._swagger.telemetryApi.get_attributes_using_get(self.entityType, self.id)
-        data,_,_ = self._swagger.telemetryApi.get_attributes_using_get_with_http_info(self.entityType, self.id,keys=keys)
+        data,_,_ = self._swagger.telemetryApi.get_attributes_using_get_with_http_info(self.entityType, self.id)
         print(data)
 
         #return data["result"]
