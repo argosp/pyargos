@@ -324,7 +324,8 @@ class Experiment(object):
 
 
     def _loadEntity(self, entityProxy ,JSON):
-        entityProxy.setAttributes(JSON['attributes'])
+        if JSON['attributes']:
+            entityProxy.setAttributes(JSON['attributes'])
         for containedEntity in JSON['contains']:
             containedEntityHome = getattr(self._home, "%sHome" % (containedEntity[0].lower()))
             containedEntityProxy = containedEntityHome.createProxy(containedEntity[1])
