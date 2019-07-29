@@ -1,7 +1,6 @@
 import json
 import sys
 import pandas
-from datetime import datetime
 from pyspark.sql import Row, SparkSession
 from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
@@ -90,7 +89,7 @@ def process(time, rdd):
 
         # Convert RDD[String] to RDD[Row] to DataFrame
         rowRdd = rdd.map(lambda data: Row(Device=str(data['deviceName']),
-                                          Time=datetime.fromtimestamp(float(data['ts']) / 1000.0),
+                                          Time=pandas.datetime.fromtimestamp(float(data['ts']) / 1000.0),
                                           ppm1000=float(data['ppm1000']),
                                           ppm50=float(data['ppm50']),
                                           latitude=float(data['latitude']),
@@ -100,24 +99,37 @@ def process(time, rdd):
         wordsDataFrame = spark.createDataFrame(rowRdd)
         # print(wordsDataFrame.toPandas())
         for deviceName, deviceData in wordsDataFrame.toPandas().groupby("Device"):
-            data = deviceData.set_index('Time')[['ppm1000', 'ppm50', 'latitude', 'longitude']]
+            data = deviceData.set_index('Time')[['ppm1000', 'ppm50']] #, 'latitude', 'longitude']]
             data['ppm'] = _calcPPM(data['ppm50'].values, data['ppm1000'].values)
             # print('----------%s----------'%(deviceName))
-            resampledData = data.resample('%ds' % (window_in_seconds))
-            dataToPublish = resampledData[['ppm']].count().rename(columns={'ppm': 'count'})
-            if (len(dataToPublish) > 2):
+            countedData = data.resample('%ds' % (sliding_in_seconds)).count()
+            if deviceName=='SN0001':
+                print(countedData[['ppm']].rename(columns={'ppm': 'count'}))
+            #dataToPublish = resampledData[['ppm']].count().rename(columns={'ppm': 'count'})
+            numOfTimeIntervals = len(countedData)
+            numOfTimeIntervalsNeeded = int(window_in_seconds / sliding_in_seconds)
+            if (numOfTimeIntervals >= numOfTimeIntervalsNeeded+2):
                 windowDeviceName = '%s_%ds' % (deviceName, window_in_seconds)
                 client = getClient(windowDeviceName)
 
+                startTime = pandas.datetime.time(countedData.index[-numOfTimeIntervalsNeeded - 1])
+                endTime = pandas.datetime.time(countedData.index[-1])
+                data = data.between_time(startTime, endTime)
+                resampledData = data.resample('%ds' % (window_in_seconds))
+                dataToPublish = resampledData[['ppm']].count().rename(columns={'ppm': 'count'})
+
                 meanData = resampledData.mean()
                 stdData = resampledData.std()
-                quantile1Data = resampledData.quantile(0.1)
-                quantile9Data = resampledData.quantile(0.9)
+                quantile10Data = resampledData.quantile(0.1)
+                quantile25Data = resampledData.quantile(0.25)
+                quantile50Data = resampledData.quantile(0.5)
+                quantile75Data = resampledData.quantile(0.75)
+                quantile90Data = resampledData.quantile(0.9)
 
                 lastMax = maxMap.setdefault(deviceName, 0)
-                maxMap[deviceName] = max(lastMax, resampledData.max().iloc[1]['ppm'])
+                maxMap[deviceName] = max(lastMax, resampledData.max().iloc[0]['ppm'])
                 lastDosage = dosageMap.setdefault(deviceName, 0)
-                dosageMap[deviceName] = lastDosage + window_in_seconds*meanData.iloc[1]['ppm']
+                dosageMap[deviceName] = lastDosage + window_in_seconds*meanData.iloc[0]['ppm']
 
                 dataToPublish = dataToPublish.assign(ppm1000_mean=meanData['ppm1000'],
                                                      ppm50_mean=meanData['ppm50'],
@@ -125,12 +137,21 @@ def process(time, rdd):
                                                      ppm1000_std=stdData['ppm1000'],
                                                      ppm50_std=stdData['ppm50'],
                                                      ppm_std=stdData['ppm'],
-                                                     ppm1000_quantile1=quantile1Data['ppm1000'],
-                                                     ppm50_quantile1=quantile1Data['ppm50'],
-                                                     ppm_quantile1=quantile1Data['ppm'],
-                                                     ppm1000_quantile9=quantile9Data['ppm1000'],
-                                                     ppm50_quantile9=quantile9Data['ppm50'],
-                                                     ppm_quantile9=quantile9Data['ppm'],
+                                                     ppm1000_quantile10=quantile10Data['ppm1000'],
+                                                     ppm50_quantile10=quantile10Data['ppm50'],
+                                                     ppm_quantile10=quantile10Data['ppm'],
+                                                     ppm1000_quantile25=quantile25Data['ppm1000'],
+                                                     ppm50_quantile25=quantile25Data['ppm50'],
+                                                     ppm_quantile25=quantile25Data['ppm'],
+                                                     ppm1000_quantile50=quantile50Data['ppm1000'],
+                                                     ppm50_quantile50=quantile50Data['ppm50'],
+                                                     ppm_quantile50=quantile50Data['ppm'],
+                                                     ppm1000_quantile75=quantile75Data['ppm1000'],
+                                                     ppm50_quantile75=quantile75Data['ppm50'],
+                                                     ppm_quantile75=quantile75Data['ppm'],
+                                                     ppm1000_quantile90=quantile90Data['ppm1000'],
+                                                     ppm50_quantile90=quantile90Data['ppm50'],
+                                                     ppm_quantile90=quantile90Data['ppm'],
                                                      ppm_max=maxMap[deviceName],
                                                      ppm_dosage=dosageMap[deviceName],
                                                      # latitude=meanData['latitude'],
@@ -138,23 +159,23 @@ def process(time, rdd):
                                                      frequency=dataToPublish['count']/window_in_seconds
                                                      )
 
-                timeCalc = dataToPublish.index[1]
-                values = dataToPublish.iloc[1].to_dict()
+                #timeCalc = dataToPublish.index[0]
+                values = dataToPublish.iloc[0].to_dict()
 
                 # convertDataToITM(dataToPublish)
 
                 # print(timeCalc,values)
 
-                client.publish('v1/devices/me/telemetry', str({"ts": int(1000 * (datetime.timestamp(timeCalc))),
+                client.publish('v1/devices/me/telemetry', str({"ts": int(1000 * (pandas.datetime.timestamp(countedData.index[-numOfTimeIntervalsNeeded-1]))),
                                                                "values": values
                                                                }
                                                               )
                                )
-                client.publish('v1/devices/me/attributes', str({'latitude':dataToPublish.iloc[1]['latitude'],
-                                                                'longitude':dataToPublish.iloc[1]['longitude']
-                                                                }
-                                                               )
-                               )
+                # client.publish('v1/devices/me/attributes', str({'latitude':dataToPublish.iloc[1]['latitude'],
+                #                                                 'longitude':dataToPublish.iloc[1]['longitude']
+                #                                                 }
+                #                                                )
+                #                )
     # wordsDataFrame.show()
     except Exception as e:
         print(e)

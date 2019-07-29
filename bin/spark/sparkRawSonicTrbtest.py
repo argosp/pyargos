@@ -1,7 +1,6 @@
 import sys
 import json
 import pandas
-from datetime import datetime
 from pyspark.sql import Row, SparkSession
 from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
@@ -71,7 +70,7 @@ def process(time, rdd):
 
         # Convert RDD[String] to RDD[Row] to DataFrame
         rowRdd = rdd.map(lambda data: Row(Device=str(data['deviceName']),
-                                          Time=datetime.fromtimestamp(float(data['ts']) / 1000.0),
+                                          Time=pandas.datetime.fromtimestamp(float(data['ts']) / 1000.0),
                                           u=float(data['u']),
                                           v=float(data['v']),
                                           w=float(data['w']),
@@ -80,25 +79,27 @@ def process(time, rdd):
                          )
         wordsDataFrame = spark.createDataFrame(rowRdd)
         # print(wordsDataFrame.toPandas())
-        for x in wordsDataFrame.toPandas().groupby("Device"):
-            data = x[1].set_index('Time')[['T', 'u', 'v', 'w']]
+        for deviceName, deviceData in wordsDataFrame.toPandas().groupby("Device"):
+            data = deviceData.set_index('Time')[['T', 'u', 'v', 'w']]
 
             # print('----------%s----------'%(deviceName))
-            resampledData = data.resample('%ds' % (sliding_in_seconds)).count()
-            print(resampledData[['T']].rename(columns={'T':'count'}))
-            numOfTimeIntervals = len(resampledData)
+            countedData = data.resample('%ds' % (sliding_in_seconds)).count()
+            if deviceName=='Sonic1':
+                print(countedData[['T']].rename(columns={'T':'count'}))
+            numOfTimeIntervals = len(countedData)
             numOfTimeIntervalsNeeded = int(window_in_seconds/sliding_in_seconds)
             if (numOfTimeIntervals >= numOfTimeIntervalsNeeded+2):
-                deviceName = "%s_%ds" % (x[0], window_in_seconds)
-                client = getClient(deviceName)
+                windowDeviceName = "%s_%ds" % (deviceName, window_in_seconds)
+                client = getClient(windowDeviceName)
                 # deviceName = "Device_10s"
-                startTime = pandas.datetime.time(resampledData.index[-numOfTimeIntervalsNeeded-1])# - pandas.Timedelta('%ds' % (window_in_seconds)))
-                endTime = pandas.datetime.time(resampledData.index[-1])
+                startTime = pandas.datetime.time(countedData.index[-numOfTimeIntervalsNeeded-1])# - pandas.Timedelta('%ds' % (window_in_seconds)))
+                endTime = pandas.datetime.time(countedData.index[-1])
                 data = data.between_time(startTime, endTime)
                 trbCalc = TurbulenceCalculatorSpark(data, identifier={'samplingWindow': "%ds" % (window_in_seconds)}, metadata=None)
                 calculatedParams = trbCalc.uu().vv().ww().wT().uv().uw().vw().w3().w4().TKE().wTKE().Ustar().Rvw().Ruw().MOLength().StabilityMOLength().compute()
-                timeCalc = calculatedParams.index[0]
-                values = calculatedParams.T.to_dict()[timeCalc]
+                #timeCalc = calculatedParams.index[0]
+                #values = calculatedParams.T.to_dict()[timeCalc]
+                values = calculatedParams.iloc[0].to_dict()
                 values['wind_speed'] = numpy.hypot(values['v_bar'], values['u_bar'])
                 values['wind_dir'] = numpy.arctan2(values['v_bar'], values['u_bar'])
                 values['count'] = len(data)
@@ -106,13 +107,14 @@ def process(time, rdd):
 
                 # print(timeCalc,values)
 
-                client.publish('v1/devices/me/telemetry', str({"ts": int(1000 * (datetime.timestamp(resampledData.index[-numOfTimeIntervalsNeeded-1]))),
+                client.publish('v1/devices/me/telemetry', str({"ts": int(1000 * (pandas.datetime.timestamp(countedData.index[-numOfTimeIntervalsNeeded-1]))),
                                                                "values": values
                                                                }
                                                               )
                    )
     # wordsDataFrame.show()
     except Exception as e:
+        print('-----Exception-----')
         print(e)
 
 if __name__ == "__main__":
