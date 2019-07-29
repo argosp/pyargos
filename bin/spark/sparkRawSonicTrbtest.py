@@ -91,12 +91,17 @@ def process(time, rdd):
             if (numOfTimeIntervals >= numOfTimeIntervalsNeeded+2):
                 windowDeviceName = "%s_%ds" % (deviceName, window_in_seconds)
                 client = getClient(windowDeviceName)
+                tbh = tbHome(credentialMap["connection"])
+                #--------------------------------continue here( get attributes not exist)----------------------------------------------------------------
+                tbh.deviceHome.createProxy(deviceName).getAttributes()
                 # deviceName = "Device_10s"
                 startTime = pandas.datetime.time(countedData.index[-numOfTimeIntervalsNeeded-1])# - pandas.Timedelta('%ds' % (window_in_seconds)))
                 endTime = pandas.datetime.time(countedData.index[-1])
                 data = data.between_time(startTime, endTime)
                 trbCalc = TurbulenceCalculatorSpark(data, identifier={'samplingWindow': "%ds" % (window_in_seconds)}, metadata=None)
-                calculatedParams = trbCalc.uu().vv().ww().wT().uv().uw().vw().w3().w4().TKE().wTKE().Ustar().Rvw().Ruw().MOLength().StabilityMOLength().compute()
+                calculatedParams = trbCalc.uu().vv().ww().wT().uv().uw().vw().w3().w4().TKE().wTKE().Ustar().Rvw().Ruw()\
+                                          .MOLength().StabilityMOLength().sigmaHOverUstar().sigmaHOverUbar()\
+                                          .sigmaWOverUstar().sigmaWOverUbar().w3OverSigmaW3().zoL().compute()
                 #timeCalc = calculatedParams.index[0]
                 #values = calculatedParams.T.to_dict()[timeCalc]
                 values = calculatedParams.iloc[0].to_dict()
