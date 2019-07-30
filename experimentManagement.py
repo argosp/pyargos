@@ -177,7 +177,7 @@ class Experiment(object):
                 path = os.path.join(self.trialsPath, 'execution', '%s.json' % trialName)
                 with open(path, 'w') as trialFile:
                     json.dump(trialName, trialFile)
-                os.chdir(self.trialsPath)
+                os.chdir(os.path.join(self._experimentPath, 'experimentData'))
                 os.system('git commit -a -m Attributes of %s: %s, have been updated in trial: %s. Attributes: %s' % (entityType, entityName, trialName, attrMap))
             else:
                 for contatinedEntity in entityJSON['contains']:
@@ -187,7 +187,7 @@ class Experiment(object):
                 path = os.path.join(self.trialsPath, 'execution', '%s.json' % trialName)
                 with open(path, 'w') as trialFile:
                     json.dump(trialName, trialFile)
-                os.chdir(self.trialsPath)
+                os.chdir(os.path.join(self._experimentPath, 'experimentData'))
                 os.system('git commit -a -m Attributes of %s: %s, have been updated in trial: %s. Attributes: %s' % (entityType, entityName, trialName, attrMap))
             else:
                 if type(trialName) is str:
