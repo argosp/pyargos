@@ -75,7 +75,7 @@ class AbstractProxy(object):
     def getAttributes(self, keys=None):
         """
             Get all the attributes of the device.
-        :param keys: list of the attributes key
+        :param keys: string of the attributes key. i.e: 'T,id,longitude'
         :return:
             A dict with the parameters.
         """
