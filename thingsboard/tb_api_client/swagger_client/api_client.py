@@ -146,6 +146,7 @@ class ApiClient(object):
         url = self.configuration.host + resource_path
 
         # perform request and return response
+
         response_data = self.request(
             method, url, query_params=query_params, headers=header_params,
             post_params=post_params, body=body,
@@ -155,6 +156,7 @@ class ApiClient(object):
         self.last_response = response_data
 
         return_data = response_data
+
         if _preload_content:
             # deserialize response data
             if response_type:
@@ -598,7 +600,6 @@ class ApiClient(object):
         :param klass: class literal.
         :return: model object.
         """
-
         if not klass.swagger_types and not hasattr(klass,
                                                    'get_real_child_model'):
             return data

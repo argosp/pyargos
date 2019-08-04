@@ -1,5 +1,8 @@
 version = (0,0,2)
 
+from .thingsboard.tbHome import tbHome
+
+
 """
 Version 0.0.2
 -------------

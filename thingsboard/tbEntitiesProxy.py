@@ -1,6 +1,8 @@
 from .tb_api_client.swagger_client import Asset, EntityId, Device,  EntityRelation, EntityId
 from .tb_api_client.swagger_client.rest import ApiException
 
+import json
+
 class AbstractProxy(object):
     """
         Abstract Proxy.
@@ -70,22 +72,35 @@ class AbstractProxy(object):
         """
         self._swagger.telemetryApi.save_entity_attributes_v2_using_post(self.entityType, self.id, scope, request=attributes)
 
+<<<<<<< HEAD
     def getAttributes(self):
+=======
+    def getAttributes(self, keys=None):
+>>>>>>> checkRESTTB
         """
-            This doesn't work right now.
-            The problem is that I wrote the Telemetry controller and maybe there is a mistake there.
-            we should try to call the swagger from the CLI...
-
             Get all the attributes of the device.
-        :param keys: list of the attributes key
+        :param keys: string of the attributes key. i.e: 'T,id,longitude'
         :return:
             A dict with the parameters.
         """
         #data,_,_ = self._swagger.telemetryApi.get_attributes_using_get(self.entityType, self.id)
+<<<<<<< HEAD
         data,_,_ = self._swagger.telemetryApi.get_attributes_using_get_with_http_info(self.entityType, self.id)
         print(data)
+=======
+>>>>>>> checkRESTTB
 
-        #return data["result"]
+        param = {}
+        if keys is not None:
+            param['keys'] = keys
+
+        data,_,_ = self._swagger.telemetryApi.get_attributes_using_get_with_http_info(self.entityType, self.id,_preload_content=False, **param)
+        #print(data.data.to_dict())
+        attrDict = {}
+        for attr in json.loads(data.data):
+            attrDict[attr['key']] = attr['value']
+
+        return attrDict
 
 
     def delAttributes(self,attributeName,scope="SERVER_SCOPE"):
