@@ -148,7 +148,7 @@ class Experiment(object):
         return trialJson
 
 
-    def setAttributesInTrial(self, trialName, entityType, entityName, attrMap, updateLevel=None):
+    def setAttributesInTrial(self, trialName, entityType, entityName, attrMap, updateLevel=None, trialJSON=None):
         """
             Also updates the JSON of the trial
             Set the attribute for the required entity and all the entities it contains.
@@ -160,10 +160,8 @@ class Experiment(object):
         :return:
         """
         if updateLevel is None:
-            if type(trialName) is str:
+            if trialJSON is None:
                 trialJSON = self.getTrialJSON(trialName)
-            else:
-                trialJSON = trialName
 
             for i, entityJSON in enumerate(trialJSON['Entities']):
                 if entityJSON['Name']==entityName and entityJSON['entityType']==entityType:
@@ -176,24 +174,22 @@ class Experiment(object):
             if not entityJSON['contains']:
                 path = os.path.join(self.trialsPath, 'execution', '%s.json' % trialName)
                 with open(path, 'w') as trialFile:
-                    json.dump(trialName, trialFile)
+                    json.dump(trialJSON, trialFile, indent=4, sort_keys=True)
                 os.chdir(os.path.join(self._experimentPath, 'experimentData'))
-                os.system('git commit -a -m Attributes of %s: %s, have been updated in trial: %s. Attributes: %s' % (entityType, entityName, trialName, attrMap))
+                os.system('git commit -a -m "Attributes of %s: %s, have been updated in trial: %s. Attributes: %s"' % (entityType, entityName, trialName, attrMap))
             else:
                 for contatinedEntity in entityJSON['contains']:
-                    self.setAttributesInTrial(trialJSON, contatinedEntity[0], contatinedEntity[1], attrMap)
+                    self.setAttributesInTrial(trialName, contatinedEntity[0], contatinedEntity[1], attrMap, trialJSON=trialJSON)
         else:
             if updateLevel < 0:
                 path = os.path.join(self.trialsPath, 'execution', '%s.json' % trialName)
                 with open(path, 'w') as trialFile:
-                    json.dump(trialName, trialFile)
+                    json.dump(trialJSON, trialFile, indent=4, sort_keys=True)
                 os.chdir(os.path.join(self._experimentPath, 'experimentData'))
-                os.system('git commit -a -m Attributes of %s: %s, have been updated in trial: %s. Attributes: %s' % (entityType, entityName, trialName, attrMap))
+                os.system('git commit -a -m "Attributes of %s: %s, have been updated in trial: %s. Attributes: %s"' % (entityType, entityName, trialName, attrMap))
             else:
-                if type(trialName) is str:
+                if trialJSON is None:
                     trialJSON = self.getTrialJSON(trialName)
-                else:
-                    trialJSON = trialName
 
                 for i, entityJSON in enumerate(trialJSON['Entities']):
                     if entityJSON['Name'] == entityName and entityJSON['entityType'] == entityType:
@@ -206,13 +202,13 @@ class Experiment(object):
                 if not entityJSON['contains']:
                     path = os.path.join(self.trialsPath, 'execution', '%s.json' % trialName)
                     with open(path, 'w') as trialFile:
-                        json.dump(trialName, trialFile)
+                        json.dump(trialJSON, trialFile, indent=4, sort_keys=True)
                     os.chdir(os.path.join(self._experimentPath, 'experimentData'))
-                    os.system('git commit -a -m Attributes of %s: %s, have been updated in trial: %s. Attributes: %s' % (entityType, entityName, trialName, attrMap))
+                    os.system('git commit -a -m "Attributes of %s: %s, have been updated in trial: %s. Attributes: %s"' % (entityType, entityName, trialName, attrMap))
                 else:
                     for contatinedEntity in entityJSON['contains']:
                         self.setAttributesInTrial(trialJSON, contatinedEntity[0], contatinedEntity[1], attrMap,
-                                                 updateLevel - 1)
+                                                 updateLevel=updateLevel - 1, trialJSON=trialJSON)
 
 
     def getTrialsEntities(self):
@@ -238,7 +234,7 @@ class Experiment(object):
             trialsDict[columnNames] = []
         for trialName in self.getTrialList():
             for trialState in trialStates:
-                print(os.path.join(self.trialsPath, trialState, '%s.json' % trialName))
+                #print(os.path.join(self.trialsPath, trialState, '%s.json' % trialName))
                 with open(os.path.join(self.trialsPath, trialState, '%s.json' % trialName), 'r') as trialFile:
                     trialJSON = json.load(trialFile)
                 for entityJSON in trialJSON['Entities']:

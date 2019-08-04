@@ -92,21 +92,22 @@ def process(time, rdd):
                 windowDeviceName = "%s_%ds" % (deviceName, window_in_seconds)
                 client = getClient(windowDeviceName)
                 tbh = tbHome(credentialMap["connection"])
-                #--------------------------------continue here( get attributes not exist)----------------------------------------------------------------
-                tbh.deviceHome.createProxy(deviceName).getAttributes()
+                height = tbh.deviceHome.createProxy(deviceName).getAttributes('height')['height']
                 # deviceName = "Device_10s"
                 startTime = pandas.datetime.time(countedData.index[-numOfTimeIntervalsNeeded-1])# - pandas.Timedelta('%ds' % (window_in_seconds)))
                 endTime = pandas.datetime.time(countedData.index[-1])
                 data = data.between_time(startTime, endTime)
                 trbCalc = TurbulenceCalculatorSpark(data, identifier={'samplingWindow': "%ds" % (window_in_seconds)}, metadata=None)
                 calculatedParams = trbCalc.uu().vv().ww().wT().uv().uw().vw().w3().w4().TKE().wTKE().Ustar().Rvw().Ruw()\
-                                          .MOLength().StabilityMOLength().sigmaHOverUstar().sigmaHOverUbar()\
-                                          .sigmaWOverUstar().sigmaWOverUbar().w3OverSigmaW3().zoL().compute()
+                                          .MOLength().StabilityMOLength().wind_speed().wind_dir()\
+                                          .sigmaHOverUstar().sigmaHOverWindSpeed().sigmaWOverUstar()\
+                                          .sigmaWOverWindSpeed().w3OverSigmaW3().zoL(height).uStarOverWindSpeed()\
+                                          .compute()
                 #timeCalc = calculatedParams.index[0]
                 #values = calculatedParams.T.to_dict()[timeCalc]
                 values = calculatedParams.iloc[0].to_dict()
-                values['wind_speed'] = numpy.hypot(values['v_bar'], values['u_bar'])
-                values['wind_dir'] = numpy.arctan2(values['v_bar'], values['u_bar'])
+                #values['wind_speed'] = numpy.hypot(values['v_bar'], values['u_bar'])
+                #values['wind_dir'] = numpy.arctan2(values['v_bar'], values['u_bar'])
                 values['count'] = len(data)
                 values['frequency'] = values['count']/window_in_seconds
 
@@ -119,7 +120,6 @@ def process(time, rdd):
                    )
     # wordsDataFrame.show()
     except Exception as e:
-        print('-----Exception-----')
         print(e)
 
 if __name__ == "__main__":
