@@ -10,14 +10,15 @@ from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
 import paho.mqtt.client as mqtt
 from pyargos.thingsboard.tbHome import tbHome
+import argparse
 
 credentialMap = {}
 
 connectionMap = {}
 window_in_seconds = None
 
-with open('/home/yehudaa/Projects/2019/TestExp/experimentConfiguration.json') as credentialOpen:
-    credentialMap = json.load(credentialOpen)
+# with open('/home/yehudaa/Projects/2019/TestExp/experimentConfiguration.json') as credentialOpen:
+#     credentialMap = json.load(credentialOpen)
 
 def convertToITM(lon, lat):
     ITM_Proj = Proj('+proj=tmerc +lat_0=31.734393611111113 +lon_0=35.20451694444445 +k=1.0000067 +x_0=219529.584 +y_0=626907.39 +ellps=GRS80 +towgs84=-24.002400,-17.103200,-17.844400,-0.33077,-1.852690,1.669690,5.424800 +units=m +no_defs')
@@ -93,9 +94,11 @@ def process(time, rdd):
             data = deviceData.set_index('Time')[['longitude', 'latitude']]
             convertDataToITM(data)
             # print('----------%s----------'%(deviceName))
-            resampledData = data.resample('%ds' % (window_in_seconds))
-            dataToPublish = resampledData.mean()
-            if (len(dataToPublish) > 2):
+            #resampledData = data.resample('%ds' % (window_in_seconds))
+            dataToPublish = data.resample('%ds' % (window_in_seconds)).mean()
+            numOfTimeIntervals = len(dataToPublish)
+            numOfTimeIntervalsNeeded = int(window_in_seconds / sliding_in_seconds)
+            if (numOfTimeIntervals >= numOfTimeIntervalsNeeded+2):
                 timeCalc = dataToPublish.index[1]
                 values = dataToPublish.iloc[1].to_dict()
 
@@ -118,17 +121,30 @@ if __name__ == "__main__":
     # use padnas timedelta to set windows_in_seconds with total_seconds().
 
     globals()
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--expConf", dest="conf", help="The experiment configuration file", required=True)
+    parser.add_argument("--window", dest="window", help="The spark window time", required=True, type=str)
+    parser.add_argument("--sliding", dest="sliding", help="The spark sliding time", required=True, type=str)
+    parser.add_argument("--broker", dest="broker", help="The broker", required=True, type=str)
+    parser.add_argument("--topic", dest="topic", help="The topic", required=True, type=str)
+    args = parser.parse_args()
+
+    with open('/home/yehudaa/Projects/2019/TestExp/experimentConfiguration.json') as credentialOpen:
+        credentialMap = json.load(credentialOpen)
+
     windowInput = '60s'
     window_in_seconds = pandas.Timedelta(windowInput).seconds
-
+    sliding_in_seconds = pandas.Timedelta(args.sliding).seconds
 
     sc = SparkContext(appName="PythonStreamingDirectKafkaWordCount")
     sc.setLogLevel("WARN")
     ssc = StreamingContext(sc, window_in_seconds)
-    brokers, topic = sys.argv[1:]
+    brokers = args.broker
+    topic = args.topic
     kvs = KafkaUtils.createDirectStream(ssc, [topic], {"metadata.broker.list": brokers})
     lines = kvs.map(lambda x: x[1])
-    linesAsJson = lines.map(lambda x: json.loads(x)).window(3 * window_in_seconds, window_in_seconds)
+    linesAsJson = lines.map(lambda x: json.loads(x)).window(3 * window_in_seconds, sliding_in_seconds)
     try:
         linesAsJson.foreachRDD(process)
     except('Stop Iteration'):
