@@ -1,6 +1,9 @@
 from .tb_api_client.swagger_client import Asset, EntityId, Device,  EntityRelation, EntityId
 from .tb_api_client.swagger_client.rest import ApiException
 
+from pymeteo.datacenter.cassandraBag import CassandraBag
+
+import pandas
 import json
 
 class AbstractProxy(object):
@@ -72,24 +75,13 @@ class AbstractProxy(object):
         """
         self._swagger.telemetryApi.save_entity_attributes_v2_using_post(self.entityType, self.id, scope, request=attributes)
 
-<<<<<<< HEAD
-    def getAttributes(self):
-=======
     def getAttributes(self, keys=None):
->>>>>>> checkRESTTB
         """
             Get all the attributes of the device.
         :param keys: string of the attributes key. i.e: 'T,id,longitude'
         :return:
             A dict with the parameters.
         """
-        #data,_,_ = self._swagger.telemetryApi.get_attributes_using_get(self.entityType, self.id)
-<<<<<<< HEAD
-        data,_,_ = self._swagger.telemetryApi.get_attributes_using_get_with_http_info(self.entityType, self.id)
-        print(data)
-=======
->>>>>>> checkRESTTB
-
         param = {}
         if keys is not None:
             param['keys'] = keys
@@ -156,6 +148,15 @@ class DeviceProxy(AbstractProxy):
             return retval.credentials_id
         except ApiException as e:
             return []
+
+    def getTelemetry(self, start_time, end_time, partitions=10, IP='127.0.0.1', db_name='thingsboard', set_name='ts_kv_cf'):
+        cdb = CassandraBag(deviceID=self.id, IP=IP, db_name=db_name, set_name=set_name)
+        bg = cdb.bag(start_time, end_time, partitions)
+        meta = {'ts': int, 'key': str, 'dbl_v': float}
+        bgDataFrame = bg.to_dataframe(meta=meta)
+        df = bgDataFrame.compute().pivot_table(index='ts', columns='key', values='dbl_v')
+        df.index = [pandas.Timestamp.fromtimestamp(x / 1000.0) for x in df.index]
+        return df
 
 
 class AssetProxy(AbstractProxy):
