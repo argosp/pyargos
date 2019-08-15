@@ -14,6 +14,10 @@ class Experiment(object):
     def trialsPath(self):
         return os.path.join(self._experimentPath, 'experimentData', 'trials')
 
+    @property
+    def home(self):
+        return self._home
+
     def __init__(self, configJsonPath):
         """
             Initialize home.
@@ -213,11 +217,11 @@ class Experiment(object):
 
     def getTrialsEntities(self):
         """
-        Return a pandas with the definition of all the trials.
+        Return a pandas with the definition of all entities of all trials.
 
         The pandas columns are:
 
-        trialName, entityType, entityName, type, attributeName, attributeValue
+        trialName, trialState, entityType, entityName, Type, attributeName, attributeValue
 
         :return: a pandas.
         """
@@ -230,8 +234,8 @@ class Experiment(object):
         #               'Attribute Value': []
         #               }
         trialsDict = {}
-        for i in range(len(columnNames)):
-            trialsDict[columnNames] = []
+        for columnName in columnNames:
+            trialsDict[columnName] = []
         for trialName in self.getTrialList():
             for trialState in trialStates:
                 #print(os.path.join(self.trialsPath, trialState, '%s.json' % trialName))
@@ -244,8 +248,8 @@ class Experiment(object):
                         # trialsDict['Attribute Name'].append(attributeName)
                         # trialsDict['Attribute Value'].append(attributeValue)
                         valuesList = [trialName, trialState, entityJSON['entityType'], entityJSON['Name'], entityJSON['Type'], attributeName, attributeValue]
-                        for i in range(len(columnNames)):
-                            trialsDict[i].append(valuesList[i])
+                        for i, columnName in enumerate(columnNames):
+                            trialsDict[columnName].append(valuesList[i])
                         # trialsDict[columnNames[0]].append(trialName)
                         # trialsDict[columnNames[1]].append(trialState)
                         # trialsDict[columnNames[2]].append(entityJSON['entityType'])
@@ -255,6 +259,33 @@ class Experiment(object):
                         # trialsDict[columnNames[6]].append(attributeValue)
         return pandas.DataFrame(trialsDict)
 
+    def getTrials(self):
+        """
+        Return a pandas with the definition of all trials.
+        :return: a pandas.
+        """
+        trialStates = ['design', 'execution']
+        columnNames = ['trialName', 'trialState', 'propertyName', 'propertyValue']
+        trialsDict = {}
+        for columnName in columnNames:
+            trialsDict[columnName] = []
+        for trialName in self.getTrialList():
+            for trialState in trialStates:
+                with open(os.path.join(self.trialsPath, trialState, '%s.json' % trialName), 'r') as trialFile:
+                    trialJSON = json.load(trialFile)
+                flag = True
+                for propertyName, propertyValue in trialJSON['properties'].items():
+                    if type(propertyValue) is not dict:
+                        flag = False
+                        valuesList = [trialName, trialState, propertyName, propertyValue]
+                        for i, columnName in enumerate(columnNames):
+                            trialsDict[columnName].append(valuesList[i])
+                if flag:
+                    valuesList = [trialName, trialState, None, None]
+                    for i, columnName in enumerate(columnNames):
+                        trialsDict[columnName].append(valuesList[i])
+
+        return pandas.DataFrame(trialsDict)
 
     def loadTrial(self, trialName):
         """

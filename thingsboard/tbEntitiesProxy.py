@@ -128,6 +128,11 @@ class AbstractProxy(object):
                                                                                         relationDict['to']['id'],
                                                                                         relationDict['to']['entity_type'])
 
+    def getAlarms(self, limit=10000):
+        data = self._swagger.alarmApi.get_alarms_using_get_with_http_info(entity_type=self.entityType, entity_id=self.id, limit=limit, fetch_originator=True)[0].to_dict()['data']
+        data = pandas.DataFrame(data)
+        return data
+
 
 class DeviceProxy(AbstractProxy):
     """
