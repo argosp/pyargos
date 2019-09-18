@@ -99,7 +99,7 @@ def process(time, rdd):
         wordsDataFrame = spark.createDataFrame(rowRdd)
         # print(wordsDataFrame.toPandas())
         for deviceName, deviceData in wordsDataFrame.toPandas().groupby("Device"):
-            data = deviceData.set_index('Time')[['ppm2000', 'ppm50']] #, 'latitude', 'longitude']]
+            data = deviceData.set_index('Time')[['ppm2000', 'ppm50', 'latitude', 'longitude']]
             data['ppm'] = _calcPPM(data['ppm50'].values, data['ppm2000'].values)
             # print('----------%s----------'%(deviceName))
             countedData = data.resample('%ds' % (sliding_in_seconds)).count()
@@ -154,8 +154,8 @@ def process(time, rdd):
                                                      ppm_quantile90=quantile90Data['ppm'],
                                                      ppm_max=maxMap[deviceName],
                                                      ppm_dosage=dosageMap[deviceName],
-                                                     # latitude=meanData['latitude'],
-                                                     # longitude=meanData['longitude'],
+                                                     latitude=meanData['latitude'],
+                                                     longitude=meanData['longitude'],
                                                      frequency=dataToPublish['count']/window_in_seconds
                                                      )
 
