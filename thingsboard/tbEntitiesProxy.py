@@ -19,6 +19,7 @@ class AbstractProxy(object):
     _swagger = None
     _home    = None
 
+    _AlarmsData = None
 
     @property
     def id(self):
@@ -63,6 +64,7 @@ class AbstractProxy(object):
 
         self._swagger = swagger
         self._home    = home
+
 
 
     def setAttributes(self, attributes,scope="SERVER_SCOPE"):
@@ -129,8 +131,13 @@ class AbstractProxy(object):
                                                                                         relationDict['to']['entity_type'])
 
     def getAlarms(self, limit=10000):
-        data = self._swagger.alarmApi.get_alarms_using_get_with_http_info(entity_type=self.entityType, entity_id=self.id, limit=limit, fetch_originator=True)[0].to_dict()['data']
-        data = pandas.DataFrame(data)
+        if self._AlarmsData is None:
+            data = self._swagger.alarmApi.get_alarms_using_get_with_http_info(entity_type=self.entityType, entity_id=self.id, limit=limit, fetch_originator=True)[0].to_dict()['data']
+            data = pandas.DataFrame(data)
+            self._AlarmsData = data
+        else:
+            data = self._AlarmsData
+
         return data
 
 
@@ -139,9 +146,12 @@ class DeviceProxy(AbstractProxy):
         A proxy of the device in the TB server.
     """
 
+    _telemetry = None
+
     def __init__(self, deviceData, swagger, home, **kwargs):
         super().__init__(deviceData, swagger, home, **kwargs)
         self._entityType = "DEVICE"
+        self._telemetry  = {}
 
     def getCredentials(self):
         """
@@ -155,12 +165,18 @@ class DeviceProxy(AbstractProxy):
             return []
 
     def getTelemetry(self, start_time, end_time, partitions=10, IP='127.0.0.1', db_name='thingsboard', set_name='ts_kv_cf'):
-        cdb = CassandraBag(deviceID=self.id, IP=IP, db_name=db_name, set_name=set_name)
-        bg = cdb.bag(start_time, end_time, partitions)
-        meta = {'ts': int, 'key': str, 'dbl_v': float}
-        bgDataFrame = bg.to_dataframe(meta=meta)
-        df = bgDataFrame.compute().pivot_table(index='ts', columns='key', values='dbl_v')
-        df.index = [pandas.Timestamp.fromtimestamp(x / 1000.0) for x in df.index]
+
+        if (start_time,end_time) in self._telemetry:
+            df = self._telemetry[(start_time,end_time)]
+        else:
+            cdb = CassandraBag(deviceID=self.id, IP=IP, db_name=db_name, set_name=set_name)
+            bg = cdb.bag(start_time, end_time, partitions)
+            meta = {'ts': int, 'key': str, 'dbl_v': float}
+            bgDataFrame = bg.to_dataframe(meta=meta)
+            df = bgDataFrame.compute().pivot_table(index='ts', columns='key', values='dbl_v')
+            df.index = [pandas.Timestamp.fromtimestamp(x / 1000.0) for x in df.index]
+            self._telemetry[(start_time,end_time)] = df
+
         return df
 
 
