@@ -133,15 +133,15 @@ class Experiment(object):
             with open(os.path.join(self.trialsPath, 'execution', '%s.json' % trialName), 'r') as trialJSON:
                 trialJson = json.load(trialJSON)
         else:
-            try:
-                with open(os.path.join(self.trialsPath, 'design', '%s.json' % trialName), 'r') as trialJSON:
-                    trialJson = json.load(trialJSON)
-            except FileNotFoundError:
-                raise FileNotFoundError('A trial named "%s" does not exist' % trialName)
+            # try:
+            #     with open(os.path.join(self.trialsPath, 'design', '%s.json' % trialName), 'r') as trialJSON:
+            #         trialJson = json.load(trialJSON)
+            # except FileNotFoundError:
+            #     raise FileNotFoundError('A trial named "%s" does not exist' % trialName)
+            trialJson = self.getTrialJSON_from_design(trialName)
             with open(os.path.join(self.trialsPath, 'execution', '%s.json' % trialName), 'w') as trialJSON:
                 json.dump(trialJson, trialJSON, indent=4, sort_keys=True)
         return trialJson
-
 
     def getTrialJSON_from_design(self, trialName):
         try:
@@ -151,6 +151,19 @@ class Experiment(object):
             raise FileNotFoundError('A trial named "%s" does not exist' % trialName)
         return trialJson
 
+    def getContainedEntities(self, trialName, entityType, entityName, trialState='execution'):
+        if trialState is 'execution':
+            trialJson = self.getTrialJSON(trialName)
+        else:
+            trialJson = self.getTrialJSON_from_design(trialName)
+        containedEntities = pandas.DataFrame(columns=['entityType', 'entityName'])
+        for entityJson in trialJson['Entities']:
+            if entityJson['Name']==entityName and entityJson['entityType']==entityType:
+                for containedEntity in entityJson['contains']:
+                    containedEntities = containedEntities.append({'entityType':containedEntity[0], 'entityName':containedEntity[1]}, ignore_index=True)
+                break
+
+        return containedEntities
 
     def setAttributesInTrial(self, trialName, entityType, entityName, attrMap, updateLevel=None, trialJSON=None):
         """
