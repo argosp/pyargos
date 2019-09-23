@@ -1,6 +1,8 @@
 from collections.abc import Iterable
+from itertools import zip_longest
 import os
 from ..experimentManagement import Experiment
+
 
 def andClause(excludelist =[],**filters):
     L  =[]
@@ -60,11 +62,11 @@ class abstractReport(object):
         raise NotImplementedError("Must implement in child")
 
     def makeReport(self):
-        params = self._create()
-
+        metaData = self._create()
+        print(metaData)
         ###
         template = self.jinjaEnv.get_template('%s.tex' % self.templateName)
-        rendered_tex = template.render(**params)
+        rendered_tex = template.render(metaData=metaData,enumerate=enumerate,len=len,zip_longest=zip_longest)
 
         with open(os.path.join(self.outPath,"%s.tex" % self.outName), 'w') as outFile:
             outFile.write(rendered_tex)
