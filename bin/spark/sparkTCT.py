@@ -82,8 +82,7 @@ def process(time, rdd):
         # Convert RDD[String] to RDD[Row] to DataFrame
         rowRdd = rdd.map(lambda data: Row(Device=str(data['deviceName']),
                                           Time=pandas.datetime.fromtimestamp(float(data['ts']) / 1000.0),
-                                          ppm2000=float(data['ppm2000']),
-                                          ppm50=float(data['ppm50']),
+                                          TCT=float(data['TCT']),
                                           latitude=float(data['latitude']),
                                           longitude=float(data['longitude'])
                                           )
@@ -91,7 +90,7 @@ def process(time, rdd):
         wordsDataFrame = spark.createDataFrame(rowRdd)
         # print(wordsDataFrame.toPandas())
         for deviceName, deviceData in wordsDataFrame.toPandas().groupby("Device"):
-            data = deviceData.set_index('Time')[['TCT']]
+            data = deviceData.set_index('Time')[['TCT', 'latitude', 'longitude']]
             countedData = data.resample('%ds' % (sliding_in_seconds)).count()
             if deviceName=='TCT1':
                 print(countedData[['TCT']].rename(columns={'TCT': 'count'}))
