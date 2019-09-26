@@ -115,7 +115,7 @@ def process(time, rdd):
                 startTime = pandas.datetime.time(countedData.index[-numOfTimeIntervalsNeeded - 1])
                 endTime = pandas.datetime.time(countedData.index[-1])
                 data = data.between_time(startTime, endTime)
-                resampledData = data.resample('%ds' % (window_in_seconds))
+                resampledData = data.resample('%ds' % (window_in_seconds), base=startTime.second)
                 dataToPublish = resampledData[['ppm']].count().rename(columns={'ppm': 'count'})
 
                 meanData = resampledData.mean()
