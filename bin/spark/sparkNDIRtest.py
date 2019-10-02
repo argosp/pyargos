@@ -28,9 +28,9 @@ def convertToITM(lon, lat):
 
 def convertDataToITM(data):
     for time in data.index:
-        latitude, longitude = convertToITM(data.loc[time]['longitude'] ,data.loc[time]['latitude'])
-        data.at[time, 'longitude'] = longitude
-        data.at[time, 'latitude'] = latitude
+        latitude, longitude = convertToITM(data.loc[time]['longitude_ITM'] ,data.loc[time]['latitude_ITM'])
+        data.at[time, 'longitude_ITM'] = longitude
+        data.at[time, 'latitude_ITM'] = latitude
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
@@ -156,13 +156,16 @@ def process(time, rdd):
                                                      ppm_dosage=dosageMap[deviceName],
                                                      latitude=meanData['latitude'],
                                                      longitude=meanData['longitude'],
+                                                     latitude_ITM=meanData['latitude'],
+                                                     longitude_ITM=meanData['longitude'],
                                                      frequency=dataToPublish['count']/window_in_seconds
                                                      )
 
                 #timeCalc = dataToPublish.index[0]
-                values = dataToPublish.iloc[0].to_dict()
 
-                # convertDataToITM(dataToPublish)
+                convertDataToITM(dataToPublish)
+
+                values = dataToPublish.iloc[0].to_dict()
 
                 # print(timeCalc,values)
 
