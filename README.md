@@ -5,11 +5,11 @@ Python wrappings for the argos project
 ==========
 
 - Install anaconda 3 with python 3.7
-- '''
+- ```
    conda create -n Argos python=3.6.5 
    conda activate Argos 
    pip install paho-mqtt numpy pandas urllib3 requests
-  '''
+  ```
 - Add the pyargos to the PYTHONPATH 
 
 
