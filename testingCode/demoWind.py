@@ -33,6 +33,8 @@ args = parser.parse_args()
 
 with open('experimentConfiguration.json', 'r') as expConf:
     config = json.load(expConf)
+
+thingsboardHost =config['connection']['server']['ip']
 tbh = tbHome(config['connection'])
 
 accessToken = tbh._deviceHome.createProxy(args.name).getCredentials()
@@ -41,17 +43,6 @@ min_wind_dir = 0
 max_wind_dir = 360
 min_wind_speed = 0
 max_wind_speed = 10
-
-# values = {
-#     "v1000": min_v1000 + (max_v1000 - min_v1000) * random.rand(),
-#     "v50": min_v50 + (max_v50 - min_v50) * random.rand(),
-#     "ppm1000": min_ppm1000 + (max_ppm1000 - min_ppm1000) * random.rand(),
-#     "ppm50": min_ppm50 + (max_ppm50 - min_ppm50) * random.rand(),
-# }
-# data ={}
-# data['ts'] = 0
-# data['values'] = values
-
 
 print(" Initializing " )
 client = mqtt.Client("Me")
@@ -65,9 +56,9 @@ client.connect(thingsboardHost)
 client.loop_start()
 while (True):
     data={}  
-    data["ts"] = int(pandas.datetime.now().timestamp()*1000)
     data['wind_dir']   = max_wind_dir   * random.rand()
     data['wind_speed'] = max_wind_speed * random.rand()
+    
 
     print("Published %s" % str(data))
     client.publish('v1/devices/me/telemetry',str(dict(data)))

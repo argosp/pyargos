@@ -29,3 +29,19 @@
 6. Now we can finally upload our trial to thingsboard.
    You do it with this line: python yourpath/pyargos/bin/trialManager.py --expConfig experimentConfiguration.json --load trialName
    trialName is the name you chose last step.
+
+
+# Running the wind demo device 
+
+1. If Argos is not in the PYTHONPATH then execute demoWind.py from the testCode directory 
+
+2. Edit the `experimentConfiguration.json` (set server ip). 
+   Be careful not to upload the new settings 
+
+3. Run a device 
+   ``` 
+	python demoWind.py --deviceName wind1 --period 10
+   ```
+
+   devices are wind1,wind2 and wind3 (case sensitive device names). 
+   period is the delay between msgs
