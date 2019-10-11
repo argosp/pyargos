@@ -4,11 +4,14 @@ Python wrappings for the argos project
 ## Install 
 ==========
 
-- Install anaconda python 3.7 
+- Install anaconda 3 with python 3.7
+- '''
+   conda create -n Argos python=3.6.5 
+   conda activate Argos 
+   pip install paho-mqtt numpy pandas urllib3 requests
+  '''
 - Add the pyargos to the PYTHONPATH 
 
-**When using pySpark-streaming it is necessary to 
-create a virtual environment with python 3.6.5.**
 
 ## Loading a trial using the CLI
 ===================================
