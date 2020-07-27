@@ -1,9 +1,4 @@
-<<<<<<< HEAD
-.idea/*
-thingsboard/__pycache__
-=======
 .idea
 *.pyc
 doc/_build
 __pycache__
->>>>>>> master
