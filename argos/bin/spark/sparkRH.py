@@ -14,8 +14,6 @@ credentialMap = {}
 
 connectionMap = {}
 window_in_seconds = None
-maxMap = {}
-dosageMap = {}
 
 # with open('/home/yehudaa/Projects/2019/TestExp/experimentConfiguration.json', 'r') as credentialOpen:
 #     credentialMap = json.load(credentialOpen)
@@ -75,12 +73,6 @@ def getSparkSessionInstance(sparkConf):
         print('failed1')
 
 
-def _calcPPM(ppm50, ppm1000):
-    ppm = []
-    for i in range(len(ppm50)):
-        ppm.append(ppm50[i] if ppm1000[i]<=50 else ppm1000[i])
-    return ppm
-
 def process(time, rdd):
     print("========= %s =========" % str(time))
     try:
@@ -90,8 +82,7 @@ def process(time, rdd):
         # Convert RDD[String] to RDD[Row] to DataFrame
         rowRdd = rdd.map(lambda data: Row(Device=str(data['deviceName']),
                                           Time=pandas.datetime.fromtimestamp(float(data['ts']) / 1000.0),
-                                          ppm1000=float(data['ppm1000']),
-                                          ppm50=float(data['ppm50']),
+                                          RH=float(data['RH']),
                                           latitude=float(data['latitude']),
                                           longitude=float(data['longitude'])
                                           )
@@ -99,13 +90,10 @@ def process(time, rdd):
         wordsDataFrame = spark.createDataFrame(rowRdd)
         # print(wordsDataFrame.toPandas())
         for deviceName, deviceData in wordsDataFrame.toPandas().groupby("Device"):
-            data = deviceData.set_index('Time')[['ppm1000', 'ppm50']] #, 'latitude', 'longitude']]
-            data['ppm'] = _calcPPM(data['ppm50'].values, data['ppm1000'].values)
-            # print('----------%s----------'%(deviceName))
+            data = deviceData.set_index('Time')[['RH', 'latitude', 'longitude']]
             countedData = data.resample('%ds' % (sliding_in_seconds)).count()
-            if deviceName=='SN0001':
-                print(countedData[['ppm']].rename(columns={'ppm': 'count'}))
-            #dataToPublish = resampledData[['ppm']].count().rename(columns={'ppm': 'count'})
+            if deviceName=='RH':
+                print(countedData[['RH']].rename(columns={'RH': 'count'}))
             numOfTimeIntervals = len(countedData)
             numOfTimeIntervalsNeeded = int(window_in_seconds / sliding_in_seconds)
             if (numOfTimeIntervals >= numOfTimeIntervalsNeeded+2):
@@ -116,7 +104,7 @@ def process(time, rdd):
                 endTime = pandas.datetime.time(countedData.index[-1])
                 data = data.between_time(startTime, endTime)
                 resampledData = data.resample('%ds' % (window_in_seconds))
-                dataToPublish = resampledData[['ppm']].count().rename(columns={'ppm': 'count'})
+                dataToPublish = resampledData[['RH']].count().rename(columns={'RH': 'count'})
 
                 meanData = resampledData.mean()
                 stdData = resampledData.std()
@@ -126,45 +114,22 @@ def process(time, rdd):
                 quantile75Data = resampledData.quantile(0.75)
                 quantile90Data = resampledData.quantile(0.9)
 
-                lastMax = maxMap.setdefault(deviceName, 0)
-                maxMap[deviceName] = max(lastMax, resampledData.max().iloc[0]['ppm'])
-                lastDosage = dosageMap.setdefault(deviceName, 0)
-                dosageMap[deviceName] = lastDosage + window_in_seconds*meanData.iloc[0]['ppm']
 
-                dataToPublish = dataToPublish.assign(ppm1000_mean=meanData['ppm1000'],
-                                                     ppm50_mean=meanData['ppm50'],
-                                                     ppm_mean=meanData['ppm'],
-                                                     ppm1000_std=stdData['ppm1000'],
-                                                     ppm50_std=stdData['ppm50'],
-                                                     ppm_std=stdData['ppm'],
-                                                     ppm1000_quantile10=quantile10Data['ppm1000'],
-                                                     ppm50_quantile10=quantile10Data['ppm50'],
-                                                     ppm_quantile10=quantile10Data['ppm'],
-                                                     ppm1000_quantile25=quantile25Data['ppm1000'],
-                                                     ppm50_quantile25=quantile25Data['ppm50'],
-                                                     ppm_quantile25=quantile25Data['ppm'],
-                                                     ppm1000_quantile50=quantile50Data['ppm1000'],
-                                                     ppm50_quantile50=quantile50Data['ppm50'],
-                                                     ppm_quantile50=quantile50Data['ppm'],
-                                                     ppm1000_quantile75=quantile75Data['ppm1000'],
-                                                     ppm50_quantile75=quantile75Data['ppm50'],
-                                                     ppm_quantile75=quantile75Data['ppm'],
-                                                     ppm1000_quantile90=quantile90Data['ppm1000'],
-                                                     ppm50_quantile90=quantile90Data['ppm50'],
-                                                     ppm_quantile90=quantile90Data['ppm'],
-                                                     ppm_max=maxMap[deviceName],
-                                                     ppm_dosage=dosageMap[deviceName],
-                                                     # latitude=meanData['latitude'],
-                                                     # longitude=meanData['longitude'],
+                dataToPublish = dataToPublish.assign(RH_mean=meanData['RH'],
+                                                     RH_std=stdData['RH'],
+                                                     RH_quantile10=quantile10Data['RH'],
+                                                     RH_quantile25=quantile25Data['RH'],
+                                                     RH_quantile50=quantile50Data['RH'],
+                                                     RH_quantile75=quantile75Data['RH'],
+                                                     RH_quantile90=quantile90Data['RH'],
+                                                     latitude=meanData['latitude'],
+                                                     longitude=meanData['longitude'],
                                                      frequency=dataToPublish['count']/window_in_seconds
                                                      )
 
-                #timeCalc = dataToPublish.index[0]
                 values = dataToPublish.iloc[0].to_dict()
 
                 # convertDataToITM(dataToPublish)
-
-                # print(timeCalc,values)
 
                 client.publish('v1/devices/me/telemetry', str({"ts": int(1000 * (pandas.datetime.timestamp(countedData.index[-numOfTimeIntervalsNeeded-1]))),
                                                                "values": values
@@ -176,15 +141,10 @@ def process(time, rdd):
                 #                                                 }
                 #                                                )
                 #                )
-    # wordsDataFrame.show()
     except Exception as e:
         print(e)
 
 if __name__ == "__main__":
-
-    # argparse
-    # read the config file with the connection paramters.
-    # use padnas timedelta to set windows_in_seconds with total_seconds().
 
     globals()
 

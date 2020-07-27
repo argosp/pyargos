@@ -4,7 +4,7 @@ import requests
 from .tb_api_client.swagger_client import ApiClient, Configuration
 from .tb_api_client.swagger_client import Asset, Device
 from .tb_api_client.swagger_client.rest import ApiException
-from .tb_api_client.swagger_client import DeviceControllerApi, AssetControllerApi, EntityRelationControllerApi
+from .tb_api_client.swagger_client import DeviceControllerApi, AssetControllerApi, EntityRelationControllerApi, AlarmControllerApi
 from .tb_api_client.swagger_client import TelemetryControllerApi
 
 
@@ -167,6 +167,10 @@ class swaggerAPI(object):
     def telemetryApi(self):
         return self._TelemetryApi
 
+    @property
+    def alarmApi(self):
+        return self._AlarmApi
+
     def getApi(self,entityType):
         return getattr(self,"_%sApi"% entityType.title())
 
@@ -195,6 +199,7 @@ class swaggerAPI(object):
         self._DeviceApi = DeviceControllerApi(api_client=self._api_client)
         self._EntityRelationApi = EntityRelationControllerApi(api_client=self._api_client)
         self._TelemetryApi = TelemetryControllerApi(self._api_client)
+        self._AlarmApi = AlarmControllerApi(api_client=self._api_client)
 
     def _getApiClient(self, connectdata=None):
         """
