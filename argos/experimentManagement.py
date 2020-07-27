@@ -1,7 +1,7 @@
 import os
 import json
 import pandas
-import pyargos.thingsboard as tb
+from . import thingsboard as tb
 
 
 class Experiment(object):
