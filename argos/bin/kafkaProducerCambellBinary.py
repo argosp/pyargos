@@ -44,7 +44,7 @@ while True:
     if True: #tmpUpdateTime!=lastUpdateTime:
         lastUpdateTime = tmpUpdateTime
 
-        doc = cb_dl.getDocFromDB(projectName=args.projectName, station=station, instrument=instrument, height=heights[0])
+        doc = meteo.CampbellBinary_datalayer.getDocFromDB(projectName=args.projectName, station=station, instrument=instrument, height=heights[0])
         lastTimeInDB = doc[0].getData().tail(1).index[0] if doc else cbi.firstTime
 
         # lastTimeInDB = pandas.Timestamp('2020-07-29 10:00:00.992000')
