@@ -1,7 +1,8 @@
+import os
 from collections.abc import Iterable
 from itertools import zip_longest
-import os
-from ..experimentManagement import Experiment
+
+from argos.experimentManagement import Experiment
 
 
 def andClause(excludelist =[],**filters):
