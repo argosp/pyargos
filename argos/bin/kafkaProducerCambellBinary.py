@@ -4,7 +4,7 @@ from kafka import KafkaProducer
 import time
 import pandas
 from hera import meteo
-from .. kafka import pandasSerializer
+from argos.kafka import pandasSerializer
 
 
 parser = argparse.ArgumentParser()
