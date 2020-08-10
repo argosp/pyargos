@@ -1,11 +1,10 @@
 from kafka import KafkaConsumer
 import argparse
-import pandas
-import json
 import os
 from hera import datalayer
 import dask.dataframe
 import warnings
+from argos.kafka import pandasDeserializer
 
 
 parser = argparse.ArgumentParser()
@@ -15,26 +14,12 @@ parser.add_argument("--outputPath", dest="outputPath" , help="The saving path", 
 parser.add_argument("--kafkaHost", dest="kafkaHost", default="localhost", help="The kafka host in the following format - IP(:port)")
 args = parser.parse_args()
 
-
-def deserializer(message):
-    message = message.decode('utf-8')
-    messageList = message.split('__')
-    if messageList:
-        jsonList = [json.loads(x) for x in messageList]
-        if type(jsonList[0]) != str:
-            jsonList = [x for sublist in jsonList for x in sublist]
-        df = pandas.DataFrame([x['values'] for x in jsonList])
-        df.index = [pandas.Timestamp.utcfromtimestamp(int(x['ts'])/1000.0) for x in jsonList]
-    else:
-        df = pandas.DataFrame()
-    return df
-
 consumer = KafkaConsumer(args.topic,
                          bootstrap_servers=[args.kafkaHost],
                          auto_offset_reset='latest',
                          enable_auto_commit=True,
                          group_id='my-group',
-                         value_deserializer=deserializer
+                         value_deserializer=pandasDeserializer
                          )
 
 deviceName = args.topic
