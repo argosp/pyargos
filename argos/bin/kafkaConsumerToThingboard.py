@@ -9,9 +9,9 @@ from argos.kafka import thingsboardDeserializer
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--topic", dest="topic" , help="The kafka topic to consume from", required=True)
-parser.add_argument("--expConf", dest="expConf", help="The path to the experiment configuration json file", required=False)
-parser.add_argument("--kafkaHost", dest="kafkaHost", default="localhost", help="The kafka host in the following format - ip(:port)", required=False)
-parser.add_argument("--tbHost", dest="tbHost", default="localhost", help="The thingsboard host ip", required=False)
+parser.add_argument("--expConf", dest="expConf", help="The path to the experiment configuration json file")
+parser.add_argument("--kafkaHost", dest="kafkaHost", default="localhost", help="The kafka host in the following format - ip(:port)")
+parser.add_argument("--tbHost", dest="tbHost", default="localhost", help="The thingsboard host ip")
 args = parser.parse_args()
 
 

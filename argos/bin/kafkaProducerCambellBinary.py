@@ -9,6 +9,7 @@ from argos.kafka import pandasSerializer
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--file", dest="file", help="The binary data file path", required=True)
+parser.add_argument("--projectName", dest="projectName" , help="The project name", required=True)
 parser.add_argument("--kafkaHost", dest="kafkaHost", default='localhost', help="The kafka host in the following format - IP(:port)")
 args = parser.parse_args()
 
@@ -23,12 +24,12 @@ except FileNotFoundError:
 cbi = meteo.CampbellBinaryInterface(args.file)
 station = cbi.station
 instrument = cbi.instrument
-heights= cbi.heights
+heights = cbi.heights
 
 
 while True:
     while not flag:
-        time.sleep(1)
+        time.sleep(10)
         if os.path.exists(args.file):
             flag = True
             lastUpdateTime = pandas.Timestamp.fromtimestamp(os.stat(args.file).st_mtime)
@@ -41,11 +42,13 @@ while True:
 
     tmpUpdateTime = pandas.Timestamp.fromtimestamp(os.stat(args.file).st_mtime)
 
-    if True: #tmpUpdateTime!=lastUpdateTime:
+    if tmpUpdateTime!=lastUpdateTime:
+        print('new data')
         lastUpdateTime = tmpUpdateTime
 
         doc = meteo.CampbellBinary_datalayer.getDocFromDB(projectName=args.projectName, station=station, instrument=instrument, height=heights[0])
         lastTimeInDB = doc[0].getData().tail(1).index[0] if doc else cbi.firstTime
+        lastTimeInDB = cbi.firstTime if cbi.firstTime>lastTimeInDB else lastTimeInDB
 
         # lastTimeInDB = pandas.Timestamp('2020-07-29 10:00:00.992000')
 
@@ -58,11 +61,11 @@ while True:
 
             timeSplit = pandas.date_range(lastTimeInDB, cbi.lastTime, totalDelta.seconds//180)
             for startTime, endTime in zip(timeSplit[:-1], timeSplit[1:]):
-                print(startTime, endTime)
+                # print(startTime, endTime)
                 message = pandasSerializer(tmpNewData[startTime:endTime])
                 deviceName = '-'.join([station, instrument, str(height)])
                 producer.send(deviceName, message)
                 time.sleep(2)
                 # import pdb
                 # pdb.set_trace()
-                print('-------- sent ---------\n', f'station - {station},', f'instrument - {instrument},', f'height - {height}')
+                # print('-------- sent ---------\n', f'station - {station},', f'instrument - {instrument},', f'height - {height}')
