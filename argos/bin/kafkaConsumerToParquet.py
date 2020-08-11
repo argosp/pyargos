@@ -27,7 +27,7 @@ station = deviceName.split('-')[0]
 instrument = deviceName.split('-')[1]
 height = int(deviceName.split('-')[2])
 dir_path = os.path.join(args.outputPath, station, instrument, str(height))
-desc = dict(station=station, instrument=instrument, height=height, DataSource='BinaryCampbell')
+desc = dict(station=station, instrument=instrument, height=height, DataSource='CampbellBinary')
 
 _partition_size='100MB'
 
