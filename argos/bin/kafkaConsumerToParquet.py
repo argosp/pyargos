@@ -4,7 +4,8 @@ import os
 from hera import datalayer
 import dask.dataframe
 import warnings
-from argos.kafka import pandasDeserializer
+from argos.kafka import toPandasDeserializer
+import json
 
 
 parser = argparse.ArgumentParser()
@@ -18,8 +19,8 @@ consumer = KafkaConsumer(args.topic,
                          bootstrap_servers=[args.kafkaHost],
                          auto_offset_reset='latest',
                          enable_auto_commit=True,
-                         group_id='my-group',
-                         value_deserializer=pandasDeserializer
+                         group_id='my-group'
+                         #value_deserializer=pandasDeserializer
                          )
 
 deviceName = args.topic
@@ -33,8 +34,11 @@ _partition_size='100MB'
 
 for message in consumer:
     #print('----------',pandas.Timestamp.fromtimestamp(message.timestamp/1000.0),'----------')
-
-    new_dask = dask.dataframe.from_pandas(message.value, npartitions=1)
+    try:
+        new_dask = dask.dataframe.from_pandas(toPandasDeserializer(message.value), npartitions=1)
+    except json.JSONDecodeError:
+        print('esception')
+        continue
     docList = datalayer.Measurements.getDocuments(projectName=args.projectName,
                                                   type='meteorological',
                                                   **desc

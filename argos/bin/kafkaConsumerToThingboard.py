@@ -4,7 +4,7 @@ from kafka import KafkaConsumer
 import argparse
 import json
 import logging
-from argos.kafka import thingsboardDeserializer
+from argos.kafka import toThingsboardDeserializer
 
 
 parser = argparse.ArgumentParser()
@@ -30,8 +30,8 @@ consumer = KafkaConsumer(args.topic,
                          bootstrap_servers=[args.kafkaHost],
                          auto_offset_reset='latest',
                          enable_auto_commit=True,
-                         group_id='my-group',
-                         value_deserializer=thingsboardDeserializer
+                         group_id='my-group'
+                         #value_deserializer=thingsboardDeserializer
                          )
 
 with open('/home/eden/Projects.local/2019/DesertWalls/experimentConfiguration.json') as credentialOpen:  # with open(args.expConf)
@@ -49,4 +49,8 @@ client.loop_start()
 
 for message in consumer:
     # print('----------',pandas.Timestamp.fromtimestamp(message.timestamp/1000.0),'----------')
-    client.publish('v1/devices/me/telemetry', message.value)
+    try:
+        client.publish('v1/devices/me/telemetry', toThingsboardDeserializer(message.value))
+    except json.JSONDecodeError:
+        print('exception')
+        continue
