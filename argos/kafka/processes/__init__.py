@@ -1,10 +1,12 @@
 import pandas
 import paho.mqtt.client as mqtt
-from .. import toPandasDeserializer, pandasDataFrameSerializer
+from .. import toPandasDeserializer, pandasDataFrameSerializer, pandasSeriesSerializer
 import logging
 from argos import tbHome
 from hera import meteo
 import json
+from kafka import KafkaProducer
+import time
 
 
 def on_disconnect(client, userdata, rc=0):
@@ -18,7 +20,61 @@ def on_connect(client, userdata, flags, rc):
     else:
         print("Connection failed")
 
-def print_sliding_window(consumer, window, slide):
+def print_mean_T(data):
+    if data is not None:
+        print('Mean T - ', data['T'].mean())
+
+def send_kafka(data, topic, kafkaHost):
+    producer = KafkaProducer(bootstrap_servers=kafkaHost)
+    message = pandasDataFrameSerializer(data)
+    producer.send(topic, message)
+
+def calc_fluctuations(data, topic, kafkaHost='localhost'):
+    trc = meteo.getTurbulenceCalculator(data=data, samplingWindow=None)
+    calculatedData = trc.fluctuations().compute()
+    send_kafka(data=data, topic=topic, kafkaHost=kafkaHost)
+    # print(calculatedData)
+
+def to_thingsboard(data, deviceName, tbHost='localHost', expConf='/home/eden/Projects.local/2019/DesertWalls/experimentConfiguration.json'):
+    with open(expConf, 'r') as credentialOpen:  # with open(args.expConf)
+        credentialMap = json.load(credentialOpen)
+    tbh = tbHome(credentialMap["connection"])
+
+    #deviceName = 'producerTest'
+
+    client = mqtt.Client("Me_%s" % deviceName)
+    accessToken = tbh.deviceHome.createProxy(deviceName).getCredentials()
+    client.username_pw_set(accessToken, password=None)
+    client.on_disconnect = on_disconnect
+    client.connect(tbHost)
+    client.loop_start()
+
+    data.index = [x.tz_localize('israel') for x in data.index]
+    client.publish('v1/devices/me/telemetry', pandasDataFrameSerializer(data))
+
+
+
+def print_fluctuations2(data, deviceName, tbHost='localHost', expConf='/home/eden/Projects.local/2019/DesertWalls/experimentConfiguration.json'):
+    with open(expConf, 'r') as credentialOpen:  # with open(args.expConf)
+        credentialMap = json.load(credentialOpen)
+    tbh = tbHome(credentialMap["connection"])
+
+    #deviceName = 'producerTest'
+
+    client = mqtt.Client("Me_%s" % deviceName)
+    accessToken = tbh.deviceHome.createProxy(deviceName).getCredentials()
+    client.username_pw_set(accessToken, password=None)
+    client.on_disconnect = on_disconnect
+    client.connect(tbHost)
+    client.loop_start()
+
+    trc = meteo.getTurbulenceCalculator(data=data, samplingWindow=None)
+    calculatedData = trc.fluctuations().compute()
+    calculatedData.index = [x.tz_localize('israel') for x in calculatedData.index]
+    print(calculatedData)
+    client.publish('v1/devices/me/telemetry', pandasDataFrameSerializer(calculatedData))
+
+def print_sliding_window_old(consumer, window, slide):
     print(window, '---', slide)
 
     df = pandas.DataFrame()
@@ -45,7 +101,7 @@ def print_sliding_window(consumer, window, slide):
                 print(f'Exception {exception} handled')
 
 
-def publish_sliding_window_fluctuations(consumer, window, slide, deviceName, tbHost='localhost', expConf='/home/eden/Projects.local/2019/DesertWalls/experimentConfiguration.json'):
+def publish_sliding_window_fluctuations_old(consumer, window, slide, deviceName, tbHost='localhost', expConf='/home/eden/Projects.local/2019/DesertWalls/experimentConfiguration.json'):
     print(window, '---', slide, '---', 'fluctuations')
 
     with open(expConf, 'r') as credentialOpen:  # with open(args.expConf)
