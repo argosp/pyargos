@@ -13,9 +13,11 @@ def run(deviceName, data, kafkaHost):
     producer = KafkaProducer(bootstrap_servers=kafkaHost)
     # totalDelta = data.index[-1]-data.index[0]
     # timeSplit = pandas.date_range(data.index[0], data.index[-1], totalDelta.seconds//10)
-    nowTime = pandas.Timestamp.now()
-    while nowTime.second!=data.index[0].second:
-        nowTime = pandas.Timestamp.now()
+
+    # nowTime = pandas.Timestamp.now()
+    # while nowTime.second!=data.index[0].second:
+    #     nowTime = pandas.Timestamp.now()
+
     # for startTime, endTime in zip(timeSplit[:-1], timeSplit[1:]):
     #     if deviceName == 'Hamadpis-Raw_Sonic-16':
     #         print(startTime, '-', endTime)
@@ -25,7 +27,7 @@ def run(deviceName, data, kafkaHost):
     for timeIndex in data.index:
         message = pandasSeriesSerializer(data.loc[timeIndex])
         producer.send(deviceName, message)
-        time.sleep(0.032)
+        time.sleep(0.016)
 
 if __name__ == "__main__":
 
