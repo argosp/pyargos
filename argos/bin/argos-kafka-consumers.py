@@ -1,12 +1,11 @@
-from kafka import KafkaConsumer, KafkaProducer
 import argparse
-from argos.kafka import ConsumerProcessor
+from argos.kafka import Processor
 import json
 from multiprocessing import Pool
 
 
 def startProcesses(kafkaHost, topic, window, slide, processesDict, expConf):
-    ConsumerProcessor(kafkaHost, topic, window, slide, processesDict, expConf).start()
+    Processor(kafkaHost, topic, window, slide, processesDict, expConf).start()
 
 
 if __name__ == "__main__":
@@ -24,18 +23,15 @@ if __name__ == "__main__":
         for window, windowDict in topicDict.items():
             for slide, slideDict in windowDict.items():
                 poolNum += len(slideDict)
-    print(poolNum)
     consumersDict = {}
 
     with Pool(poolNum) as p:
         startProcessesInputs = []
         for topic, topicDict in config.items():
-            # print(topicConfig['topic'])
             for window, windowDict in topicDict.items():
                 window = None if window=='None' else int(window)
                 for slide, slideDict in windowDict.items():
                     slide = None if slide=='None' else int(slide)
                     startProcessesInputs.append((args.kafkaHost, topic, window, slide, slideDict, args.expConf))
-        # print(processesInputs)
         print('---- ready ----')
         p.starmap(startProcesses, startProcessesInputs)
