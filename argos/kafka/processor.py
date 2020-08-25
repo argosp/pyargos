@@ -7,7 +7,8 @@ import json
 import paho.mqtt.client as mqtt
 import logging
 
-class ConsumerProcessor(object):
+
+class Processor(object):
     _kafkaHost = None
     _topic = None
     _window = None
@@ -99,7 +100,6 @@ class ConsumerProcessor(object):
             self._clients[deviceName] = client
             client.loop_start()
         return self.clients[deviceName]
-
 
     def start(self):
         for message in self.kafkaConsumer:
