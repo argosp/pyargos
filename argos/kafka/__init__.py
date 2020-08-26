@@ -1,3 +1,3 @@
 from .deserializers import *
 from .serializers import *
-from .processor import Processor
+from .processors import ProjectProcessor

@@ -1,11 +1,6 @@
 import argparse
-from argos.kafka import SimpleProcessor
+from argos.kafka import ProjectProcessor
 import json
-from multiprocessing import Pool
-
-
-def startProcesses(projectName, kafkaHost, topic, window, slide, processesDict, expConf):
-    SimpleProcessor(projectName, kafkaHost, topic, window, slide, processesDict, expConf).start()
 
 
 if __name__ == "__main__":
@@ -17,21 +12,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     with open(args.config) as configFile:
-        config = json.load(configFile)
+        consumersConf = json.load(configFile)
 
-    poolNum = 0
-    for topic, topicDict in config.items():
-        for window, windowDict in topicDict.items():
-            for slide, slideDict in windowDict.items():
-                poolNum += len(slideDict)
+    projectProcessor = ProjectProcessor(args.projectName, args.kafkaHost, args.expConf, consumersConf)
 
-    with Pool(poolNum) as p:
-        startProcessesInputs = []
-        for topic, topicDict in config.items():
-            for window, windowDict in topicDict.items():
-                window = None if window=='None' else int(window)
-                for slide, slideDict in windowDict.items():
-                    slide = None if slide=='None' else int(slide)
-                    startProcessesInputs.append((args.projectName, args.kafkaHost, topic, window, slide, slideDict, args.expConf))
-        print('---- ready ----')
-        p.starmap(startProcesses, startProcessesInputs)
+    projectProcessor.start()
