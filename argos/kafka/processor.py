@@ -6,9 +6,70 @@ from argos import tbHome
 import json
 import paho.mqtt.client as mqtt
 import logging
+from multiprocessing import Pool
+
+
+class ProjectProcessor(object):
+    _projectName = None
+    _kafkaHost = None
+    _consumersConf = None
+
+    _tbh = None
+    _tbHost = None
+
+    _clients = None
+
+    @property
+    def consumersConf(self):
+        return self._consumersConf
+
+    @property
+    def projectName(self):
+        return self._projectName
+
+    @property
+    def kafkaHost(self):
+        return self._kafkaHost
+
+    def __init__(self, projectName, kafkaHost, expConf, consumersConf):
+        self._projectName = projectName
+        self._kafkaHost = kafkaHost
+
+        with open(expConf ,'r') as jsonFile:
+            credentialMap = json.load(jsonFile)
+        self._tbh = tbHome(credentialMap["connection"])
+        self._tbHost = credentialMap["connection"]["server"]["ip"]
+
+        self._clients = dict()
+
+        self._cosumersConf = consumersConf
+
+    def _startProcesses(self, projectName, kafkaHost, topic, window, slide, processesDict, expConf):
+        Processor(projectName, kafkaHost, topic, window, slide, processesDict, expConf).start()
+
+    def _getPoolNum(self):
+        poolNum = 0
+        for topic, topicDict in self.consumersConf.items():
+            for window, windowDict in topicDict.items():
+                for slide, slideDict in windowDict.items():
+                    poolNum += len(slideDict)
+        return poolNum
+
+    def start(self):
+        with Pool(self._getPoolNum()) as p:
+            startProcessesInputs = []
+            for topic, topicDict in self.consumersConf.items():
+                for window, windowDict in topicDict.items():
+                    window = None if window == 'None' else int(window)
+                    for slide, slideDict in windowDict.items():
+                        slide = None if slide == 'None' else int(slide)
+                        startProcessesInputs.append((topic, window, slide, slideDict))
+            print('---- ready ----')
+            p.starmap(self._startProcesses, startProcessesInputs)
 
 
 class Processor(object):
+    _projectName = None
     _kafkaHost = None
     _topic = None
     _window = None
@@ -36,6 +97,14 @@ class Processor(object):
         return self._tbHost
 
     @property
+    def projectName(self):
+        return self._projectName
+
+    @property
+    def kafkaHost(self):
+        return self._kafkaHost
+
+    @property
     def kafkaProducer(self):
         return self._kafkaProducer
 
@@ -55,7 +124,8 @@ class Processor(object):
     def slide(self):
         return self._slide
 
-    def __init__(self, kafkaHost, topic, window, slide, processesDict, expConf):
+    def __init__(self, projectName, kafkaHost, topic, window, slide, processesDict, expConf):
+        self._projectName = projectName
         self._kafkaHost = kafkaHost
         self._topic = topic
         self._window = window
