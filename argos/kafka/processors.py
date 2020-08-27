@@ -57,6 +57,10 @@ class Processor(object):
         return self._processesDict
 
     @property
+    def topic(self):
+        return self._topic
+
+    @property
     def window(self):
         return self._window
 
