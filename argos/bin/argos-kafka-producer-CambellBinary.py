@@ -1,29 +1,15 @@
-import os
 import argparse
 from kafka import KafkaProducer
 import time
 import pandas
 from hera import meteo
-from argos.kafka import pandasSeriesSerializer, pandasDataFrameSerializer
+from argos.kafka import pandasSeriesSerializer
 from multiprocessing import Pool
 
 
 def run(deviceName, data, kafkaHost):
     print('run - %s' % deviceName)
     producer = KafkaProducer(bootstrap_servers=kafkaHost)
-    # totalDelta = data.index[-1]-data.index[0]
-    # timeSplit = pandas.date_range(data.index[0], data.index[-1], totalDelta.seconds//10)
-
-    # nowTime = pandas.Timestamp.now()
-    # while nowTime.second!=data.index[0].second:
-    #     nowTime = pandas.Timestamp.now()
-
-    # for startTime, endTime in zip(timeSplit[:-1], timeSplit[1:]):
-    #     if deviceName == 'Hamadpis-Raw_Sonic-16':
-    #         print(startTime, '-', endTime)
-    #     message = pandasDataFrameSerializer(data[startTime:endTime])
-    #     producer.send(deviceName, message)
-    #     time.sleep(10)
     for timeIndex in data.index:
         message = pandasSeriesSerializer(data.loc[timeIndex])
         producer.send(deviceName, message)
@@ -82,19 +68,3 @@ if __name__ == "__main__":
                 runInput.append((deviceName, tmpNewData, args.kafkaHost))
             with Pool(3) as p:
                 p.starmap(run, runInput)
-                # totalDelta = cbi.lastTime-lastTimeInDB
-                #
-                # timeSplit = pandas.date_range(lastTimeInDB, cbi.lastTime, totalDelta.seconds//10)
-                # for startTime, endTime in zip(timeSplit[:-1], timeSplit[1:]):
-                #     print(startTime, endTime)
-                #     message = pandasDataFrameSerializer(tmpNewData[startTime:endTime])
-                #     producer.send(deviceName, message)
-                #     time.sleep(10)
-                #     # import pdb
-                #     # pdb.set_trace()
-                #     print('-------- sent ---------\n')#, f'station - {station},', f'instrument - {instrument},', f'height - {height}')
-                #
-                # for timeIndex in tmpNewData.index:
-                #     message = pandasSeriesSerializer(tmpNewData, timeIndex)
-                #     producer.send(deviceName, message)
-                #     time.sleep(0.03)
