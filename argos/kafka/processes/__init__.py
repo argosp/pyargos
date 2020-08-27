@@ -5,6 +5,7 @@ from hera import datalayer
 import os
 import warnings
 
+
 def calc_fluctuations(processor, data, windowFirstTime, topic):
     trc = meteo.getTurbulenceCalculator(data=data, samplingWindow=None)
     calculatedData = trc.fluctuations().compute()

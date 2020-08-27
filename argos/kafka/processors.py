@@ -179,6 +179,8 @@ class WindowProcessor(object):
                     self._df = self._df[timeList[1]:]
             except Exception as exception:
                 print(f'Exception {exception} handled')
+                self._df = pandas.DataFrame()
+                self._lastTime = None
         return data, timeList[0]
 
     def processMessageWithoutWindow(self, message):
