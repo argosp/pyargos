@@ -1,30 +1,27 @@
-from .. import pandasDataFrameSerializer, pandasSeriesSerializer
+from .. import pandasDataFrameSerializer
 from hera import meteo
 import dask.dataframe
 from hera import datalayer
 import os
 import warnings
 
-
-def calc_fluctuations(projectProcessor, data, windowFirstTime, topic):
+def calc_fluctuations(processor, data, windowFirstTime, topic):
     trc = meteo.getTurbulenceCalculator(data=data, samplingWindow=None)
     calculatedData = trc.fluctuations().compute()
     calculatedData.index = [windowFirstTime]
-    message = pandasSeriesSerializer(calculatedData.iloc[0])
-    projectProcessor.kafkaProducer.send(topic, message)
+    message = pandasDataFrameSerializer(calculatedData)
+    processor.kafkaProducer.send(topic, message)
 
 
-def to_thingsboard(projectProcessor, data, deviceName):
-    client = projectProcessor.getClient(deviceName=deviceName)
+def to_thingsboard(processor, data, deviceName):
+    client = processor.getClient(deviceName=deviceName)
 
     data.index = [x.tz_localize('israel') for x in data.index]
     client.publish('v1/devices/me/telemetry', pandasDataFrameSerializer(data))
-    client.loop_stop()
-    client.disconnect()
 
 
-def to_parquet_CampbellBinary(projectProcessor, data, deviceName, outputPath, _partition_size='100MB'):
-    projectName = projectProcessor.projectName
+def to_parquet_CampbellBinary(processor, data, deviceName, outputPath, _partition_size='100MB'):
+    projectName = processor.projectName
     station = deviceName.split('-')[0]
     instrument = deviceName.split('-')[1]
     height = int(deviceName.split('-')[2])
