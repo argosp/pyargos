@@ -1,3 +1,4 @@
+import os
 import argparse
 from kafka import KafkaProducer
 import time
