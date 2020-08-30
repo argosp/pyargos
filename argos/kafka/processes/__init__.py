@@ -6,23 +6,25 @@ import os
 import warnings
 
 
-def calc_fluctuations(processor, data, windowFirstTime, topic):
+def calc_fluctuations(processor, data):
     trc = meteo.getTurbulenceCalculator(data=data, samplingWindow=None)
     calculatedData = trc.fluctuations().compute()
-    calculatedData.index = [windowFirstTime]
+    calculatedData.index = [processor.currentWindowTime]
     message = pandasDataFrameSerializer(calculatedData)
-    processor.kafkaProducer.send(topic, message)
+    topicToSend = '%s-%s-%s' % (processor.topic, processor.window, processor.slide)
+    processor.kafkaProducer.send(topicToSend, message)
 
 
-def to_thingsboard(processor, data, deviceName):
-    client = processor.getClient(deviceName=deviceName)
+def to_thingsboard(processor, data):
+    client = processor.getClient(deviceName=processor.topic)
 
     data.index = [x.tz_localize('israel') for x in data.index]
     client.publish('v1/devices/me/telemetry', pandasDataFrameSerializer(data))
 
 
-def to_parquet_CampbellBinary(processor, data, deviceName, outputPath, _partition_size='100MB'):
+def to_parquet_CampbellBinary(processor, data, outputPath, _partition_size='100MB'):
     projectName = processor.projectName
+    deviceName = processor.topic
     station = deviceName.split('-')[0]
     instrument = deviceName.split('-')[1]
     height = int(deviceName.split('-')[2])
