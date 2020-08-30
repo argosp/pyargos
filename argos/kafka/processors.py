@@ -68,6 +68,10 @@ class Processor(object):
     def slide(self):
         return self._slide
 
+    @property
+    def currentWindowTime(self):
+        return self._currentWindowTime
+
     def __init__(self, projectName, kafkaHost, expConf, topic, window, slide, processesDict):
         self._projectName = projectName
         self._kafkaHost = kafkaHost
@@ -92,6 +96,8 @@ class Processor(object):
                                             )
 
         self._clients = dict()
+
+        self._currentWindowTime = None
 
     def on_disconnect(self, client, userdata, rc=0):
         logging.debug("DisConnected result code " + str(rc))
@@ -120,15 +126,12 @@ class Processor(object):
         for message in self.kafkaConsumer:
             if self.window is None:
                 data = self._windowProcessor.processMessage(message=message)
-                windowFirstTime = None
+                self._currentWindowTime = None
             else:
-                data, windowFirstTime = self._windowProcessor.processMessage(message=message)
+                data, self._currentWindowTime = self._windowProcessor.processMessage(message=message)
             if data is not None:
                 for process, processArgs in self.processesDict.items():
-                    if windowFirstTime is None:
-                        pydoc.locate(process)(processor=self, data=data, **processArgs)
-                    else:
-                        pydoc.locate(process)(processor=self, data=data, windowFirstTime=windowFirstTime, **processArgs)
+                    pydoc.locate(process)(processor=self, data=data, **processArgs)
 
 
 class WindowProcessor(object):
@@ -179,7 +182,10 @@ class WindowProcessor(object):
             try:
                 if self._lastTime != timeList[0]:
                     self._lastTime = timeList[0]
-                    data = self._resampled_df.get_group(timeList[0])
+                    dataList = []
+                    for i in range(self._n):
+                        dataList.append(self._resampled_df.get_group(timeList[i]))
+                    data = pandas.concat(dataList)
                     self._df = self._df[timeList[1]:]
             except Exception as exception:
                 print(f'Exception {exception} handled')
