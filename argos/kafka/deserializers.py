@@ -35,3 +35,4 @@ def toThingsboardDeserializer(message):
         ts = int(timeIndex.tz_localize('israel').timestamp() * 1000)
         dataToSend.append(dict(ts=ts, values=df.loc[timeIndex].to_dict()))
     return json.dumps(dataToSend).encode('utf-8')
+

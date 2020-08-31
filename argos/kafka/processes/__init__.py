@@ -1,91 +1,73 @@
-import pandas
-import paho.mqtt.client as mqtt
-from .. import toPandasDeserializer, pandasDataFrameSerializer
-import logging
-from argos import tbHome
+from .. import pandasDataFrameSerializer
 from hera import meteo
-import json
+import dask.dataframe
+from hera import datalayer
+import os
+import warnings
 
 
-def on_disconnect(client, userdata, rc=0):
-    logging.debug("DisConnected result code " + str(rc))
-    client.loop_stop()
+def calc_fluctuations(processor, data):
+    trc = meteo.getTurbulenceCalculator(data=data, samplingWindow=None)
+    calculatedData = trc.fluctuations().compute()
+    calculatedData.index = [processor.currentWindowTime]
+    message = pandasDataFrameSerializer(calculatedData)
+    topicToSend = '%s-%s-%s' % (processor.topic, processor.window, processor.slide)
+    processor.kafkaProducer.send(topicToSend, message)
 
 
-def on_connect(client, userdata, flags, rc):
-    if rc == 0:
-        print("Connected to broker")
+def to_thingsboard(processor, data):
+    client = processor.getClient(deviceName=processor.topic)
+
+    data.index = [x.tz_localize('israel') for x in data.index]
+    client.publish('v1/devices/me/telemetry', pandasDataFrameSerializer(data))
+
+
+def to_parquet_CampbellBinary(processor, data, outputPath, _partition_size='100MB'):
+    projectName = processor.projectName
+    deviceName = processor.topic
+    station = deviceName.split('-')[0]
+    instrument = deviceName.split('-')[1]
+    height = int(deviceName.split('-')[2])
+    dir_path = os.path.join(outputPath, station, instrument, str(height))
+    desc = dict(station=station, instrument=instrument, height=height, DataSource='CampbellBinary')
+    new_dask = dask.dataframe.from_pandas(data, npartitions=1)
+
+    docList = datalayer.Measurements.getDocuments(projectName=projectName,
+                                                  type='meteorological',
+                                                  **desc
+                                                  )
+
+    if docList:
+        if len(docList) > 1:
+            raise ValueError("the list should be at max length of 1. Check your query.")
+        else:
+            doc = docList[0]
+            db_dask = doc.getData()
+            data = [db_dask, new_dask]
+            new_Data = dask.dataframe.concat(data, interleave_partitions=True) \
+                                     .reset_index() \
+                                     .drop_duplicates() \
+                                     .set_index('index') \
+                                     .repartition(partition_size=_partition_size)
+
+            new_Data.to_parquet(doc.resource, engine='pyarrow')
+
+            if doc.resource != dir_path:
+                warnings.warn(
+                    'The outputpath argument does not match the resource of the matching data '
+                    'in the database.\nThe new data is saved in the resource of the matching '
+                    'old data: %s' % doc.resource,
+                    ResourceWarning)
+
     else:
-        print("Connection failed")
+        os.makedirs(dir_path, exist_ok=True)
 
-def print_sliding_window(consumer, window, slide):
-    print(window, '---', slide)
+        new_Data = new_dask.repartition(partition_size=_partition_size)
+        new_Data.to_parquet(dir_path, engine='pyarrow')
 
-    df = pandas.DataFrame()
-    lastTime = None
-    n = int(window/slide)
-
-    for message in consumer:
-        df = df.append(toPandasDeserializer(message.value), sort=True)
-        if lastTime is None:
-            lastTime = df.index[0]
-            resampled_df = df.resample('%ss' % slide)
-        elif lastTime + pandas.Timedelta('%ss' % slide) < df.tail(1).index[0]:
-            resampled_df = df.resample('%ss' % slide)
-        timeList = list(resampled_df.groups.keys())
-        if len(timeList) > n:
-            try:
-                if lastTime != timeList[0]:
-                    lastTime = timeList[0]
-                    print('Mean T - ', resampled_df.get_group(timeList[0]).mean()['T'])
-                    # import pdb
-                    # pdb.set_trace()
-                    df = df[timeList[1]:]
-            except Exception as exception:
-                print(f'Exception {exception} handled')
-
-
-def publish_sliding_window_fluctuations(consumer, window, slide, deviceName, tbHost='localhost', expConf='/home/eden/Projects.local/2019/DesertWalls/experimentConfiguration.json'):
-    print(window, '---', slide, '---', 'fluctuations')
-
-    with open(expConf, 'r') as credentialOpen:  # with open(args.expConf)
-        credentialMap = json.load(credentialOpen)
-    tbh = tbHome(credentialMap["connection"])
-
-    #deviceName = 'producerTest'
-
-    client = mqtt.Client("Me_%s" % deviceName)
-    accessToken = tbh.deviceHome.createProxy(deviceName).getCredentials()
-    client.username_pw_set(accessToken, password=None)
-    client.on_disconnect = on_disconnect
-    client.connect(tbHost)
-    client.loop_start()
-
-    df = pandas.DataFrame()
-    lastTime = None
-    n = int(window / slide)
-
-    for message in consumer:
-        df = df.append(toPandasDeserializer(message.value), sort=True)
-        if lastTime is None:
-            lastTime = df.index[0]
-            resampled_df = df.resample('%ss' % slide)
-        elif lastTime + pandas.Timedelta('%ss' % slide) < df.tail(1).index[0]:
-            resampled_df = df.resample('%ss' % slide)
-        timeList = list(resampled_df.groups.keys())
-        if len(timeList) > n:
-            try:
-                if lastTime != timeList[0]:
-                    lastTime = timeList[0]
-                    data = resampled_df.get_group(timeList[0])
-                    data.index = [lastTime if i==0 else data.index[i] for i in range(len(data.index))]
-                    trc = meteo.getTurbulenceCalculator(data=data, samplingWindow=None)
-                    calculatedData = trc.fluctuations().compute()
-                    calculatedData.index = [x.tz_localize('israel') for x in calculatedData.index]
-                    print(calculatedData)
-                    client.publish('v1/devices/me/telemetry', pandasDataFrameSerializer(calculatedData))
-                    # import pdb
-                    # pdb.set_trace()
-                    df = df[timeList[1]:]
-            except Exception as exception:
-                print(f'Exception {exception} handled')
+        datalayer.Measurements.addDocument(projectName=projectName,
+                                           resource=dir_path,
+                                           dataFormat='parquet',
+                                           type='meteorological',
+                                           desc=desc
+                                           )
