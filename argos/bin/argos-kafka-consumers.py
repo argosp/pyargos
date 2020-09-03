@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 import argparse
 from argos.kafka import Processor
 import json
