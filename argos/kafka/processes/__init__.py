@@ -15,6 +15,15 @@ def calc_fluctuations(processor, data):
     processor.kafkaProducer.send(topicToSend, message)
 
 
+def calc_wind(processor, data):
+    trc = meteo.getTurbulenceCalculator(data=data, samplingWindow=None)
+    calculatedData = trc.fluctuations().wind_speed().wind_dir_std().compute()
+    calculatedData.index = [processor.currentWindowTime]
+    message = pandasDataFrameSerializer(calculatedData)
+    topicToSend = '%s-%s-%s' % (processor.topic, processor.window, processor.slide)
+    processor.kafkaProducer.send(topicToSend, message)
+
+
 def to_thingsboard(processor, data):
     client = processor.getClient(deviceName=processor.topic)
 
