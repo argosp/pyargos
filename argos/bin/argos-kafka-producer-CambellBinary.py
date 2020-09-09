@@ -26,11 +26,11 @@ if __name__ == "__main__":
     parser.add_argument("--kafkaHost", dest="kafkaHost", default='localhost', help="The kafka host in the following format - IP(:port)")
     args = parser.parse_args()
 
-    # try:
-    #     lastUpdateTime = pandas.Timestamp.utcfromtimestamp(os.stat(args.file).st_mtime)
-    #     flag = True
-    # except FileNotFoundError:
-    #     flag = False
+    try:
+        lastUpdateTime = pandas.Timestamp.utcfromtimestamp(os.stat(args.file).st_mtime)
+        flag = True
+    except FileNotFoundError:
+        flag = False
 
     cbi = meteo.CampbellBinaryInterface(args.file)
     station = cbi.station
@@ -38,30 +38,37 @@ if __name__ == "__main__":
     heights = cbi.heights
 
     while True:
-        # while not flag:
-        #     time.sleep(10)
-        #     if os.path.exists(args.file):
-        #         flag = True
-        #         lastUpdateTime = pandas.Timestamp.utcfromtimestamp(os.stat(args.file).st_mtime)
-        #
-        # time.sleep(10)
-        #
-        # if not os.path.exists(args.file):
-        #     flag = False
-        #     continue
-        #
-        # tmpUpdateTime = pandas.Timestamp.utcfromtimestamp(os.stat(args.file).st_mtime)
+        while not flag:
+            time.sleep(10)
+            if os.path.exists(args.file):
+                flag = True
+                lastUpdateTime = pandas.Timestamp.utcfromtimestamp(os.stat(args.file).st_mtime)
 
-        if True: #tmpUpdateTime!=lastUpdateTime:
+        time.sleep(10)
+
+        if not os.path.exists(args.file):
+            flag = False
+            continue
+
+        tmpUpdateTime = pandas.Timestamp.utcfromtimestamp(os.stat(args.file).st_mtime)
+
+        if tmpUpdateTime!=lastUpdateTime: # True
             # print('new data')
-            # lastUpdateTime = tmpUpdateTime
-            #
-            # doc = meteo.CampbellBinary_datalayer.getDocFromDB(projectName=args.projectName, station=station, instrument=instrument, height=heights[0])
-            # lastTimeInDB = doc[0].getData().tail(1).index[0] if doc else cbi.firstTime
-            # lastTimeInDB = cbi.firstTime if cbi.firstTime>lastTimeInDB else lastTimeInDB
-            #
+            lastUpdateTime = tmpUpdateTime
+
+            doc = meteo.CampbellBinary_datalayer.getDocFromDB(projectName=args.projectName, station=station, instrument=instrument, height=heights[0])
+            if doc:
+                lastTimeInDB = doc[0].getData().tail(1).index[0]
+                lastTimeInDB = cbi.firstTime if cbi.firstTime > lastTimeInDB else lastTimeInDB
+                if lastTimeInDB+pandas.Timedelta('30m')<cbi.lastTime:
+                    startIndex = cbi.getRecordIndexByTime(cbi.lastTime) - 934 * 60 # close to 30 minutes before last time in file
+                    lastTimeInDB = cbi.getTimeByRecordIndex(startIndex)
+            else:
+                startIndex = cbi.getRecordIndexByTime(cbi.lastTime)-934*60 # close to 30 minutes before last time in file
+                lastTimeInDB = cbi.firstTime if cbi.firstTime+pandas.Timedelta('30m')>=cbi.lastTime else cbi.getTimeByRecordIndex(startIndex)
+
             # print('processing data from %s' % lastTimeInDB)
-            lastTimeInDB = pandas.Timestamp('2020-07-29 09:30:00.992000')
+            # lastTimeInDB = pandas.Timestamp('2020-09-07 09:30:00')
 
             newData, metadata = meteo.CampbellBinary_datalayer.parse(path=args.file, fromTime=lastTimeInDB)
             runInput = []
