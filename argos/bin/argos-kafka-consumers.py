@@ -14,7 +14,7 @@ if __name__ == "__main__":
     parser.add_argument("--config", dest="config", help="The consumers configuration JSON", required=True)
     parser.add_argument("--kafkaHost", dest="kafkaHost", default="localhost")
     parser.add_argument("--projectName", dest="projectName", required=True)
-    parser.add_argument("--expConf", dest="expConf", default='/home/eden/Projects.local/2019/DesertWalls/experimentConfiguration.json')
+    parser.add_argument("--expConf", dest="expConf", required=True) # , default='/home/eden/Projects.local/2019/DesertWalls/experimentConfiguration.json')
     args = parser.parse_args()
 
     with open(args.config) as configFile:
