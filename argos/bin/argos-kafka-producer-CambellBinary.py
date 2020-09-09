@@ -35,7 +35,10 @@ if __name__ == "__main__":
     instrument = cbi.instrument
     heights = cbi.heights
 
-    while True:
+    i = 0
+
+    while i == 0: # True:
+        i = 1
         # while not flag:
         #     time.sleep(10)
         #     if os.path.exists(args.file):
