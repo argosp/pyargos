@@ -15,12 +15,11 @@ class Processor(object):
     _window = None
     _slide = None
     _processes = None
+    _tbCredentialMap = None
 
     _windowProcessor = None
     _kafkaProducer = None
     _kafkaConsumer = None
-    _tbh = None
-    _tbHost = None
 
     _clients = None
 
@@ -30,11 +29,11 @@ class Processor(object):
 
     @property
     def tbh(self):
-        return self._tbh
+        return tbHome(self._tbCredentialMap["connection"])
 
     @property
     def tbHost(self):
-        return self._tbHost
+        return self._tbCredentialMap["connection"]["server"]["ip"]
 
     @property
     def projectName(self):
@@ -81,10 +80,7 @@ class Processor(object):
         self._processesDict = processesDict
 
         with open(expConf, 'r') as jsonFile:
-            credentialMap = json.load(jsonFile)
-
-        self._tbh = tbHome(credentialMap["connection"])
-        self._tbHost = credentialMap["connection"]["server"]["ip"]
+            self._tbCredentialMap = json.load(jsonFile)
 
         self._windowProcessor = WindowProcessor(window=window, slide=slide)
         self._kafkaProducer = KafkaProducer(bootstrap_servers=kafkaHost)
@@ -104,6 +100,7 @@ class Processor(object):
         client.loop_stop()
 
     def on_connect(self, client, userdata, flags, rc):
+        print('connect code (rc) = %s' % rc)
         if rc == 0:
             print("Connected to broker")
         else:
@@ -111,6 +108,7 @@ class Processor(object):
 
     def getClient(self, deviceName):
         if deviceName not in self.clients:
+            print('Connecting to %s' % deviceName)
             client = mqtt.Client("Me_%s" % deviceName)
             client.on_connect = self.on_connect
 
