@@ -72,6 +72,16 @@ class Processor(object):
         return self._currentWindowTime
 
     def __init__(self, projectName, kafkaHost, expConf, topic, window, slide, processesDict):
+        """
+
+        :param projectName: The project name
+        :param kafkaHost: The kafka host IP
+        :param expConf: The path to the experiment configuration file
+        :param topic: The topic to process
+        :param window: The window to process in seconds
+        :param slide: The slide of the window in seconds
+        :param processesDict: The dictionary of the processes to run.
+        """
         self._projectName = projectName
         self._kafkaHost = kafkaHost
         self._topic = topic
