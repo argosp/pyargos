@@ -15,6 +15,7 @@ class Processor(object):
     _window = None
     _slide = None
     _processes = None
+    _tbCredentialMap = None
 
     _windowProcessor = None
     _kafkaProducer = None
@@ -30,11 +31,11 @@ class Processor(object):
 
     @property
     def tbh(self):
-        return self._tbh
+        return tbHome(self._tbCredentialMap["connection"])
 
     @property
     def tbHost(self):
-        return self._tbHost
+        return self._tbCredentialMap["connection"]["server"]["ip"]
 
     @property
     def projectName(self):
@@ -73,6 +74,16 @@ class Processor(object):
         return self._currentWindowTime
 
     def __init__(self, projectName, kafkaHost, expConf, topic, window, slide, processesDict):
+        """
+
+        :param projectName: The project name
+        :param kafkaHost: The kafka host IP
+        :param expConf: The path to the experiment configuration file
+        :param topic: The topic to process
+        :param window: The window to process in seconds
+        :param slide: The slide of the window in seconds
+        :param processesDict: The dictionary of the processes to run.
+        """
         self._projectName = projectName
         self._kafkaHost = kafkaHost
         self._topic = topic
@@ -81,10 +92,7 @@ class Processor(object):
         self._processesDict = processesDict
 
         with open(expConf, 'r') as jsonFile:
-            credentialMap = json.load(jsonFile)
-
-        self._tbh = tbHome(credentialMap["connection"])
-        self._tbHost = credentialMap["connection"]["server"]["ip"]
+            self._tbCredentialMap = json.load(jsonFile)
 
         self._windowProcessor = WindowProcessor(window=window, slide=slide)
         self._kafkaProducer = KafkaProducer(bootstrap_servers=kafkaHost)
