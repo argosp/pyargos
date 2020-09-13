@@ -53,20 +53,24 @@ if __name__ == "__main__":
         tmpUpdateTime = pandas.Timestamp.utcfromtimestamp(os.stat(args.file).st_mtime)
 
         if tmpUpdateTime!=lastUpdateTime: # True
-            # print('new data')
+            cbi = meteo.CampbellBinaryInterface(args.file)
+            print('New data: %s -------------------------------' % pandas.Timestamp.now())
             lastUpdateTime = tmpUpdateTime
 
             doc = meteo.CampbellBinary_datalayer.getDocFromDB(projectName=args.projectName, station=station, instrument=instrument, height=heights[0])
             if doc:
                 lastTimeInDB = doc[0].getData().tail(1).index[0]
+                print('Last time in db - %s' % lastTimeInDB)
                 lastTimeInDB = cbi.firstTime if cbi.firstTime > lastTimeInDB else lastTimeInDB
+                print('First time in File %s' % cbi.firstTime)
+                print('Last time in File %s' % cbi.lastTime)
                 if lastTimeInDB+pandas.Timedelta('30m')<cbi.lastTime:
                     startIndex = cbi.getRecordIndexByTime(cbi.lastTime) - 934 * 60 # close to 30 minutes before last time in file
                     lastTimeInDB = cbi.getTimeByRecordIndex(startIndex)
             else:
                 startIndex = cbi.getRecordIndexByTime(cbi.lastTime)-934*60 # close to 30 minutes before last time in file
                 lastTimeInDB = cbi.firstTime if cbi.firstTime+pandas.Timedelta('30m')>=cbi.lastTime else cbi.getTimeByRecordIndex(startIndex)
-
+            print('Read file from %s' % lastTimeInDB)
             # print('processing data from %s' % lastTimeInDB)
             # lastTimeInDB = pandas.Timestamp('2020-09-07 09:30:00')
 
@@ -76,5 +80,5 @@ if __name__ == "__main__":
                 tmpNewData = newData.compute().query("station==@station and instrument==@instrument and height==@height").drop(columns=['station', 'instrument', 'height'])
                 deviceName = '-'.join([station, instrument, str(height)])
                 runInput.append((deviceName, tmpNewData, args.kafkaHost))
-            with Pool(3) as p:
+            with Pool(len(heights)) as p:
                 p.starmap(run, runInput)
