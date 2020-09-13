@@ -6,6 +6,7 @@ from argos import tbHome
 import json
 import paho.mqtt.client as mqtt
 import logging
+import time
 
 
 class Processor(object):
@@ -102,6 +103,7 @@ class Processor(object):
                                             )
 
         self._clients = dict()
+        self._initiateClients()
 
         self._currentWindowTime = None
 
@@ -110,24 +112,28 @@ class Processor(object):
         client.loop_stop()
 
     def on_connect(self, client, userdata, flags, rc):
-        print('connect code (rc) = %s' % rc)
         if rc == 0:
             print("Connected to broker")
         else:
             print("Connection failed")
 
-    def getClient(self, deviceName):
-        if deviceName not in self.clients:
-            print('Connecting to %s' % deviceName)
-            client = mqtt.Client("Me_%s" % deviceName)
-            client.on_connect = self.on_connect
+    def _initiateClients(self):
+        devices = self.tbh.deviceHome.getAllEntitiesName()
+        for deviceName in devices:
+            if self.topic in deviceName and self.window is None:
+                #print('Connecting to %s' % deviceName)
+                client = mqtt.Client("Me_%s" % deviceName)
+                client.on_connect = self.on_connect
 
-            accessToken = self.tbh.deviceHome.createProxy(deviceName).getCredentials()
-            client.username_pw_set(accessToken, password=None)
-            client.on_disconnect = self.on_disconnect
-            client.connect(host=self.tbHost, port=1883)
-            self._clients[deviceName] = client
-            client.loop_start()
+                accessToken = self.tbh.deviceHome.createProxy(deviceName).getCredentials()
+                client.username_pw_set(accessToken, password=None)
+                client.on_disconnect = self.on_disconnect
+                client.connect(host=self.tbHost, port=1883)
+                self._clients[deviceName] = client
+                client.loop_start()
+                time.sleep(0.01)
+
+    def getClient(self, deviceName):
         return self.clients[deviceName]
 
     def start(self):
@@ -140,6 +146,7 @@ class Processor(object):
             if data is not None:
                 for process, processArgs in self.processesDict.items():
                     pydoc.locate(process)(processor=self, data=data, **processArgs)
+                    time.sleep(0.01)
 
 
 class WindowProcessor(object):
@@ -183,6 +190,7 @@ class WindowProcessor(object):
     def processMessageWithWindow(self, message):
         self._df = self._df.append(toPandasDeserializer(message.value), sort=True)
         if self._lastTime is None or (self._lastTime + pandas.Timedelta('%ss' % self.slide) < self._df.tail(1).index[0]):
+            self._df = self._df.reset_index().drop_duplicates().set_index('index')
             self._resampled_df = self._df.resample('%ss' % self.slide)
         timeList = list(self._resampled_df.groups.keys())
         data = None
