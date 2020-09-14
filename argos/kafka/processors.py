@@ -146,7 +146,6 @@ class Processor(object):
             if data is not None:
                 for process, processArgs in self.processesDict.items():
                     pydoc.locate(process)(processor=self, data=data, **processArgs)
-                    time.sleep(0.01)
 
 
 class WindowProcessor(object):
