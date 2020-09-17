@@ -10,7 +10,6 @@ from argos.kafka import pandasSeriesSerializer
 from multiprocessing import Pool
 
 
-
 def run(deviceName, data, kafkaHost):
     print('run - %s' % deviceName)
     producer = KafkaProducer(bootstrap_servers=kafkaHost)
@@ -62,6 +61,14 @@ if __name__ == "__main__":
     instrument = cbi.instrument
     heights = cbi.heights
 
+    print('First time in File %s' % cbi.firstTime)
+    print('Last time in File %s' % cbi.lastTime)
+
+    doc = meteo.CampbellBinary_datalayer.getDocFromDB(projectName=args.projectName, station=station,
+                                                      instrument=instrument, height=heights[0])
+
+    lastProducedTime = None
+
     while True:
         while not flag:
             time.sleep(10)
@@ -81,32 +88,39 @@ if __name__ == "__main__":
             print('New data: %s -------------------------------' % pandas.Timestamp.now())
             waitFileToUpdate2(args.file)
             cbi = meteo.CampbellBinaryInterface(args.file)
-            lastUpdateTime = tmpUpdateTime
+            if lastProducedTime is None:
+                if doc:
+                    lastTimeInDB = doc[0].getData().tail(1).index[0]
+                    print('Last time in db - %s' % lastTimeInDB)
+                    lastProducedTime = cbi.firstTime if cbi.firstTime > lastTimeInDB else lastTimeInDB
+                    if lastProducedTime + pandas.Timedelta('45m') < cbi.lastTime:
+                        startIndex = cbi.getRecordIndexByTime(
+                            cbi.lastTime) - 934 * 60  # close to 30 minutes before last time in file
+                        lastProducedTime = cbi.getTimeByRecordIndex(startIndex)
+                else:
+                    startIndex = cbi.getRecordIndexByTime(
+                        cbi.lastTime) - 934 * 60  # close to 30 minutes before last time in file
+                    lastProducedTime = cbi.firstTime if cbi.firstTime + pandas.Timedelta(
+                        '30m') >= cbi.lastTime else cbi.getTimeByRecordIndex(startIndex)
 
-            doc = meteo.CampbellBinary_datalayer.getDocFromDB(projectName=args.projectName, station=station, instrument=instrument, height=heights[0])
-            if doc:
-                lastTimeInDB = doc[0].getData().tail(1).index[0]
-                print('Last time in db - %s' % lastTimeInDB)
-                lastTimeInDB = cbi.firstTime if cbi.firstTime > lastTimeInDB else lastTimeInDB
-                print('First time in File %s' % cbi.firstTime)
-                print('Last time in File %s' % cbi.lastTime)
-                if lastTimeInDB+pandas.Timedelta('45m')<cbi.lastTime:
-                    startIndex = cbi.getRecordIndexByTime(cbi.lastTime) - 934 * 60 # close to 30 minutes before last time in file
-                    lastTimeInDB = cbi.getTimeByRecordIndex(startIndex)
-            else:
-                startIndex = cbi.getRecordIndexByTime(cbi.lastTime)-934*60 # close to 30 minutes before last time in file
-                lastTimeInDB = cbi.firstTime if cbi.firstTime+pandas.Timedelta('30m')>=cbi.lastTime else cbi.getTimeByRecordIndex(startIndex)
-            print('Read file from %s' % lastTimeInDB)
+            lastUpdateTime = tmpUpdateTime
+            print('First time in File %s' % cbi.firstTime)
+            print('Last time in File %s' % cbi.lastTime)
+            print('Read file from %s' % lastProducedTime)
             # print('processing data from %s' % lastTimeInDB)
             # lastTimeInDB = pandas.Timestamp('2020-09-07 09:30:00')
 
-            newData, metadata = meteo.CampbellBinary_datalayer.parse(path=args.file, fromTime=lastTimeInDB)
+            lastProducedTime = cbi.getTimeByRecordIndex(cbi.getRecordIndexByTime(lastProducedTime)+1)
+
+            newData, metadata = meteo.CampbellBinary_datalayer.parse(path=args.file, fromTime=lastProducedTime)
             runInput = []
             for height in heights:
                 tmpNewData = newData.compute().query("station==@station and instrument==@instrument and height==@height").drop(columns=['station', 'instrument', 'height'])
                 deviceName = '-'.join([station, instrument, str(height)])
                 runInput.append((deviceName, tmpNewData, args.kafkaHost))
                 print(f"Sending {deviceName}: dates {tmpNewData.index[0]} to {tmpNewData.index[-1]}")
+
+
 
             with Pool(len(runInput)) as p:
                 p.starmap(run, runInput)

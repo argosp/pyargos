@@ -189,7 +189,6 @@ class WindowProcessor(object):
     def processMessageWithWindow(self, message):
         self._df = self._df.append(toPandasDeserializer(message.value), sort=True)
         if self._lastTime is None or (self._lastTime + pandas.Timedelta('%ss' % self.slide) < self._df.tail(1).index[0]):
-            self._df = self._df.reset_index().drop_duplicates().set_index('index')
             self._resampled_df = self._df.resample('%ss' % self.slide)
         timeList = list(self._resampled_df.groups.keys())
         data = None
@@ -197,10 +196,10 @@ class WindowProcessor(object):
             try:
                 if self._lastTime != timeList[0]:
                     self._lastTime = timeList[0]
-                    dataList = []
-                    for i in range(self._n):
-                        dataList.append(self._resampled_df.get_group(timeList[i]))
-                    data = pandas.concat(dataList)
+                    start = timeList[0]
+                    end = timeList[self._n]
+                    mask = (self._df.index>=start)*(self._df.index<end)
+                    data = self._df[mask]
                     self._df = self._df[timeList[1]:]
             except Exception as exception:
                 print(f'Exception {exception} handled')
