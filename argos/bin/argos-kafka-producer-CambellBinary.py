@@ -10,9 +10,10 @@ from argos.kafka import pandasSeriesSerializer
 from multiprocessing import Pool
 
 
-def run(deviceName, data, kafkaHost):
+def run(deviceName, deviceType, data, kafkaHost):
     print('run - %s' % deviceName)
     producer = KafkaProducer(bootstrap_servers=kafkaHost)
+    data = globals()['fix_%s' % deviceType](data)
     for timeIndex in data.index:
         message = pandasSeriesSerializer(data.loc[timeIndex])
         producer.send(deviceName, message)
@@ -52,6 +53,13 @@ def waitFileToUpdate2(file):
         time.sleep(30)
         cbi = meteo.CampbellBinaryInterface(file)
     print('File is fully updated')
+    return pandas.Timestamp.utcfromtimestamp(os.stat(file).st_mtime)
+
+
+def fix_Young81000(data):
+    data['v'] = -data['v']
+    data['u'] = -data['u']
+    return data
 
 
 if __name__ == "__main__":
@@ -59,6 +67,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--file", dest="file", help="The binary data file path", required=True)
     parser.add_argument("--projectName", dest="projectName", help="The project name", required=True)
+    parser.add_argument("--deviceType", dest="deviceType", help="The device name to know how to fix the data")
     parser.add_argument("--kafkaHost", dest="kafkaHost", default='localhost', help="The kafka host in the following format - IP(:port)")
     args = parser.parse_args()
 
@@ -98,7 +107,7 @@ if __name__ == "__main__":
 
         if tmpUpdateTime!=lastUpdateTime: # True
             print('New data: %s -------------------------------' % pandas.Timestamp.now())
-            waitFileToUpdate2(args.file)
+            lastUpdateTime = waitFileToUpdate2(args.file)
             cbi = meteo.CampbellBinaryInterface(args.file)
 
             print('Last produced time: %s' % lastProducedTime)
@@ -123,8 +132,6 @@ if __name__ == "__main__":
             else:
                 fromTime = cbi.getTimeByRecordIndex(cbi.getRecordIndexByTime(lastProducedTime) + 1)
 
-            lastUpdateTime = tmpUpdateTime
-
             # print('processing data from %s' % lastTimeInDB)
             # lastTimeInDB = pandas.Timestamp('2020-09-07 09:30:00')
 
@@ -135,7 +142,7 @@ if __name__ == "__main__":
             for height in heights:
                 tmpNewData = newData.compute().query("station==@station and instrument==@instrument and height==@height").drop(columns=['station', 'instrument', 'height'])
                 deviceName = '-'.join([station, instrument, str(height)])
-                runInput.append((deviceName, tmpNewData, args.kafkaHost))
+                runInput.append((deviceName, args.deviceType, tmpNewData, args.kafkaHost))
                 print(f"Sending {deviceName}: dates {tmpNewData.index[0]} to {tmpNewData.index[-1]}")
 
             with Pool(len(runInput)) as p:
