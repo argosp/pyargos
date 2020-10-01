@@ -1,7 +1,6 @@
 from .. import pandasDataFrameSerializer
 from hera import meteo
 import dask.dataframe
-from hera import datalayer
 import os
 import warnings
 import dask.dataframe
@@ -37,7 +36,6 @@ def to_thingsboard(processor, data):
 
 def to_parquet_CampbellBinary(processor, data, savePath, _partition_size='100MB'):
     print('to parquet')
-    return
     # print(data)
     projectName = processor.projectName
     station = processor.station
@@ -47,7 +45,7 @@ def to_parquet_CampbellBinary(processor, data, savePath, _partition_size='100MB'
     desc = dict(station=station, instrument=instrument, height=height, DataSource='CampbellBinary')
     new_dask = dask.dataframe.from_pandas(data, npartitions=1)
 
-    docList = datalayer.Measurements.getDocuments(projectName=projectName,
+    docList = processor.Measurements.getDocuments(projectName=projectName,
                                                   type='meteorological',
                                                   **desc
                                                   )
@@ -80,7 +78,7 @@ def to_parquet_CampbellBinary(processor, data, savePath, _partition_size='100MB'
         new_Data = new_dask.repartition(partition_size=_partition_size)
         new_Data.to_parquet(dir_path, engine='pyarrow')
 
-        datalayer.Measurements.addDocument(projectName=projectName,
+        processor.Measurements.addDocument(projectName=projectName,
                                            resource=dir_path,
                                            dataFormat='parquet',
                                            type='meteorological',

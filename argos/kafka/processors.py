@@ -1,7 +1,9 @@
 import pydoc
 import pandas
 from . import toPandasDeserializer
-from hera import datalayer
+# from hera import datalayer
+from hera.datalayer import createDBConnection, getMongoConfigFromJson
+from hera.datalayer import Measurements_Collection
 from kafka import KafkaConsumer, KafkaProducer
 from argos import tbHome
 import json
@@ -9,6 +11,7 @@ import paho.mqtt.client as mqtt
 import logging
 import time
 from multiprocessing import Pool
+import getpass
 
 
 class ConsumersHandler(object):
@@ -118,6 +121,17 @@ class AbstractProcessor(object):
     def baseName(self):
         return f'{self.station}-{self.instrument}-{self.height}'
 
+    @property
+    def Measurements(self):
+        user = getpass.getuser()
+        alias = f'{self.topic}_{self._aliasNum}'
+        createDBConnection(user=user,
+                           mongoConfig=getMongoConfigFromJson(user=user),
+                           alias=alias
+                           )
+        self._aliasNum += 1
+        return Measurements_Collection(user=user, alias=alias)
+
     def __init__(self, projectName, kafkaHost, topic, processesDict):
         """
 
@@ -139,6 +153,8 @@ class AbstractProcessor(object):
                                             enable_auto_commit=True
                                             # group_id=group_id
                                             )
+
+        self._aliasNum = 1
 
 
 class WindowProcessor(AbstractProcessor):
@@ -221,11 +237,11 @@ class WindowProcessor(AbstractProcessor):
         else:
             self._windowTime = pandas.Timestamp(message.value.decode('utf-8'))-pandas.Timedelta(f'{self.window}s')
             endTime = pandas.Timestamp(message.value.decode('utf-8'))-pandas.Timedelta('0.001ms')
-            data = datalayer.Project(self.projectName)\
-                            .getMeasurementsDocuments(station=self.station,
-                                                      instrument=self.instrument,
-                                                      height=self.height
-                                                      )[0].getData()[self.windowTime:endTime].compute()
+            data = self.Measurements.getDocuments(projectName=self.projectName,
+                                                  station=self.station,
+                                                  instrument=self.instrument,
+                                                  height=self.height
+                                                  )[0].getData()[self.windowTime:endTime].compute()
         return data
 
     def start(self):
