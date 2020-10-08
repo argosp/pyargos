@@ -41,6 +41,7 @@ def to_parquet_CampbellBinary(processor, data, savePath, _partition_size='100MB'
     station = processor.station
     instrument = processor.instrument
     height = processor.height
+    print(f'{station}-{instrument}-{height}')
     dir_path = os.path.join(savePath, station, instrument, str(height))
     desc = dict(station=station, instrument=instrument, height=height, DataSource='CampbellBinary')
     new_dask = dask.dataframe.from_pandas(data, npartitions=1)

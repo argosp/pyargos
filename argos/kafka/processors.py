@@ -12,6 +12,7 @@ import logging
 import time
 from multiprocessing import Pool
 import getpass
+import os
 
 
 class ConsumersHandler(object):
@@ -20,8 +21,12 @@ class ConsumersHandler(object):
     _saveProperties = None
 
     @property
-    def savePath(self):
-        return None if self._saveProperties is None else self._saveProperties['arguments']['savePath']
+    def config(self):
+        return self._config
+
+    @property
+    def consumersConf(self):
+        return self._consumersConf
 
     @property
     def projectName(self):
@@ -35,21 +40,30 @@ class ConsumersHandler(object):
     def expConf(self):
         return self._expConf
 
-    def __init__(self, projectName, kafkaHost, expConf, config):
+    @property
+    def runFile(self):
+        return self._runFile
+
+    def __init__(self, projectName, kafkaHost, expConf, config, runFile):
         """
         :param projectName: The project name
         :param kafkaHost: The kafka host IP
         :param expConf: The experiment configuration json file path
-        :param config: Dictionary contains the configurations for the consumers
+        :param config: Configuration json file for the consumers
+        :param runFile: Path to the script file to run
         """
 
         self._projectName = projectName
         self._kafkaHost = kafkaHost
         self._expConf = expConf
         self._config = config
+        self._runFile = runFile
+
+        with open(self.config, 'r') as configFile:
+            self._consumersConf = json.load(configFile)
 
         poolNum = 0
-        for topic, topicDict in config.items():
+        for topic, topicDict in self.consumersConf.items():
             for window, processesDict in topicDict['processesConfig'].items():
                     poolNum += len(processesDict)
 
@@ -58,18 +72,15 @@ class ConsumersHandler(object):
     def run(self):
         with Pool(self._poolNum) as p:
             startProcessesInputs = []
-            for topic, topicConfig in self._config.items():
+            for topic, topicConfig in self.consumersConf.items():
                 slideWindow = str(topicConfig.get('slideWindow'))
-                for window, processesDict in topicConfig['processesConfig'].items():
-                    startProcessesInputs.append((topic, window, slideWindow, processesDict))
+                for window in topicConfig['processesConfig']:
+                    startProcessesInputs.append((topic, window, slideWindow))
             print('---- ready ----')
             p.starmap(self._startProcesses, startProcessesInputs)
 
-    def _startProcesses(self, topic, window, slideWindow, processesDict):
-        if slideWindow!='None':
-            SlideProcessor(self.projectName, self.kafkaHost, topic, slideWindow, processesDict).start()
-        else:
-            WindowProcessor(self.projectName, self.kafkaHost, self.expConf, topic, window, processesDict).start()
+    def _startProcesses(self, topic, window, slideWindow):
+        os.system(f'python {self.runFile} --config {self.config} --kafkaHost {self.kafkaHost} --projectName {self.projectName} --expConf {self.expConf} --topic {topic} --window {window} --slideWindow {slideWindow}')
 
 
 class AbstractProcessor(object):

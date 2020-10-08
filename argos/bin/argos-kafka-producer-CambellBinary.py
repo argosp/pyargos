@@ -105,22 +105,21 @@ if __name__ == "__main__":
 
         tmpUpdateTime = pandas.Timestamp.utcfromtimestamp(os.stat(args.file).st_mtime)
 
-        if True: #tmpUpdateTime!=lastUpdateTime: # True
+        if tmpUpdateTime!=lastUpdateTime: # True
             print('New data: %s -------------------------------' % pandas.Timestamp.now())
-            #lastUpdateTime = waitFileToUpdate2(args.file)
+            lastUpdateTime = waitFileToUpdate2(args.file)
             cbi = meteo.CampbellBinaryInterface(args.file)
 
             print('Last produced time: %s' % lastProducedTime)
             print('First time in File %s' % cbi.firstTime)
             print('Last time in File %s' % cbi.lastTime)
 
-
             if lastProducedTime is None:
-                if not doc:
+                if doc:
                     lastTimeInDB = doc[0].getData().tail(1).index[0]
                     print('Last time in db - %s' % lastTimeInDB)
                     fromTime = cbi.firstTime if cbi.firstTime > lastTimeInDB else cbi.getTimeByRecordIndex(cbi.getRecordIndexByTime(lastTimeInDB)+1)
-                    if fromTime + pandas.Timedelta('45m') < cbi.lastTime:
+                    if fromTime + pandas.Timedelta('35m') < cbi.lastTime:
                         startIndex = cbi.getRecordIndexByTime(
                             cbi.lastTime) - 934 * 60  # close to 30 minutes before last time in file
                         fromTime = cbi.getTimeByRecordIndex(startIndex)

@@ -2,7 +2,8 @@
 
 import argparse
 from argos.kafka import ConsumersHandler
-import json
+import os
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -12,11 +13,9 @@ if __name__ == "__main__":
     parser.add_argument("--expConf", dest="expConf", required=True) # , default='/home/eden/Projects.local/2019/DesertWalls/experimentConfiguration.json')
     args = parser.parse_args()
 
-    with open(args.config) as configFile:
-        consumersConf = json.load(configFile)
-
     ConsumersHandler(projectName=args.projectName,
                      kafkaHost=args.kafkaHost,
                      expConf=args.expConf,
-                     config=consumersConf
+                     config=args.config,
+                     runFile=os.path.join(os.path.expanduser('~'), 'Development/pyargos/argos/bin/runTest.py')
                      ).run()
