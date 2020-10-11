@@ -92,6 +92,8 @@ class AbstractProcessor(object):
     _kafkaProducer = None
     _kafkaConsumer = None
 
+    _Measurements = None
+
     @property
     def projectName(self):
         return self._projectName
@@ -134,14 +136,7 @@ class AbstractProcessor(object):
 
     @property
     def Measurements(self):
-        user = getpass.getuser()
-        alias = f'{self.topic}_{self._aliasNum}'
-        createDBConnection(user=user,
-                           mongoConfig=getMongoConfigFromJson(user=user),
-                           alias=alias
-                           )
-        self._aliasNum += 1
-        return Measurements_Collection(user=user, alias=alias)
+        return self._Measurements
 
     def __init__(self, projectName, kafkaHost, topic, processesDict):
         """
@@ -165,7 +160,14 @@ class AbstractProcessor(object):
                                             # group_id=group_id
                                             )
 
-        self._aliasNum = 1
+        user = getpass.getuser()
+        alias = f'{self.topic}'
+        createDBConnection(user=user,
+                           mongoConfig=getMongoConfigFromJson(user=user),
+                           alias=alias
+                           )
+
+        self._Measurements =  Measurements_Collection(user=user, alias=alias)
 
 
 class WindowProcessor(AbstractProcessor):
@@ -292,24 +294,25 @@ class SlideProcessor(AbstractProcessor):
 
     def processMessage(self, message):
         self._df = self._df.append(toPandasDeserializer(message.value), sort=True)
-        if self._lastTime is None or (self._lastTime + pandas.Timedelta('%ss' % self.slideWindow) < self._df.tail(1).index[0]):
+        if self._lastTime is None or (self._lastTime + pandas.Timedelta('%ss' % self.slideWindow) <= self._df.tail(1).index[0]):
             self._resampled_df = self._df.resample('%ss' % self.slideWindow)
         timeList = list(self._resampled_df.groups.keys())
         data = None
         if len(timeList) > 1:
             try:
-                if self._lastTime != timeList[0]:
-                    self._lastTime = timeList[0]
-                    start = timeList[0]
-                    end = timeList[1]
-                    mask = (self._df.index>=start)*(self._df.index<end)
-                    data = self._df[mask]
-                    self._df = self._df[timeList[1]:]
+                if self._lastTime != timeList[-2]:
+                    self._lastTime = timeList[-2]
+                    # start = timeList[0]
+                    # end = timeList[1]
+                    # mask = (self._df.index>=start)*(self._df.index<end)
+                    # data = self._df[mask]
+                    data = self._resampled_df.get_group(timeList[-2])
+                    self._df = self._df[timeList[-1]:]
             except Exception as exception:
                 print(f'Exception {exception} handled')
                 self._df = pandas.DataFrame()
                 self._lastTime = None
-        newWindowTime = None if data is None else timeList[1]
+        newWindowTime = None if data is None else timeList[-1]
         return data, newWindowTime
 
     def start(self):
