@@ -129,7 +129,7 @@ if __name__ == "__main__":
                     fromTime = cbi.firstTime if cbi.firstTime + pandas.Timedelta(
                         '30m') >= cbi.lastTime else cbi.getTimeByRecordIndex(startIndex)
             else:
-                fromTime = cbi.getTimeByRecordIndex(cbi.getRecordIndexByTime(lastProducedTime)+1)
+                fromTime = cbi.firstTime if cbi.firstTime>lastProducedTime else cbi.getTimeByRecordIndex(cbi.getRecordIndexByTime(lastProducedTime)+1)
 
 
             # print('processing data from %s' % lastTimeInDB)
@@ -137,7 +137,7 @@ if __name__ == "__main__":
 
             print('Read file from %s' % fromTime)
 
-            newData, metadata = meteo.CampbellBinary_datalayer.parse(path=args.file, fromTime=fromTime)
+            newData, _ = meteo.CampbellBinary_datalayer.parse(path=args.file, fromTime=fromTime)
             runInput = []
             for height in heights:
                 tmpNewData = newData.compute().query("station==@station and instrument==@instrument and height==@height").drop(columns=['station', 'instrument', 'height'])
