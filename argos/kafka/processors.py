@@ -1,9 +1,9 @@
 import pydoc
 import pandas
 from . import toPandasDeserializer
-# from hera import datalayer
-from hera.datalayer import createDBConnection, getMongoConfigFromJson
-from hera.datalayer import Measurements_Collection
+from hera import datalayer
+# from hera.datalayer import createDBConnection, getMongoConfigFromJson
+# from hera.datalayer import Measurements_Collection
 from kafka import KafkaConsumer, KafkaProducer
 from argos import tbHome
 import json
@@ -134,9 +134,9 @@ class AbstractProcessor(object):
     def baseName(self):
         return f'{self.station}-{self.instrument}-{self.height}'
 
-    @property
-    def Measurements(self):
-        return self._Measurements
+    # @property
+    # def Measurements(self):
+    #     return self._Measurements
 
     def __init__(self, projectName, kafkaHost, topic, processesDict):
         """
@@ -160,14 +160,14 @@ class AbstractProcessor(object):
                                             # group_id=group_id
                                             )
 
-        user = getpass.getuser()
-        alias = f'{self.topic}'
-        createDBConnection(user=user,
-                           mongoConfig=getMongoConfigFromJson(user=user),
-                           alias=alias
-                           )
-
-        self._Measurements =  Measurements_Collection(user=user, alias=alias)
+        # user = getpass.getuser()
+        # alias = f'{self.topic}'
+        # createDBConnection(user=user,
+        #                    mongoConfig=getMongoConfigFromJson(user=user),
+        #                    alias=alias
+        #                    )
+        #
+        # self._Measurements =  Measurements_Collection(user=user, alias=alias)
 
 
 class WindowProcessor(AbstractProcessor):
@@ -248,9 +248,9 @@ class WindowProcessor(AbstractProcessor):
         if self.window=='None':
             data = toPandasDeserializer(message=message.value)
         else:
-            self._windowTime = pandas.Timestamp(message.value.decode('utf-8'))-pandas.Timedelta(f'{self.window}s')
-            endTime = pandas.Timestamp(message.value.decode('utf-8'))-pandas.Timedelta('0.001ms')
-            data = self.Measurements.getDocuments(projectName=self.projectName,
+            self._windowTime = pandas.Timestamp(message.value.decode('utf-8')) - pandas.Timedelta(f'{self.window}s')
+            endTime = pandas.Timestamp(message.value.decode('utf-8')) - pandas.Timedelta('0.001ms')
+            data = datalayer.Measurements.getDocuments(projectName=self.projectName,
                                                   station=self.station,
                                                   instrument=self.instrument,
                                                   height=self.height
@@ -312,7 +312,7 @@ class SlideProcessor(AbstractProcessor):
                 print(f'Exception {exception} handled')
                 self._df = pandas.DataFrame()
                 self._lastTime = None
-        newWindowTime = None if data is None else timeList[-1]
+        newWindowTime = None if data is None else self._lastTime + pandas.Timedelta(f'{self.slideWindow}s')
         return data, newWindowTime
 
     def start(self):

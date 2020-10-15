@@ -1,5 +1,6 @@
 from .. import pandasDataFrameSerializer
 from hera import meteo
+from hera import datalayer
 import dask.dataframe
 import os
 import warnings
@@ -46,7 +47,7 @@ def to_parquet_CampbellBinary(processor, data, savePath, _partition_size='100MB'
     desc = dict(station=station, instrument=instrument, height=height, DataSource='CampbellBinary')
     new_dask = dask.dataframe.from_pandas(data, npartitions=1)
 
-    docList = processor.Measurements.getDocuments(projectName=projectName,
+    docList = datalayer.Measurements.getDocuments(projectName=projectName,
                                                   type='meteorological',
                                                   **desc
                                                   )
@@ -56,15 +57,23 @@ def to_parquet_CampbellBinary(processor, data, savePath, _partition_size='100MB'
             raise ValueError("the list should be at max length of 1. Check your query.")
         else:
             doc = docList[0]
-            db_dask = doc.getData()
-            data = [db_dask, new_dask]
-            new_Data = dask.dataframe.concat(data, interleave_partitions=True) \
-                                     .reset_index() \
-                                     .drop_duplicates() \
-                                     .set_index('index') \
-                                     .repartition(partition_size=_partition_size)
+            # db_dask = doc.getData()
+            # data = [db_dask, new_dask]
+            parquet_path = doc.resource
 
-            new_Data.to_parquet(doc.resource, engine='pyarrow')
+            # new_Data = dask.dataframe.concat(data, interleave_partitions=True) \
+            #                          .reset_index() \
+            #                          .drop_duplicates() \
+            #                          .set_index('index') \
+            #                          .repartition(partition_size=_partition_size)
+
+            # new_Data.to_parquet(doc.resource, engine='pyarrow')
+
+            new_dask.to_parquet(path=parquet_path,
+                                append=True,
+                                ignore_divisions=True,
+                                engine='pyarrow'
+                                )
 
             if doc.resource != dir_path:
                 warnings.warn(
@@ -79,7 +88,7 @@ def to_parquet_CampbellBinary(processor, data, savePath, _partition_size='100MB'
         new_Data = new_dask.repartition(partition_size=_partition_size)
         new_Data.to_parquet(dir_path, engine='pyarrow')
 
-        processor.Measurements.addDocument(projectName=projectName,
+        datalayer.Measurements.addDocument(projectName=projectName,
                                            resource=dir_path,
                                            dataFormat='parquet',
                                            type='meteorological',
