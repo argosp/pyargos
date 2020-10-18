@@ -120,17 +120,19 @@ if __name__ == "__main__":
                     print('Last time in db - %s' % lastTimeInDB)
                     fromTime = cbi.firstTime if cbi.firstTime > lastTimeInDB else cbi.getTimeByRecordIndex(cbi.getRecordIndexByTime(lastTimeInDB)+1)
                     if fromTime + pandas.Timedelta('35m') < cbi.lastTime:
-                        startIndex = cbi.getRecordIndexByTime(
-                            cbi.lastTime) - 934 * 60  # close to 30 minutes before last time in file
+                        startIndex = cbi.getRecordIndexByTime(cbi.lastTime) - 934 * 60  # close to 30 minutes before last time in file
                         fromTime = cbi.getTimeByRecordIndex(startIndex)
                 else:
-                    startIndex = cbi.getRecordIndexByTime(
-                        cbi.lastTime) - 934 * 60  # close to 30 minutes before last time in file
-                    fromTime = cbi.firstTime if cbi.firstTime + pandas.Timedelta(
-                        '30m') >= cbi.lastTime else cbi.getTimeByRecordIndex(startIndex)
+                    startIndex = cbi.getRecordIndexByTime(cbi.lastTime) - 934 * 60  # close to 30 minutes before last time in file
+                    fromTime = cbi.firstTime if cbi.firstTime + pandas.Timedelta('30m') >= cbi.lastTime else cbi.getTimeByRecordIndex(startIndex)
             else:
-                fromTime = cbi.firstTime if cbi.firstTime>lastProducedTime else cbi.getTimeByRecordIndex(cbi.getRecordIndexByTime(lastProducedTime)+1)
-
+                if cbi.firstTime>lastProducedTime:
+                    if cbi.lastTime > cbi.firstTime+pandas.Timedelta('30m'):
+                        fromTime = cbi.getRecordIndexByTime(cbi.lastTime) - 934 * 60 # close to 30 minutes before last time in file
+                    else:
+                        fromTime = cbi.firstTime
+                else:
+                    fromTime = cbi.getTimeByRecordIndex(cbi.getRecordIndexByTime(lastProducedTime)+1)
 
             # print('processing data from %s' % lastTimeInDB)
             # lastTimeInDB = pandas.Timestamp('2020-09-07 09:30:00')
