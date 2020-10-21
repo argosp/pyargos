@@ -1,17 +1,18 @@
 import pydoc
 import pandas
 from . import toPandasDeserializer
-# from hera import datalayer
+from hera import datalayer
+import dask.dataframe
 # from hera.datalayer import createDBConnection, getMongoConfigFromJson
 # from hera.datalayer import Measurements_Collection
 from kafka import KafkaConsumer, KafkaProducer
 from argos import tbHome
 import json
-import paho.mqtt.client as mqtt
-import logging
-import time
-from multiprocessing import Pool, Process
-import getpass
+# import paho.mqtt.client as mqtt
+# import logging
+# import time
+from multiprocessing import Process  # , Pool
+# import getpass
 import os
 
 
@@ -41,10 +42,14 @@ class ConsumersHandler(object):
         return self._expConf
 
     @property
+    def defaultSaveFolder(self):
+        return self._defaultSaveFolder
+
+    @property
     def runFile(self):
         return self._runFile
 
-    def __init__(self, projectName, kafkaHost, expConf, config, runFile):
+    def __init__(self, projectName, kafkaHost, expConf, config, defaultSaveFolder, runFile):
         """
         :param projectName: The project name
         :param kafkaHost: The kafka host IP
@@ -57,6 +62,7 @@ class ConsumersHandler(object):
         self._kafkaHost = kafkaHost
         self._expConf = expConf
         self._config = config
+        self._defaultSaveFolder = defaultSaveFolder
         self._runFile = runFile
 
         with open(self.config, 'r') as configFile:
@@ -94,19 +100,40 @@ class ConsumersHandler(object):
         pList = []
         for topic, topicConfig in self.consumersConf.items():
             slideWindow = str(topicConfig.get('slideWindow'))
+
+            split_topic = topic.split('-')
+            station = split_topic[0]
+            instrument = split_topic[1]
+            height = split_topic[2]
+            docList = datalayer.Measurements.getDocuments(self.projectName, station=station, instrument=instrument, height=int(height))
+            if docList:
+                resource = docList[0].resource
+            else:
+                resource = os.path.join(self.defaultSaveFolder, station, instrument, height)
+                desc = dict(station=station, instrument=instrument, height=int(height))
+                datalayer.Measurements.addDocument(projectName=self.projectName,
+                                                   resource=resource,
+                                                   dataFormat='parquet',
+                                                   type='meteorological',
+                                                   desc=desc
+                                                   )
             for window in topicConfig['processesConfig']:
                 processesDict = self.consumersConf[topic]['processesConfig'][window]
                 if slideWindow != 'None':
-                    sp = SlideProcessor(self.projectName, self.kafkaHost, topic, slideWindow, processesDict)
+                    sp = SlideProcessor(self.projectName, self.kafkaHost, topic, resource, slideWindow, processesDict)
                     pList.append(sp)
                 else:
-                    wp = WindowProcessor(self.projectName, self.kafkaHost, self.expConf, topic, window, processesDict)
+                    wp = WindowProcessor(self.projectName, self.kafkaHost, topic, resource, window, self.expConf, processesDict)
                     pList.append(wp)
+
+        print('---- starting processes ----')
 
         for p in pList:
             p = Process(target=self._startProcesses2, args=(p, ))
             p.start()
             # p.join()
+
+        print('---- ready ----')
 
     def _startProcesses2(self, processor):
         processor.start()
@@ -142,6 +169,10 @@ class AbstractProcessor(object):
         return self._topic
 
     @property
+    def resource(self):
+        return self._resource
+
+    @property
     def processesDict(self):
         return self._processesDict
 
@@ -162,7 +193,7 @@ class AbstractProcessor(object):
         return f'{self.station}-{self.instrument}-{self.height}'
 
 
-    def __init__(self, projectName, kafkaHost, topic, processesDict):
+    def __init__(self, projectName, kafkaHost, topic, resource, processesDict):
         """
 
         :param projectName: The project name
@@ -174,6 +205,7 @@ class AbstractProcessor(object):
         self._projectName = projectName
         self._kafkaHost = kafkaHost
         self._topic = topic
+        self._resource = resource
         self._processesDict = processesDict
 
         self._kafkaConsumer = KafkaConsumer(topic,
@@ -219,7 +251,7 @@ class WindowProcessor(AbstractProcessor):
     def windowTime(self):
         return self._windowTime
 
-    def __init__(self, projectName, kafkaHost, expConf, topic, window, processesDict):
+    def __init__(self, projectName, kafkaHost, topic, resource, window, expConf, processesDict):
         """
 
         :param projectName: The project name
@@ -230,7 +262,7 @@ class WindowProcessor(AbstractProcessor):
         :param processesDict: The configuration dictionary of the processes to run
         """
 
-        super().__init__(projectName, kafkaHost, topic, processesDict)
+        super().__init__(projectName, kafkaHost, topic, resource, processesDict)
 
         with open(expConf, 'r') as jsonFile:
             self._tbCredentialMap = json.load(jsonFile)
@@ -276,12 +308,7 @@ class WindowProcessor(AbstractProcessor):
         else:
             self._windowTime = pandas.Timestamp(message.value.decode('utf-8')) - pandas.Timedelta(f'{self.window}s')
             endTime = pandas.Timestamp(message.value.decode('utf-8')) - pandas.Timedelta('0.001ms')
-            from hera import datalayer
-            data = datalayer.Measurements.getDocuments(projectName=self.projectName,
-                                                  station=self.station,
-                                                  instrument=self.instrument,
-                                                  height=self.height
-                                                  )[0].getData()[self.windowTime:endTime].compute()
+            data = dask.dataframe.read_parquet(path=self.resource)[self.windowTime:endTime].compute()
         return data
 
     def start(self):
@@ -302,7 +329,7 @@ class SlideProcessor(AbstractProcessor):
     def slideWindow(self):
         return self._slideWindow
 
-    def __init__(self, projectName, kafkaHost, topic, slideWindow, processesDict):
+    def __init__(self, projectName, kafkaHost, topic, resource, slideWindow, processesDict):
         """
 
         :param projectName: The project name
@@ -312,7 +339,7 @@ class SlideProcessor(AbstractProcessor):
         :param slideWindow: The sliding window size, in seconds
         :param processesDict: The configuration dictionary of the processes to run
         """
-        super().__init__(projectName, kafkaHost, topic, processesDict)
+        super().__init__(projectName, kafkaHost, topic, resource, processesDict)
 
         self._slideWindow = slideWindow
 

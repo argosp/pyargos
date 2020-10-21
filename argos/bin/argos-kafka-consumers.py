@@ -17,5 +17,6 @@ if __name__ == "__main__":
                      kafkaHost=args.kafkaHost,
                      expConf=args.expConf,
                      config=args.config,
+                     defaultSaveFolder=os.path.join(os.path.expanduser('~'), 'data'),
                      runFile=os.path.join(os.path.expanduser('~'), 'Development/pyargos/argos/bin/runTest.py')
                      ).run()
