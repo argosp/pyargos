@@ -1,7 +1,7 @@
 import pydoc
 import pandas
 from . import toPandasDeserializer
-from hera import datalayer
+# from hera import datalayer
 # from hera.datalayer import createDBConnection, getMongoConfigFromJson
 # from hera.datalayer import Measurements_Collection
 from kafka import KafkaConsumer, KafkaProducer
@@ -10,7 +10,7 @@ import json
 import paho.mqtt.client as mqtt
 import logging
 import time
-from multiprocessing import Pool
+from multiprocessing import Pool, Process
 import getpass
 import os
 
@@ -62,22 +62,54 @@ class ConsumersHandler(object):
         with open(self.config, 'r') as configFile:
             self._consumersConf = json.load(configFile)
 
-        poolNum = 0
-        for topic, topicDict in self.consumersConf.items():
-            for window, processesDict in topicDict['processesConfig'].items():
-                    poolNum += len(processesDict)
-
-        self._poolNum = poolNum
+        # poolNum = 0
+        # for topic, topicDict in self.consumersConf.items():
+        #     for window, processesDict in topicDict['processesConfig'].items():
+        #             poolNum += len(processesDict)
+        #
+        # self._poolNum = poolNum
 
     def run(self):
-        with Pool(self._poolNum) as p:
-            startProcessesInputs = []
-            for topic, topicConfig in self.consumersConf.items():
-                slideWindow = str(topicConfig.get('slideWindow'))
-                for window in topicConfig['processesConfig']:
-                    startProcessesInputs.append((topic, window, slideWindow))
-            print('---- ready ----')
-            p.starmap(self._startProcesses, startProcessesInputs)
+        # with Pool(self._poolNum) as p:
+        #     startProcessesInputs = []
+        #     for topic, topicConfig in self.consumersConf.items():
+        #         slideWindow = str(topicConfig.get('slideWindow'))
+        #         for window in topicConfig['processesConfig']:
+        #             startProcessesInputs.append((topic, window, slideWindow))
+        #     print('---- ready ----')
+        #     p.starmap(self._startProcesses, startProcessesInputs)
+
+        # print('---- starting processors ----')
+        # startProcessesInputs = []
+        # for topic, topicConfig in self.consumersConf.items():
+        #     slideWindow = str(topicConfig.get('slideWindow'))
+        #     for window in topicConfig['processesConfig']:
+        #         startProcessesInputs.append((topic, window, slideWindow))
+        #
+        # for spi in startProcessesInputs:
+        #     print(spi)
+        #     Process(target=self._startProcesses, args=spi).start()
+        # print('---- ready ----')
+
+        pList = []
+        for topic, topicConfig in self.consumersConf.items():
+            slideWindow = str(topicConfig.get('slideWindow'))
+            for window in topicConfig['processesConfig']:
+                processesDict = self.consumersConf[topic]['processesConfig'][window]
+                if slideWindow != 'None':
+                    sp = SlideProcessor(self.projectName, self.kafkaHost, topic, slideWindow, processesDict)
+                    pList.append(sp)
+                else:
+                    wp = WindowProcessor(self.projectName, self.kafkaHost, self.expConf, topic, window, processesDict)
+                    pList.append(wp)
+
+        for p in pList:
+            p = Process(target=self._startProcesses2, args=(p, ))
+            p.start()
+            # p.join()
+
+    def _startProcesses2(self, processor):
+        processor.start()
 
     def _startProcesses(self, topic, window, slideWindow):
         os.system(f'python {self.runFile} --config {self.config} --kafkaHost {self.kafkaHost} --projectName {self.projectName} --expConf {self.expConf} --topic {topic} --window {window} --slideWindow {slideWindow}')
@@ -89,7 +121,6 @@ class AbstractProcessor(object):
     _topic = None
     _processesDict = None
 
-    _kafkaProducer = None
     _kafkaConsumer = None
 
     _Measurements = None
@@ -101,10 +132,6 @@ class AbstractProcessor(object):
     @property
     def kafkaHost(self):
         return self._kafkaHost
-
-    @property
-    def kafkaProducer(self):
-        return self._kafkaProducer
 
     @property
     def kafkaConsumer(self):
@@ -134,9 +161,6 @@ class AbstractProcessor(object):
     def baseName(self):
         return f'{self.station}-{self.instrument}-{self.height}'
 
-    # @property
-    # def Measurements(self):
-    #     return self._Measurements
 
     def __init__(self, projectName, kafkaHost, topic, processesDict):
         """
@@ -152,12 +176,11 @@ class AbstractProcessor(object):
         self._topic = topic
         self._processesDict = processesDict
 
-        self._kafkaProducer = KafkaProducer(bootstrap_servers=kafkaHost)
         self._kafkaConsumer = KafkaConsumer(topic,
                                             bootstrap_servers=kafkaHost,
                                             auto_offset_reset='latest',
                                             enable_auto_commit=True
-                                            # group_id=group_id
+                                            # group_id=f'{topic}'
                                             )
 
         # user = getpass.getuser()
@@ -214,35 +237,38 @@ class WindowProcessor(AbstractProcessor):
 
         self._window = window
 
-        self._initiateClient()
+        # self._initiateClient()
 
         self._windowTime = None
 
-    def on_disconnect(self, client, userdata, rc=0):
-        logging.debug("DisConnected result code " + str(rc))
-        client.loop_stop()
+    # def on_disconnect(self, client, userdata, rc=0):
+    #     logging.debug("DisConnected result code " + str(rc))
+    #     client.loop_stop()
+    #
+    # def on_connect(self, client, userdata, flags, rc):
+    #     if rc == 0:
+    #         print("Connected to broker")
+    #     else:
+    #         print("Connection failed")
+    #
+    # def _initiateClient(self):
+    #     if self.window=='None':
+    #         devices = self.tbh.deviceHome.getAllEntitiesName()
+    #         if self.topic in devices:
+    #             #print('Connecting to %s' % deviceName)
+    #             client = mqtt.Client("Me_%s" % self.topic)
+    #             client.on_connect = self.on_connect
+    #
+    #             accessToken = self.tbh.deviceHome.createProxy(self.topic).getCredentials()
+    #             client.username_pw_set(accessToken, password=None)
+    #             client.on_disconnect = self.on_disconnect
+    #             client.connect(host=self.tbHost, port=1883)
+    #             self._client = client
+    #             client.loop_start()
+    #             time.sleep(0.01)
 
-    def on_connect(self, client, userdata, flags, rc):
-        if rc == 0:
-            print("Connected to broker")
-        else:
-            print("Connection failed")
-
-    def _initiateClient(self):
-        if self.window=='None':
-            devices = self.tbh.deviceHome.getAllEntitiesName()
-            if self.topic in devices:
-                #print('Connecting to %s' % deviceName)
-                client = mqtt.Client("Me_%s" % self.topic)
-                client.on_connect = self.on_connect
-
-                accessToken = self.tbh.deviceHome.createProxy(self.topic).getCredentials()
-                client.username_pw_set(accessToken, password=None)
-                client.on_disconnect = self.on_disconnect
-                client.connect(host=self.tbHost, port=1883)
-                self._client = client
-                client.loop_start()
-                time.sleep(0.01)
+    def setClient(self, client):
+        self._client = client
 
     def _getData(self, message):
         if self.window=='None':
@@ -250,6 +276,7 @@ class WindowProcessor(AbstractProcessor):
         else:
             self._windowTime = pandas.Timestamp(message.value.decode('utf-8')) - pandas.Timedelta(f'{self.window}s')
             endTime = pandas.Timestamp(message.value.decode('utf-8')) - pandas.Timedelta('0.001ms')
+            from hera import datalayer
             data = datalayer.Measurements.getDocuments(projectName=self.projectName,
                                                   station=self.station,
                                                   instrument=self.instrument,
@@ -316,12 +343,15 @@ class SlideProcessor(AbstractProcessor):
         return data, newWindowTime
 
     def start(self):
+        producer = KafkaProducer(bootstrap_servers=self.kafkaHost)
         for message in self.kafkaConsumer:
             data, newWindowTime = self.processMessage(message)
             if data is not None:
+                # print(data)
                 for saveFunction, saveArguments in self.processesDict.items():
                     pydoc.locate(saveFunction)(processor=self, data=data, **saveArguments)
                 del(data)
                 window_topic = f"{self.topic}-calc"
                 newMessage = str(newWindowTime).encode('utf-8')
-                self.kafkaProducer.send(window_topic, newMessage)
+                producer.send(window_topic, newMessage)
+                producer.flush()
