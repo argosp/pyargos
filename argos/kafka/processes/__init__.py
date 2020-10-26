@@ -22,6 +22,7 @@ def calc_wind(processor, data):
     message = pandasDataFrameSerializer(calculatedData)
     topicToSend = '%s-%s-%s' % (processor.topic, processor.window, processor.slide)
     processor.kafkaProducer.send(topicToSend, message)
+    print(f'Calculated wind ({processor.window}, {processor.slide}) - {processor.topic} - {processor.currentWindowTime}')
 
 
 def to_thingsboard(processor, data):
@@ -29,9 +30,11 @@ def to_thingsboard(processor, data):
 
     data.index = [x.tz_localize('israel') for x in data.index]
     client.publish('v1/devices/me/telemetry', pandasDataFrameSerializer(data))
+    print(f'Sent wind - {processor.topic} - {data.index[0]}')
 
 
 def to_parquet_CampbellBinary(processor, data, outputPath, _partition_size='100MB'):
+    print(f"Save to parquet - height: {processor.topic.split('-')[2]} - from {data.index[0]} to {data.index[-1]}")
     projectName = processor.projectName
     deviceName = processor.topic
     station = deviceName.split('-')[0]

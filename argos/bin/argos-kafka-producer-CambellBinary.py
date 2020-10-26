@@ -17,6 +17,7 @@ def run(deviceName, data, kafkaHost):
         message = pandasSeriesSerializer(data.loc[timeIndex])
         producer.send(deviceName, message)
         time.sleep(0.016)
+    producer.close()
 
 
 def waitFileToUpdate(file):
