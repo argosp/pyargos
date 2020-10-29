@@ -1,0 +1,57 @@
+{
+"Hamadpis-Raw_Sonic-6": {
+                        "argos.kafka.processes.print_sliding_window": [
+                                                                      {
+                                                                      "window": 60,
+                                                                      "slide": 30
+                                                                      },
+                                                                      {
+                                                                      "window": 90,
+                                                                      "slide": 30
+                                                                      },
+                                                                      {
+                                                                      "window": 120,
+                                                                      "slide": 30
+                                                                      }
+                                                                      ],
+                        "argos.kafka.processes.publish_sliding_window_fluctuations": [
+                                                                                     {
+                                                                                     "window": 60,
+                                                                                     "slide": 30,
+                                                                                     "deviceName": "producerTest"
+                                                                                     }
+                                                                                     ]
+                        },
+"Hamadpis-Raw_Sonic-11": {
+                        "argos.kafka.processes.print_sliding_window": [
+                                                                      {
+                                                                      "window": 60,
+                                                                      "slide": 30
+                                                                      },
+                                                                      {
+                                                                      "window": 90,
+                                                                      "slide": 30
+                                                                      },
+                                                                      {
+                                                                      "window": 120,
+                                                                      "slide": 30
+                                                                      }
+                                                                      ]
+                        },
+"Hamadpis-Raw_Sonic-16": {
+                        "argos.kafka.processes.print_sliding_window": [
+                                                                      {
+                                                                      "window": 60,
+                                                                      "slide": 30
+                                                                      },
+                                                                      {
+                                                                      "window": 90,
+                                                                      "slide": 30
+                                                                      },
+                                                                      {
+                                                                      "window": 120,
+                                                                      "slide": 30
+                                                                      }
+                                                                      ]
+                        }
+}
