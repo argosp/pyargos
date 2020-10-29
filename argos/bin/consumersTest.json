@@ -1,0 +1,170 @@
+{
+  "Hamadpis-Raw_Sonic-6": {
+    "slideWindow": "60",
+    "processesConfig": {
+      "None": {
+        "argos.kafka.processes.to_parquet_CampbellBinary": {}
+      }
+    }
+  },
+  "Hamadpis-Raw_Sonic-6-calc": {
+    "processesConfig": {
+      "180": {
+        "argos.kafka.processes.calc_wind": {}
+      },
+      "300": {
+        "argos.kafka.processes.calc_wind": {}
+      },
+      "600": {
+        "argos.kafka.processes.calc_wind": {}
+      }
+    }
+  },
+  "Hamadpis-Raw_Sonic-6-180": {
+    "processesConfig": {
+      "None": {
+        "argos.kafka.processes.to_thingsboard": {}
+      }
+    }
+  },
+  "Hamadpis-Raw_Sonic-6-300": {
+    "processesConfig": {
+      "None": {
+        "argos.kafka.processes.to_thingsboard": {}
+      }
+    }
+  },
+  "Hamadpis-Raw_Sonic-6-600": {
+    "processesConfig": {
+      "None": {
+        "argos.kafka.processes.to_thingsboard": {}
+      }
+    }
+  },
+  "Hamadpis-Raw_Sonic-11": {
+    "slideWindow": "60",
+    "processesConfig": {
+      "None": {
+        "argos.kafka.processes.to_parquet_CampbellBinary": {}
+      }
+    }
+  },
+  "Hamadpis-Raw_Sonic-11-calc": {
+    "processesConfig": {
+      "180": {
+        "argos.kafka.processes.calc_wind": {}
+      },
+      "300": {
+        "argos.kafka.processes.calc_wind": {}
+      },
+      "600": {
+        "argos.kafka.processes.calc_wind": {}
+      }
+    }
+  },
+  "Hamadpis-Raw_Sonic-11-180": {
+    "processesConfig": {
+      "None": {
+        "argos.kafka.processes.to_thingsboard": {}
+      }
+    }
+  },
+  "Hamadpis-Raw_Sonic-11-300": {
+    "processesConfig": {
+      "None": {
+        "argos.kafka.processes.to_thingsboard": {}
+      }
+    }
+  },
+  "Hamadpis-Raw_Sonic-11-600": {
+    "processesConfig": {
+      "None": {
+        "argos.kafka.processes.to_thingsboard": {}
+      }
+    }
+  },
+  "Hamadpis-Raw_Sonic-16": {
+    "slideWindow": "60",
+    "processesConfig": {
+      "None": {
+        "argos.kafka.processes.to_parquet_CampbellBinary": {}
+      }
+    }
+  },
+  "Hamadpis-Raw_Sonic-16-calc": {
+    "processesConfig": {
+      "180": {
+        "argos.kafka.processes.calc_wind": {}
+      },
+      "300": {
+        "argos.kafka.processes.calc_wind": {}
+      },
+      "600": {
+        "argos.kafka.processes.calc_wind": {}
+      }
+    }
+  },
+  "Hamadpis-Raw_Sonic-16-180": {
+    "processesConfig": {
+      "None": {
+        "argos.kafka.processes.to_thingsboard": {}
+      }
+    }
+  },
+  "Hamadpis-Raw_Sonic-16-300": {
+    "processesConfig": {
+      "None": {
+        "argos.kafka.processes.to_thingsboard": {}
+      }
+    }
+  },
+  "Hamadpis-Raw_Sonic-16-600": {
+    "processesConfig": {
+      "None": {
+        "argos.kafka.processes.to_thingsboard": {}
+      }
+    }
+  },
+  "David_Yellin-Raw_Sonic-10": {
+    "slideWindow": "60",
+    "processesConfig": {
+      "None": {
+        "argos.kafka.processes.to_parquet_CampbellBinary": {}
+      }
+    }
+  },
+  "David_Yellin-Raw_Sonic-10-calc": {
+    "processesConfig": {
+      "180": {
+        "argos.kafka.processes.calc_wind": {}
+      },
+      "300": {
+        "argos.kafka.processes.calc_wind": {}
+      },
+      "600": {
+        "argos.kafka.processes.calc_wind": {}
+      }
+    }
+  },
+  "David_Yellin-Raw_Sonic-10-180": {
+    "processesConfig": {
+      "None": {
+        "argos.kafka.processes.to_thingsboard": {}
+      }
+    }
+  },
+  "David_Yellin-Raw_Sonic-10-300": {
+    "processesConfig": {
+      "None": {
+        "argos.kafka.processes.to_thingsboard": {}
+      }
+    }
+  },
+  "David_Yellin-Raw_Sonic-10-600": {
+    "processesConfig": {
+      "None": {
+        "argos.kafka.processes.to_thingsboard": {}
+      }
+    }
+  }
+}

@@ -1,40 +1,33 @@
 import pydoc
 import pandas
 from . import toPandasDeserializer
+from hera import datalayer
+import dask.dataframe
+# from hera.datalayer import createDBConnection, getMongoConfigFromJson
+# from hera.datalayer import Measurements_Collection
 from kafka import KafkaConsumer, KafkaProducer
 from argos import tbHome
 import json
-import paho.mqtt.client as mqtt
-import logging
-import time
+# import paho.mqtt.client as mqtt
+# import logging
+# import time
+from multiprocessing import Process  # , Pool
+# import getpass
+import os
 
 
-class Processor(object):
-    _projectName = None
-    _kafkaHost = None
-    _topic = None
-    _window = None
-    _slide = None
-    _processes = None
-    _tbCredentialMap = None
+class ConsumersHandler(object):
 
-    _windowProcessor = None
-    _kafkaProducer = None
-    _kafkaConsumer = None
-
-    _clients = None
+    _slideWindow = None
+    _saveProperties = None
 
     @property
-    def clients(self):
-        return self._clients
+    def config(self):
+        return self._config
 
     @property
-    def tbh(self):
-        return tbHome(self._tbCredentialMap["connection"])
-
-    @property
-    def tbHost(self):
-        return self._tbCredentialMap["connection"]["server"]["ip"]
+    def consumersConf(self):
+        return self._consumersConf
 
     @property
     def projectName(self):
@@ -45,167 +38,347 @@ class Processor(object):
         return self._kafkaHost
 
     @property
-    def kafkaProducer(self):
-        return self._kafkaProducer
+    def expConf(self):
+        return self._expConf
+
+    @property
+    def defaultSaveFolder(self):
+        return self._defaultSaveFolder
+
+    @property
+    def runFile(self):
+        return self._runFile
+
+    def __init__(self, projectName, kafkaHost, expConf, config, defaultSaveFolder, runFile):
+        """
+        :param projectName: The project name
+        :param kafkaHost: The kafka host IP
+        :param expConf: The experiment configuration json file path
+        :param config: Configuration json file for the consumers
+        :param runFile: Path to the script file to run
+        """
+
+        self._projectName = projectName
+        self._kafkaHost = kafkaHost
+        self._expConf = expConf
+        self._config = config
+        self._defaultSaveFolder = defaultSaveFolder
+        self._runFile = runFile
+
+        with open(self.config, 'r') as configFile:
+            self._consumersConf = json.load(configFile)
+
+        # poolNum = 0
+        # for topic, topicDict in self.consumersConf.items():
+        #     for window, processesDict in topicDict['processesConfig'].items():
+        #             poolNum += len(processesDict)
+        #
+        # self._poolNum = poolNum
+
+    def run(self):
+        # with Pool(self._poolNum) as p:
+        #     startProcessesInputs = []
+        #     for topic, topicConfig in self.consumersConf.items():
+        #         slideWindow = str(topicConfig.get('slideWindow'))
+        #         for window in topicConfig['processesConfig']:
+        #             startProcessesInputs.append((topic, window, slideWindow))
+        #     print('---- ready ----')
+        #     p.starmap(self._startProcesses, startProcessesInputs)
+
+        # print('---- starting processors ----')
+        # startProcessesInputs = []
+        # for topic, topicConfig in self.consumersConf.items():
+        #     slideWindow = str(topicConfig.get('slideWindow'))
+        #     for window in topicConfig['processesConfig']:
+        #         startProcessesInputs.append((topic, window, slideWindow))
+        #
+        # for spi in startProcessesInputs:
+        #     print(spi)
+        #     Process(target=self._startProcesses, args=spi).start()
+        # print('---- ready ----')
+
+        pList = []
+        for topic, topicConfig in self.consumersConf.items():
+            slideWindow = str(topicConfig.get('slideWindow'))
+
+            split_topic = topic.split('-')
+            station = split_topic[0]
+            instrument = split_topic[1]
+            height = split_topic[2]
+            docList = datalayer.Measurements.getDocuments(self.projectName, station=station, instrument=instrument, height=int(height))
+            if docList:
+                resource = docList[0].resource
+            else:
+                resource = os.path.join(self.defaultSaveFolder, station, instrument, height)
+                desc = dict(station=station, instrument=instrument, height=int(height))
+                datalayer.Measurements.addDocument(projectName=self.projectName,
+                                                   resource=resource,
+                                                   dataFormat='parquet',
+                                                   type='meteorological',
+                                                   desc=desc
+                                                   )
+            for window in topicConfig['processesConfig']:
+                processesDict = self.consumersConf[topic]['processesConfig'][window]
+                if slideWindow != 'None':
+                    sp = SlideProcessor(self.projectName, self.kafkaHost, topic, resource, slideWindow, processesDict)
+                    pList.append(sp)
+                else:
+                    wp = WindowProcessor(self.projectName, self.kafkaHost, topic, resource, window, self.expConf, processesDict)
+                    pList.append(wp)
+
+        print('---- starting processes ----')
+
+        for p in pList:
+            p = Process(target=self._startProcesses2, args=(p, ))
+            p.start()
+            # p.join()
+
+        print('---- ready ----')
+
+    def _startProcesses2(self, processor):
+        processor.start()
+
+    def _startProcesses(self, topic, window, slideWindow):
+        os.system(f'python {self.runFile} --config {self.config} --kafkaHost {self.kafkaHost} --projectName {self.projectName} --expConf {self.expConf} --topic {topic} --window {window} --slideWindow {slideWindow}')
+
+
+class AbstractProcessor(object):
+    _projectName = None
+    _kafkaHost = None
+    _topic = None
+    _processesDict = None
+
+    _kafkaConsumer = None
+
+    _Measurements = None
+
+    @property
+    def projectName(self):
+        return self._projectName
+
+    @property
+    def kafkaHost(self):
+        return self._kafkaHost
 
     @property
     def kafkaConsumer(self):
         return self._kafkaConsumer
 
     @property
+    def topic(self):
+        return self._topic
+
+    @property
+    def resource(self):
+        return self._resource
+
+    @property
     def processesDict(self):
         return self._processesDict
 
     @property
-    def topic(self):
-        return self._topic
+    def station(self):
+        return self.topic.split('-')[0]
+
+    @property
+    def instrument(self):
+        return self.topic.split('-')[1]
+
+    @property
+    def height(self):
+        return int(self.topic.split('-')[2])
+
+    @property
+    def baseName(self):
+        return f'{self.station}-{self.instrument}-{self.height}'
+
+
+    def __init__(self, projectName, kafkaHost, topic, resource, processesDict):
+        """
+
+        :param projectName: The project name
+        :param kafkaHost: The kafka host IP
+        :param expConf: The experiment configuration json file path
+        :param topic: The topic to process
+        :param processesDict: The configuration dictionary of the processes to run
+        """
+        self._projectName = projectName
+        self._kafkaHost = kafkaHost
+        self._topic = topic
+        self._resource = resource
+        self._processesDict = processesDict
+
+        self._kafkaConsumer = KafkaConsumer(topic,
+                                            bootstrap_servers=kafkaHost,
+                                            auto_offset_reset='latest',
+                                            enable_auto_commit=True
+                                            # group_id=f'{topic}'
+                                            )
+
+        # user = getpass.getuser()
+        # alias = f'{self.topic}'
+        # createDBConnection(user=user,
+        #                    mongoConfig=getMongoConfigFromJson(user=user),
+        #                    alias=alias
+        #                    )
+        #
+        # self._Measurements =  Measurements_Collection(user=user, alias=alias)
+
+
+class WindowProcessor(AbstractProcessor):
+    _window = None
+
+    _client = None
+    _windowTime = None
+
+    @property
+    def tbh(self):
+        return tbHome(self._tbCredentialMap["connection"])
+
+    @property
+    def tbHost(self):
+        return self._tbCredentialMap["connection"]["server"]["ip"]
 
     @property
     def window(self):
         return self._window
 
     @property
-    def slide(self):
-        return self._slide
+    def client(self):
+        return self._client
 
     @property
-    def currentWindowTime(self):
-        return self._currentWindowTime
+    def windowTime(self):
+        return self._windowTime
 
-    def __init__(self, projectName, kafkaHost, expConf, topic, window, slide, processesDict):
+    def __init__(self, projectName, kafkaHost, topic, resource, window, expConf, processesDict):
         """
 
         :param projectName: The project name
         :param kafkaHost: The kafka host IP
         :param expConf: The path to the experiment configuration file
         :param topic: The topic to process
-        :param window: The window to process in seconds
-        :param slide: The slide of the window in seconds
-        :param processesDict: The dictionary of the processes to run.
+        :param window: The window size, in seconds, to process
+        :param processesDict: The configuration dictionary of the processes to run
         """
-        self._projectName = projectName
-        self._kafkaHost = kafkaHost
-        self._topic = topic
-        self._window = window
-        self._slide = slide
-        self._processesDict = processesDict
+
+        super().__init__(projectName, kafkaHost, topic, resource, processesDict)
 
         with open(expConf, 'r') as jsonFile:
             self._tbCredentialMap = json.load(jsonFile)
 
-        self._windowProcessor = WindowProcessor(window=window, slide=slide)
-        self._kafkaProducer = KafkaProducer(bootstrap_servers=kafkaHost)
-        self._kafkaConsumer = KafkaConsumer(topic,
-                                            bootstrap_servers=kafkaHost,
-                                            auto_offset_reset='latest',
-                                            enable_auto_commit=True
-                                            # group_id=group_id
-                                            )
+        self._window = window
 
-        self._clients = dict()
-        self._initiateClients()
+        # self._initiateClient()
 
-        self._currentWindowTime = None
+        self._windowTime = None
 
-    def on_disconnect(self, client, userdata, rc=0):
-        logging.debug("DisConnected result code " + str(rc))
-        client.loop_stop()
+    # def on_disconnect(self, client, userdata, rc=0):
+    #     logging.debug("DisConnected result code " + str(rc))
+    #     client.loop_stop()
+    #
+    # def on_connect(self, client, userdata, flags, rc):
+    #     if rc == 0:
+    #         print("Connected to broker")
+    #     else:
+    #         print("Connection failed")
+    #
+    # def _initiateClient(self):
+    #     if self.window=='None':
+    #         devices = self.tbh.deviceHome.getAllEntitiesName()
+    #         if self.topic in devices:
+    #             #print('Connecting to %s' % deviceName)
+    #             client = mqtt.Client("Me_%s" % self.topic)
+    #             client.on_connect = self.on_connect
+    #
+    #             accessToken = self.tbh.deviceHome.createProxy(self.topic).getCredentials()
+    #             client.username_pw_set(accessToken, password=None)
+    #             client.on_disconnect = self.on_disconnect
+    #             client.connect(host=self.tbHost, port=1883)
+    #             self._client = client
+    #             client.loop_start()
+    #             time.sleep(0.01)
 
-    def on_connect(self, client, userdata, flags, rc):
-        if rc == 0:
-            print("Connected to broker")
+    def setClient(self, client):
+        self._client = client
+
+    def _getData(self, message):
+        if self.window=='None':
+            data = toPandasDeserializer(message=message.value)
         else:
-            print("Connection failed")
-
-    def _initiateClients(self):
-        devices = self.tbh.deviceHome.getAllEntitiesName()
-        for deviceName in devices:
-            if self.topic in deviceName and self.window is None:
-                #print('Connecting to %s' % deviceName)
-                client = mqtt.Client("Me_%s" % deviceName)
-                client.on_connect = self.on_connect
-
-                accessToken = self.tbh.deviceHome.createProxy(deviceName).getCredentials()
-                client.username_pw_set(accessToken, password=None)
-                client.on_disconnect = self.on_disconnect
-                client.connect(host=self.tbHost, port=1883)
-                self._clients[deviceName] = client
-                client.loop_start()
-                time.sleep(0.01)
-
-    def getClient(self, deviceName):
-        return self.clients[deviceName]
+            self._windowTime = pandas.Timestamp(message.value.decode('utf-8')) - pandas.Timedelta(f'{self.window}s')
+            endTime = pandas.Timestamp(message.value.decode('utf-8')) - pandas.Timedelta('0.001ms')
+            data = dask.dataframe.read_parquet(path=self.resource)[self.windowTime:endTime].compute()
+        return data
 
     def start(self):
         for message in self.kafkaConsumer:
-            if self.window is None:
-                data = self._windowProcessor.processMessage(message=message)
-                self._currentWindowTime = None
-            else:
-                data, self._currentWindowTime = self._windowProcessor.processMessage(message=message)
-            if data is not None:
-                for process, processArgs in self.processesDict.items():
-                    pydoc.locate(process)(processor=self, data=data, **processArgs)
+            data = self._getData(message=message)
+            for process, processArgs in self.processesDict.items():
+                pydoc.locate(process)(processor=self, data=data, **processArgs)
+            del(data)
 
 
-class WindowProcessor(object):
-    _window = None
-    _slide = None
+class SlideProcessor(AbstractProcessor):
+    _slideWindow = None
     _df = None
     _lastTime = None
     _resampled_df = None
 
     @property
-    def window(self):
-        return self._window
+    def slideWindow(self):
+        return self._slideWindow
 
-    @property
-    def slide(self):
-        return self._slide
+    def __init__(self, projectName, kafkaHost, topic, resource, slideWindow, processesDict):
+        """
 
-    def __init__(self, window, slide):
+        :param projectName: The project name
+        :param kafkaHost: The kafka host IP
+        :param expConf: The path to the experiment configuration file
+        :param topic: The topic to process
+        :param slideWindow: The sliding window size, in seconds
+        :param processesDict: The configuration dictionary of the processes to run
         """
-        :param window: Time window size in seconds if None no window
-        :param slide: Sliding time in seconds if None no slide(and window also None)
-        """
-        self._window = window
-        self._slide = slide
+        super().__init__(projectName, kafkaHost, topic, resource, processesDict)
+
+        self._slideWindow = slideWindow
+
         self._df = pandas.DataFrame()
-
-        if self.window is not None:
-            self._n = int(self.window/self.slide)
-        else:
-            self._n = None
-
         self._lastTime = None
 
     def processMessage(self, message):
-        if self.window is None:
-            data = self.processMessageWithoutWindow(message=message)
-        else:
-            data = self.processMessageWithWindow(message=message)
-        return data
-
-    def processMessageWithWindow(self, message):
         self._df = self._df.append(toPandasDeserializer(message.value), sort=True)
-        if self._lastTime is None or (self._lastTime + pandas.Timedelta('%ss' % self.slide) < self._df.tail(1).index[0]):
-            self._resampled_df = self._df.resample('%ss' % self.slide)
+        if self._lastTime is None or (self._lastTime + pandas.Timedelta('%ss' % self.slideWindow) <= self._df.tail(1).index[0]):
+            self._resampled_df = self._df.resample('%ss' % self.slideWindow)
         timeList = list(self._resampled_df.groups.keys())
         data = None
-        if len(timeList) > self._n:
+        if len(timeList) > 1:
             try:
-                if self._lastTime != timeList[0]:
-                    self._lastTime = timeList[0]
-                    start = timeList[0]
-                    end = timeList[self._n]
-                    mask = (self._df.index>=start)*(self._df.index<end)
-                    data = self._df[mask]
-                    self._df = self._df[timeList[1]:]
+                if self._lastTime != timeList[-2]:
+                    self._lastTime = timeList[-2]
+                    # start = timeList[0]
+                    # end = timeList[1]
+                    # mask = (self._df.index>=start)*(self._df.index<end)
+                    # data = self._df[mask]
+                    data = self._resampled_df.get_group(timeList[-2])
+                    self._df = self._df[timeList[-1]:]
             except Exception as exception:
                 print(f'Exception {exception} handled')
                 self._df = pandas.DataFrame()
                 self._lastTime = None
-        return data, timeList[0]
+        newWindowTime = None if data is None else self._lastTime + pandas.Timedelta(f'{self.slideWindow}s')
+        return data, newWindowTime
 
-    def processMessageWithoutWindow(self, message):
-        return toPandasDeserializer(message.value)
+    def start(self):
+        producer = KafkaProducer(bootstrap_servers=self.kafkaHost)
+        for message in self.kafkaConsumer:
+            data, newWindowTime = self.processMessage(message)
+            if data is not None:
+                # print(data)
+                for saveFunction, saveArguments in self.processesDict.items():
+                    pydoc.locate(saveFunction)(processor=self, data=data, **saveArguments)
+                del(data)
+                window_topic = f"{self.topic}-calc"
+                newMessage = str(newWindowTime).encode('utf-8')
+                producer.send(window_topic, newMessage)
+                producer.flush()

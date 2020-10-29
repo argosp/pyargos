@@ -133,5 +133,50 @@
         "argos.kafka.processes.to_thingsboard": {}
       }
     }
+  },
+  "David_Yellin-Raw_Sonic-10": {
+    "60": {
+      "60": {
+        "argos.kafka.processes.to_parquet_CampbellBinary": {
+          "outputPath": "/home/gadi/data"
+        }
+      }
+    },
+    "180": {
+      "60": {
+        "argos.kafka.processes.calc_wind": {}
+      }
+    },
+    "300": {
+      "60": {
+        "argos.kafka.processes.calc_wind": {}
+      }
+    },
+    "600": {
+      "60": {
+        "argos.kafka.processes.calc_wind": {}
+      }
+    }
+  },
+  "David_Yellin-Raw_Sonic-10-180-60": {
+    "None": {
+      "None": {
+        "argos.kafka.processes.to_thingsboard": {}
+      }
+    }
+  },
+  "David_Yellin-Raw_Sonic-10-300-60": {
+    "None": {
+      "None": {
+        "argos.kafka.processes.to_thingsboard": {}
+      }
+    }
+  },
+  "David_Yellin-Raw_Sonic-10-600-60": {
+    "None": {
+      "None": {
+        "argos.kafka.processes.to_thingsboard": {}
+      }
+    }
   }
 }
