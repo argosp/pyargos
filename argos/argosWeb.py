@@ -161,7 +161,7 @@ class GQLDataLayer:
 
         :param expName: The experiment name
         :param trialSetName: The trial set name
-        :return: pandas.DataFrame()
+        :return: pandas.DataFrame
         """
         expId = self._getExpId(expName=expName)
         trialSetKey = self._getTrialSetKey(expName=expName, trialSetName=trialSetName)
@@ -203,6 +203,19 @@ class GQLDataLayer:
         ''' % (expId, trialSetKey)
         result = self._execute(query)['trials']
         return pandas.DataFrame(result)
+
+    def getDevices(self, expName: str):
+        """
+        Gets all devices and their types
+
+        :param expName: The experiment name
+        :return: pandas.DataFrame
+        """
+        devicesList = []
+        for deviceType in self.getDeviceTypes(expName=expName)['name'].values:
+            for deviceName in self.getDevicesByDeviceType(expName=expName, deviceType=deviceType)['name'].values:
+                devicesList.append(dict(deviceType=deviceType, deviceName=deviceName))
+        return pandas.DataFrame(devicesList)
 
     def _execute(self, query: str):
         """
