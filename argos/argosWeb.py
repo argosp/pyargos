@@ -441,7 +441,7 @@ class Experiment:
 
 
 class TrialSet:
-    _experimentId = None
+    _experiment = None
     _desc = None
     _client = None
     _trials = None
@@ -479,7 +479,7 @@ class TrialSet:
     def trials(self):
         return self._trials
 
-    def __init__(self, experimentId: str, desc: dict, client: Client):
+    def __init__(self, experiment: Experiment, desc: dict, client: Client):
         """
         Trial set object contains information on a specific trial set
 
@@ -487,7 +487,7 @@ class TrialSet:
         :param desc: A dictionary with information on the trial set
         :param client: GraphQL client
         """
-        self._experimentId = experimentId
+        self._experiment = experiment
         self._desc = desc
         self._client = client
 
@@ -529,7 +529,7 @@ class TrialSet:
                         }
                     }
                 }
-                ''' % (self._experimentId, self.key)
+                ''' % (self._experiment.id, self.key)
         result = self._client.execute(gql(query))['trials']
         self._trials = pandas.DataFrame(result).set_index('key') if result else pandas.DataFrame()
         for key in self._trials.index:
@@ -549,8 +549,8 @@ class TrialSet:
 
 
 class Trial:
-    _experimentId = None
-    _trialSetKey = None
+    _experiment = None
+    _trialSet = None
     _desc = None
     _client = None
     _entities = None
@@ -558,23 +558,71 @@ class Trial:
     _deployedEntities = None
     _deployedEntitiesDict = dict()
 
-    def __init__(self, experimentId: str, trialSetKey: str, desc: dict, client: Client):
+    @property
+    def key(self):
+        return self._desc['key']
+
+    @property
+    def id(self):
+        return self._desc['id']
+
+    @property
+    def name(self):
+        return self._desc['name']
+
+    @property
+    def trialSetKey(self):
+        return self._desc['trialSetKey']
+
+    @property
+    def created(self):
+        return self._desc['created']
+
+    @property
+    def status(self):
+        return self._desc['status']
+
+    @property
+    def cloneFrom(self):
+        return self._desc['cloneFrom']
+
+    @property
+    def numberOfDevices(self):
+        return self._desc['numberOfDevices']
+
+    @property
+    def state(self):
+        return self._desc['state']
+
+    @property
+    def properties(self):
+        return pandas.DataFrame[self._desc['properties']].set_index('key') if self._desc['properties'] else pandas.DataFrame()
+
+    @property
+    def entities(self):
+        return pandas.DataFrame(self._desc['entities']).set_index('key') if self._desc['entities'] else pandas.DataFrame()
+
+    @property
+    def deployedEntities(self):
+        return pandas.DataFrame(self._desc['deployedEntities']).set_index('key') if self._desc['deployedEntites'] else pandas.DataFrame()
+
+    def __init__(self, experiment: Experiment, trialSet: TrialSet, desc: dict, client: Client):
         """
         Trial object contains information on a specific trial
 
-        :param experimentId: The experiment id
-        :param trialSetKey: The trial set key
+        :param experiment: The experiment object
+        :param trialSet: The trial set object
         :param desc: A dictionary with information on the trial
         :param client: GraphQL client
         """
-        self._experimentId = experimentId
-        self._trialSetKey = trialSetKey
+        self._experiment = experiment
+        self._trialSet = trialSet
         self._desc = desc
         self._client = client
 
 
 class DeviceType:
-    _experimentId = None
+    _experiment = None
     _desc = None
     _client = None
     _devices = None
@@ -604,87 +652,29 @@ class DeviceType:
     def properties(self):
         return pandas.DataFrame(self._desc['properties']).set_index('key') if self._desc['properties'] else pandas.DataFrame()
 
-    def __init__(self, experimentId: str, desc: dict, client: Client):
+    def __init__(self, experiment: Experiment, desc: dict, client: Client):
         """
         DeviceType object contains information on a specific device type
 
-        :param experimentId: The experiment id
+        :param experiment: The experiment object
         :param desc: A dictionary with information on the trial
         :param client: GraphQL server
         """
-        self._experimentId = experimentId
+        self._experiment = experiment
         self._desc = desc
         self._client = client
 
 
-class KeyVal:
-    _trialSetKey = None
+class Device:
+    _experiment = None
+    _deviceType = None
+    _trialKey = None
     _desc = None
     _client = None
 
-    @property
-    def key(self):
-        return self._desc['key']
-
-    @property
-    def type(self):
-        return self._desc['type']
-
-    @property
-    def id(self):
-        return self._desc['id']
-
-    @property
-    def label(self):
-        return self._desc['label']
-
-    @property
-    def description(self):
-        return self._desc['description']
-
-    @property
-    def prefix(self):
-        return self._desc['prefix']
-
-    @property
-    def suffix(self):
-        return self._desc['suffix']
-
-    @property
-    def required(self):
-        return self._desc['required']
-
-    @property
-    def template(self):
-        return self._desc['template']
-
-    @property
-    def multipleValues(self):
-        return self._desc['multipleValues']
-
-    @property
-    def trialField(self):
-        return self._desc['trialField']
-
-    @property
-    def value(self):
-        return self._desc['value']
-
-    @property
-    def defaultValue(self):
-        return self._desc['defaultValue']
-
-    @property
-    def defaultProperty(self):
-        return self._desc['defaultProperty']
-
-    def __init__(self, trialSetKey: str, desc: dict, client: Client):
-        """
-
-        :param trialSetKey: The trial set key
-        :param desc: A dictionary with information on the trial set properties
-        :param client:
-        """
-        self._trialSetKey = trialSetKey
+    def __init__(self, experiment: str, deviceType: DeviceType, desc: dict, client: Client, trialKey: str = None):
+        self._experiment = experiment
+        self._deviceType = deviceType
+        self._trialKey = trialKey
         self._desc = desc
         self._client = client
