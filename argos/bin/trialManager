@@ -1,7 +1,7 @@
 #! /opt/anaconda3/envs/Argos/bin/python
 import json
 import argparse
-from pyargos.experimentManagement import Experiment
+from argos.experimentManagement import Experiment
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--expConf", dest="expConf" , help="The Experiment configuration JSON", required=True)
