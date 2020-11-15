@@ -94,6 +94,7 @@ class Experiment(object):
                                                   'Type': entitiesCreation['Type'],
                                                   'attributes': {'longitude': 0, 'latitude': 0, 'id': id},
                                                   'contains': windowEntitiesNames})
+        os.makedirs(os.path.join(self.trialsPath), exist_ok=True)
         with open(os.path.join(self.trialsPath , 'trialTemplate.json'), 'w') as trialTemplateJSON:
             json.dump(trialTemplate, trialTemplateJSON, indent=4, sort_keys=True)
 

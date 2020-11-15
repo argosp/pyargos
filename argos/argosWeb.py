@@ -31,16 +31,16 @@ class GQLDataLayer:
         :return:
         """
         query = '''
-                        {
-                            experiments{
-                                id
-                                name
-                                description
-                                status
-                            }
-                        }
-                        '''
-        result = self._execute(query)['experiments']
+        {
+            experiments{
+                id
+                name
+                description
+                status
+            }
+        }
+        '''
+        result = self._client.execute(gql(query))['experiments']
         self._experiments = pandas.DataFrame(result).set_index('id') if result else pandas.DataFrame()
         for id in self._experiments.index:
             expDesc = self._experiments.loc[id].to_dict()
@@ -58,264 +58,6 @@ class GQLDataLayer:
             self._experimentsDict[experimentId] = Experiment(**self._experimentsDict[experimentId])
         return self._experimentsDict[experimentId]
 
-    def getDeviceTypes(self, expName: str):
-        """
-        Gets the device types information
-
-        :param expName: The experiment name
-        :return: pandas.DataFrame
-        """
-        expId = self._getExpId(expName=expName)
-        query = '''
-        {
-            deviceTypes(experimentId: "%s"){
-                key
-                id
-                name
-                numberOfDevices
-                state
-                properties{
-                    key
-                    type
-                    id
-                    label
-                    description
-                    value
-                }
-            }
-        }
-        ''' % expId
-        result = self._execute(query)['deviceTypes']
-        return pandas.DataFrame(result)
-
-    def _getDeviceTypeKey(self, expName: str, deviceType: str):
-        """
-        Gets the key of a specific device type
-
-        :param expName: The experiment name
-        :param deviceType: The device type
-        :return: str
-        """
-        try:
-            return self.getDeviceTypes(expName=expName).query(f"name=='{deviceType}'")['key'].values[0]
-        except IndexError:
-            raise NameError(f'There is not device type called "{deviceType}"')
-
-    def getDevicesByDeviceTypeAndTrial(self, expName: str, deviceType: str, trialName: str):
-        """
-        Gets the devices information of a specific device type in a specific trial
-
-        :param expName: The experiment name
-        :param deviceType: The device type
-        :param trialName: The trial name
-        :return: pandas.DataFrame
-        """
-        expId = self._getExpId(expName=expName)
-        deviceTypeKey = self._getDeviceTypeKey(expName=expName, deviceType=deviceType)
-        query = '''
-        {
-            devices (experimentId:"%s", deviceTypeKey:"%s", trialKey:){
-                key
-                id
-                name
-                deviceTypeKey
-                state
-                properties{
-                    val
-                    key
-                }
-            }
-        }
-        ''' % (expId, deviceTypeKey)
-        result = self._execute(query)['devices']
-        return pandas.DataFrame(result)
-
-    def getTrialSets(self, expName: str):
-        """
-        Gets the trial sets information
-
-        :param expName: The experiment name
-        :return: pandas.DataFrame
-        """
-        expId = self._getExpId(expName=expName)
-        query = '''
-        {
-            trialSets(experimentId: "%s"){
-                key
-                id
-                name
-                description
-                numberOfTrials
-                properties{
-                    key
-                    type
-                    id
-                    label
-                    description
-                    trialField
-                    value
-                }
-                state
-            }
-        }
-        ''' % expId
-        result = self._execute(query)['trialSets']
-        return pandas.DataFrame(result)
-
-    def _getTrialSetKey(self, expName: str, trialSetName: str):
-        """
-        Gets the key of a specific trial set
-
-        :param expName: The experiment name
-        :param trialSetName: The trial set name
-        :return: str
-        """
-        try:
-            return self.getTrialSets(expName=expName).query(f"name=='{trialSetName}'")['key'].values[0]
-        except IndexError:
-            raise NameError(f'There is no trial set called {trialSetName}')
-
-    def getTrialsByTrialSet(self, expName: str, trialSetName: str):
-        """
-        Gets the trials information of a specific trial set
-
-        :param expName: The experiment name
-        :param trialSetName: The trial set name
-        :return: pandas.DataFrame
-        """
-        expId = self._getExpId(expName=expName)
-        trialSetKey = self._getTrialSetKey(expName=expName, trialSetName=trialSetName)
-        query = '''
-        {
-            trials(experimentId: "%s", trialSetKey: "%s"){
-                key
-                id
-                name
-                created
-                state
-                cloneFrom
-                numberOfDevices
-                state
-                properties{
-                    val
-                    key
-                }
-                entities{
-                    typeKey
-                    properties{
-                        val
-                        key
-                    }
-                    key
-                    type
-                }
-                deployedEntities{
-                    typeKey
-                    properties{
-                        val
-                        key
-                    }
-                    key
-                    type
-                }
-            }
-        }
-        ''' % (expId, trialSetKey)
-        result = self._execute(query)['trials']
-        return pandas.DataFrame(result)
-
-    def getDevices(self, expName: str):
-        """
-        Gets all devices and their types
-
-        :param expName: The experiment name
-        :return: pandas.DataFrame
-        """
-        devicesList = []
-        for deviceType in self.getDeviceTypes(expName=expName)['name'].values:
-            for deviceName in self.getDevicesByDeviceType(expName=expName, deviceType=deviceType)['name'].values:
-                devicesList.append(dict(deviceType=deviceType, deviceName=deviceName))
-        return pandas.DataFrame(devicesList)
-
-    def getDeviceAttributesByTrial(self, expName: str, deviceType: str, deviceName: str, trialName: str):
-        """
-        Gets a device attributes in a specific trial
-
-        :param expName: The experiment name
-        :param deviceType: The device type
-        :param deviceName: The device name
-        :param trialName: The trial name
-        :return: pandas.DataFrame
-        """
-        deviceProperties = pandas.DataFrame(self.getDevicesByDeviceType(expName=expName, deviceType=deviceType).query(f'name=="{deviceName}"')['properties'].values[0])
-        deviceProperties['label'] = deviceProperties.apply(lambda x: self._getDeviceTypeAttributeByKey(expName=expName, deviceType=deviceType, key=x['key']), axis=1)
-        return deviceProperties
-
-    def _getDeviceTypeAttributeByKey(self, expName: str, deviceType: str, key: str):
-        """
-        Gets the attribute key of a specific device type
-
-        :param expName:
-        :param deviceType:
-        :param key:
-        :return:
-        """
-        attributes = pandas.DataFrame(self.getDeviceTypes(expName=expName).query(f'name=="{deviceType}"')['properties'].values[0])
-        return attributes.query(f'key=="{key}"')['label'].values[0]
-
-    def getExperimentData(self, expName: str):
-        """
-        Gets an experiment information
-
-        :param expName: The experiment name
-        :return: pandas.DataFrame
-        """
-        expId = self._getExpId(expName=expName)
-        query = '''
-        {
-            experimentData(experimentId: "%s"){
-                id
-                key
-                name
-                description
-                begin
-                end
-                location
-                numberOfTrials
-                state
-                status
-                maps{
-                    imageUrl
-                    imageName
-                    lower
-                    upper
-                    left
-                    right
-                    width
-                    height
-                    embedded
-                }
-                project{
-                    id
-                    name
-                    description
-                    status
-                }
-            }
-        }
-        ''' % expId
-        result = self._execute(query)['experimentData']
-        return result#pandas.DataFrame(result)
-
-    def _execute(self, query: str):
-        """
-        Executes query
-
-        :param query: The query to execute
-        :return: The query result
-        """
-        return self._client.execute(gql(query))
-
 
 class Experiment:
     _desc = None
@@ -323,6 +65,8 @@ class Experiment:
     _trialSetsDict = dict()
     _deviceTypes = None
     _deviceTypesDict = dict()
+    _devices = None
+    _devicesDict = dict()
 
     @property
     def id(self):
@@ -388,7 +132,7 @@ class Experiment:
         for key in self._trialSets.index:
             trialSetDesc = self._trialSets.loc[key].to_dict()
             trialSetDesc['key'] = key
-            self._trialSetsDict[key] = dict(experimentId=self.id, desc=trialSetDesc, client=self._client)
+            self._trialSetsDict[key] = dict(experiment=self, desc=trialSetDesc, client=self._client)
 
     def _initDeviceTypes(self):
         query = '''
@@ -415,7 +159,29 @@ class Experiment:
         for key in self._deviceTypes.index:
             deviceTypeDesc = self._deviceTypes.loc[key].to_dict()
             deviceTypeDesc['key'] = key
-            self._deviceTypesDict[key] = dict(experimentId=self.id, desc=deviceTypeDesc, client=self._client)
+            self._deviceTypesDict[key] = dict(experiment=self, desc=deviceTypeDesc, client=self._client)
+
+    def _initDevices(self):
+        devicesList = []
+        for deviceKey in self._deviceTypesDict:
+            query = '''
+            {
+                devices(experimentId: "%s"){
+                    key
+                    id
+                    name
+                    deviceTypeKey
+                    state
+                }
+            }
+            ''' % self.id
+            result = self._client.execute(gql(query))['devices']
+            self._devices = pandas.DataFrame(result).set_index('key') if result else pandas.DataFrame()
+            for key in self._devices.index:
+                deviceDesc = self._devices.loc[key].to_dict()
+                deviceDesc['key'] = key
+                self._devicesDict[key] = dict(experiment=self, desc=deviceDesc, client=self._client)
+
 
     def getDeviceType(self, deviceTypeKey: str):
         """
@@ -438,6 +204,14 @@ class Experiment:
         if type(self._trialSetsDict[trialSetKey]) is dict:
             self._trialSetsDict[trialSetKey] = TrialSet(**self._trialSetsDict[trialSetKey])
         return self._trialSetsDict.get(trialSetKey)
+
+    def getDevice(self, deviceTypeKey: str, deviceKey: str):
+        """
+        Gets a Device object of a specific device
+
+        :param deviceKey:
+        :return:
+        """
 
 
 class TrialSet:
@@ -495,47 +269,47 @@ class TrialSet:
 
     def _initTrials(self):
         query = '''
-                {
-                    trials(experimentId: "%s", trialSetKey: "%s"){
-                        key
-                        id
-                        name
-                        created
-                        state
-                        cloneFrom
-                        numberOfDevices
-                        state
-                        properties{
-                            val
-                            key
-                        }
-                        entities{
-                            typeKey
-                            properties{
-                                val
-                                key
-                            }
-                            key
-                            type
-                        }
-                        deployedEntities{
-                            typeKey
-                            properties{
-                                val
-                                key
-                            }
-                            key
-                            type
-                        }
-                    }
+        {
+            trials(experimentId: "%s", trialSetKey: "%s"){
+                key
+                id
+                name
+                created
+                state
+                cloneFrom
+                numberOfDevices
+                state
+                properties{
+                    val
+                    key
                 }
-                ''' % (self._experiment.id, self.key)
+                entities{
+                    typeKey
+                    properties{
+                        val
+                        key
+                    }
+                    key
+                    type
+                }
+                deployedEntities{
+                    typeKey
+                    properties{
+                        val
+                        key
+                    }
+                    key
+                    type
+                }
+            }
+        }
+        ''' % (self._experiment.id, self.key)
         result = self._client.execute(gql(query))['trials']
         self._trials = pandas.DataFrame(result).set_index('key') if result else pandas.DataFrame()
         for key in self._trials.index:
             trialDesc = self._trials.loc[key].to_dict()
             trialDesc['key'] = key
-            self._trialsDict[key] = dict(experimentId=self._experimentId, trialSetKey=self.key, desc=trialDesc, client=self._client)
+            self._trialsDict[key] = dict(experiment=self._experiment, trialSet=self, desc=trialDesc, client=self._client)
 
     def getTrial(self, trialKey: str):
         """
@@ -596,15 +370,16 @@ class Trial:
 
     @property
     def properties(self):
-        return pandas.DataFrame[self._desc['properties']].set_index('key') if self._desc['properties'] else pandas.DataFrame()
+        return pandas.DataFrame(self._desc['properties']).set_index('key') if self._desc['properties'] else pandas.DataFrame()
 
     @property
     def entities(self):
-        return pandas.DataFrame(self._desc['entities']).set_index('key') if self._desc['entities'] else pandas.DataFrame()
+        df = pandas.DataFrame(self._desc['entities']).set_index('key') if self._desc['entities'] else pandas.DataFrame()
+        return df.join(df, self._experiment.devices)
 
     @property
     def deployedEntities(self):
-        return pandas.DataFrame(self._desc['deployedEntities']).set_index('key') if self._desc['deployedEntites'] else pandas.DataFrame()
+        return pandas.DataFrame(self._desc['deployedEntities']).set_index('key') if self._desc['deployedEntities'] else pandas.DataFrame()
 
     def __init__(self, experiment: Experiment, trialSet: TrialSet, desc: dict, client: Client):
         """
@@ -626,7 +401,7 @@ class DeviceType:
     _desc = None
     _client = None
     _devices = None
-    _deviceDict = dict()
+    _devicesDict = dict()
 
     @property
     def key(self):
@@ -652,29 +427,97 @@ class DeviceType:
     def properties(self):
         return pandas.DataFrame(self._desc['properties']).set_index('key') if self._desc['properties'] else pandas.DataFrame()
 
+    @property
+    def devices(self):
+        return self._devices
+
     def __init__(self, experiment: Experiment, desc: dict, client: Client):
         """
         DeviceType object contains information on a specific device type
 
         :param experiment: The experiment object
         :param desc: A dictionary with information on the trial
-        :param client: GraphQL server
+        :param client: GraphQL client
         """
         self._experiment = experiment
         self._desc = desc
         self._client = client
 
+        self._initDevices()
+
+    def _initDevices(self):
+        query = '''
+        {
+            devices(experimentId: "%s", deviceTypeKey: "%s"){
+                key
+                id
+                name
+                deviceTypeKey
+                state
+            }
+        }
+        ''' % (self._experiment.id, self.key)
+        result = self._client.execute(gql(query))['devices']
+        self._devices = pandas.DataFrame(result).set_index('key') if result else pandas.DataFrame()
+        for key in self._devices.index:
+            deviceDesc = self._devices.loc[key].to_dict()
+            deviceDesc['key'] = key
+            self._devicesDict[key] = dict(experiment=self._experiment, deviceType=self, desc=deviceDesc, client=self._client)
+
+    def getDevice(self, deviceKey: str):
+        """
+        Gets a Device object of a specific device
+
+        :param deviceKey: The device key
+        :return:
+        """
+        if type(self._devicesDict[deviceKey]) is dict:
+            self._devicesDict[deviceKey] = Device(**self._devicesDict[deviceKey])
+        return self._devicesDict[deviceKey]
+
 
 class Device:
     _experiment = None
     _deviceType = None
-    _trialKey = None
+    _trial = None
     _desc = None
     _client = None
+    
+    @property
+    def key(self):
+        return self._desc['key']
+    
+    @property
+    def id(self):
+        return self._desc['id']
+    
+    @property
+    def name(self):
+        return self._desc['name']
+    
+    @property
+    def deviceTypeKey(self):
+        return self._desc['deviceTypeKey']
+    
+    @property
+    def state(self):
+        return self._desc['state']
+    
+    @property
+    def properties(self):
+        return pandas.DataFrame(self._desc['properties']) if self._desc['properties'] else pandas.DataFrame()
 
-    def __init__(self, experiment: str, deviceType: DeviceType, desc: dict, client: Client, trialKey: str = None):
+    def __init__(self, experiment: str, deviceType: DeviceType, desc: dict, client: Client, trial: Trial = None):
+        """
+
+        :param experiment: The experiment object
+        :param deviceType: The DeviceType object
+        :param desc: A dictionary with information on the device
+        :param client: GraphQL client
+        :param trialKey: The trial object (optional)
+        """
         self._experiment = experiment
         self._deviceType = deviceType
-        self._trialKey = trialKey
+        self._trial = trial
         self._desc = desc
         self._client = client
