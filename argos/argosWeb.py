@@ -1,5 +1,6 @@
 from gql import gql, Client, AIOHTTPTransport
 import pandas
+import json
 
 
 class GQLDataLayer:
@@ -49,7 +50,7 @@ class GQLDataLayer:
 
     def getExperiment(self, experimentId: str):
         """
-        Gets an Experiment object of a specific experiment
+        Gets an Experiment object of a specific experiment by id
 
         :param experimentId: The experiment id
         :return: Experiment object
@@ -58,6 +59,50 @@ class GQLDataLayer:
             self._experimentsDict[experimentId] = Experiment(**self._experimentsDict[experimentId])
         return self._experimentsDict[experimentId]
 
+    def getExperimentByName(self, experimentName: str):
+        """
+        Gets an Experiment object of a specific experiment by name
+
+        :param experimentName: The experiment name
+        :return: Experiment object
+        """
+        experimentId = self.experiments.query(f"name=='{experimentName}'").index[0]
+        experiment = self.getExperiment(experimentId=experimentId)
+        return experiment
+
+    def getThingsboardSetupConf(self, experimentName: str):
+        """
+        Gets the thingsboard setup configuration
+
+        :param experimentName: The experiment name
+        :return: dict
+        """
+        experiment = self.getExperimentByName(experimentName=experimentName)
+        devices = experiment.devices[['deviceTypeName', 'deviceName', 'windows']]
+        return [devices.loc[key].to_dict() for key in devices.index]
+
+    def getThingsboardTrialLoadConf(self, experimentName: str, trialSetName: str, trialName: str):
+        """
+        Gets the thingsboard trial loading configuration
+
+        :param experimentName: The experiment name
+        :param trialSetName: The trial set name
+        :param trialName: The trial name
+        :return: dict
+        """
+        experiment = self.getExperimentByName(experimentName=experimentName)
+        trialSet = experiment.getTrialSetByName(trialSetName=trialSetName)
+        trial = trialSet.getTrialByName(trialName=trialName)
+        devices = trial.deployedEntities
+        devicesList = []
+        for deviceKey in devices.index:
+            deviceDict = {}
+            deviceDict.update(devices[['windows', 'deviceName', 'deviceTypeName']].loc[deviceKey].to_dict())
+            deviceDict['attributes'] = devices.drop(columns=['windows', 'deviceName', 'deviceTypeName', 'deviceTypeKey']
+                                                    ).loc[deviceKey].dropna().to_dict()
+            devicesList.append(deviceDict)
+        return devicesList
+
 
 class Experiment:
     _desc = None
@@ -65,8 +110,6 @@ class Experiment:
     _trialSetsDict = dict()
     _deviceTypes = None
     _deviceTypesDict = dict()
-    _devices = None
-    _devicesDict = dict()
 
     @property
     def id(self):
@@ -91,6 +134,32 @@ class Experiment:
     @property
     def deviceTypes(self):
         return self._deviceTypes
+
+    @property
+    def devices(self):
+        devicesDfList = []
+        for deviceTypeKey in self._deviceTypesDict:
+            deviceType = self.getDeviceType(deviceTypeKey=deviceTypeKey)
+            tmp_df = deviceType.devices
+            tmp_df = tmp_df.rename(columns={'name':'deviceName'})
+            tmp_df['deviceTypeName'] = deviceType.name
+            tmp_df = tmp_df[['deviceName', 'deviceTypeName', 'deviceTypeKey']]
+            devicesDfList.append(tmp_df)
+        devices = pandas.concat(devicesDfList)
+        dfList = []
+        for deviceKey in devices.index:
+            deviceType = self.getDeviceType(deviceTypeKey=devices.loc[deviceKey]['deviceTypeKey'])
+            deviceProperties = deviceType.getDevice(deviceKey=deviceKey).properties
+            deviceProperties = pandas.DataFrame(data=[deviceProperties['val'].values],
+                                                columns=deviceProperties['label'].values,
+                                                index=[deviceKey]
+                                                )
+            dfList.append(deviceProperties.dropna(axis=1,
+                                                  how='all'
+                                                  )
+                          )
+        new_df = pandas.concat(dfList, sort=False)
+        return new_df.join(devices)
 
     def __init__(self, desc: dict, client: Client):
         """
@@ -161,28 +230,6 @@ class Experiment:
             deviceTypeDesc['key'] = key
             self._deviceTypesDict[key] = dict(experiment=self, desc=deviceTypeDesc, client=self._client)
 
-    def _initDevices(self):
-        devicesList = []
-        for deviceKey in self._deviceTypesDict:
-            query = '''
-            {
-                devices(experimentId: "%s"){
-                    key
-                    id
-                    name
-                    deviceTypeKey
-                    state
-                }
-            }
-            ''' % self.id
-            result = self._client.execute(gql(query))['devices']
-            self._devices = pandas.DataFrame(result).set_index('key') if result else pandas.DataFrame()
-            for key in self._devices.index:
-                deviceDesc = self._devices.loc[key].to_dict()
-                deviceDesc['key'] = key
-                self._devicesDict[key] = dict(experiment=self, desc=deviceDesc, client=self._client)
-
-
     def getDeviceType(self, deviceTypeKey: str):
         """
         Gets a DeviceType object of a specific device
@@ -205,13 +252,16 @@ class Experiment:
             self._trialSetsDict[trialSetKey] = TrialSet(**self._trialSetsDict[trialSetKey])
         return self._trialSetsDict.get(trialSetKey)
 
-    def getDevice(self, deviceTypeKey: str, deviceKey: str):
+    def getTrialSetByName(self, trialSetName: str):
         """
-        Gets a Device object of a specific device
+        Gets a TrialSet object of a specific trial set by trial set name
 
-        :param deviceKey:
-        :return:
+        :param trialSetName: The trial set name
+        :return: TrialSet object
         """
+        trialSetKey = self.trialSets.query(f'name=="{trialSetName}"').index[0]
+        trialSet = self.getTrialSet(trialSetKey=trialSetKey)
+        return trialSet
 
 
 class TrialSet:
@@ -275,7 +325,7 @@ class TrialSet:
                 id
                 name
                 created
-                state
+                status
                 cloneFrom
                 numberOfDevices
                 state
@@ -313,13 +363,25 @@ class TrialSet:
 
     def getTrial(self, trialKey: str):
         """
+        Gets a Trial object of a specific trial
 
-        :param trialKey: Th trial key
-        :return:
+        :param trialKey: The trial key
+        :return: Trial object
         """
         if type(self._trialsDict[trialKey]) is dict:
             self._trialsDict[trialKey] = Trial(**self._trialsDict[trialKey])
         return self._trialsDict.get(trialKey)
+
+    def getTrialByName(self, trialName: str):
+        """
+        Gets a Trial object of a specific trial by trial name
+
+        :param trialName: The trial name
+        :return: Trial object
+        """
+        trialKey = self.trials.query(f"name=='{trialName}'").index[0]
+        trial = self.getTrial(trialKey=trialKey)
+        return trial
 
 
 class Trial:
@@ -327,10 +389,6 @@ class Trial:
     _trialSet = None
     _desc = None
     _client = None
-    _entities = None
-    _entitiesDict = dict()
-    _deployedEntities = None
-    _deployedEntitiesDict = dict()
 
     @property
     def key(self):
@@ -374,12 +432,56 @@ class Trial:
 
     @property
     def entities(self):
-        df = pandas.DataFrame(self._desc['entities']).set_index('key') if self._desc['entities'] else pandas.DataFrame()
-        return df.join(df, self._experiment.devices)
+        entities = pandas.DataFrame(self._desc['entities']).set_index('key')
+        dfList = []
+        for deviceKey in entities.index:
+            deviceType = self._experiment.getDeviceType(deviceTypeKey=entities.loc[deviceKey]['typeKey'])
+            properties = pandas.DataFrame(self._desc['entities']).set_index('key').loc[deviceKey]['properties']
+            data = []
+            columns = []
+            for property in properties:
+                propertyKey = property['key']
+                propertyLabel = deviceType.properties.loc[propertyKey]['label']
+                propertyType = deviceType.properties.loc[propertyKey]['type']
+                if propertyType == 'location':
+                    try:
+                        locationDict = json.loads(property['val'])
+                        locationName = locationDict['name']
+                        latitude = locationDict['coordinates'][0]
+                        longitude = locationDict['coordinates'][1]
+                        data += [locationName, latitude, longitude]
+                    except TypeError:
+                        data += [None]*3
+                    columns += ['locationName', 'latitude', 'longitude']
+                else:
+                    data.append(property['val'])
+                    columns.append(propertyLabel)
+            deviceProperties = deviceType.getDevice(deviceKey=deviceKey).properties
+            deviceProperties = pandas.DataFrame(data=[deviceProperties['val'].values],
+                                                columns=deviceProperties['label'].values,
+                                                index=[deviceKey]
+                                                )
+            dfList.append(pandas.DataFrame(data=[data],
+                                           columns=columns,
+                                           index=[deviceKey]
+                                           )
+                          .join(deviceProperties[list(set(deviceProperties.columns)-set(columns))].dropna(axis=1,
+                                                                                                          how='all'
+                                                                                                          ),
+                                how='left'
+                                )
+                          )
+        new_df = pandas.concat(dfList, sort=False)
+        experimentDevices = self._experiment.devices
+        return new_df.join(experimentDevices[list(set(experimentDevices.columns)-set(new_df.columns))], how='left')
 
     @property
     def deployedEntities(self):
-        return pandas.DataFrame(self._desc['deployedEntities']).set_index('key') if self._desc['deployedEntities'] else pandas.DataFrame()
+        if not self._desc['deployedEntities']:
+            return pandas.DataFrame()
+        else:
+            deployedEntitiesKeys = pandas.DataFrame(self._desc['deployedEntities'])['key'].values
+            return self.entities.loc[deployedEntitiesKeys]
 
     def __init__(self, experiment: Experiment, trialSet: TrialSet, desc: dict, client: Client):
         """
@@ -454,6 +556,10 @@ class DeviceType:
                 name
                 deviceTypeKey
                 state
+                properties{
+                    val
+                    key
+                }
             }
         }
         ''' % (self._experiment.id, self.key)
@@ -505,7 +611,10 @@ class Device:
     
     @property
     def properties(self):
-        return pandas.DataFrame(self._desc['properties']) if self._desc['properties'] else pandas.DataFrame()
+        df = pandas.DataFrame(self._desc['properties']).set_index('key') if self._desc['properties'] else pandas.DataFrame()
+        return df.join(self._deviceType.properties,
+                       how='left'
+                       )
 
     def __init__(self, experiment: str, deviceType: DeviceType, desc: dict, client: Client, trial: Trial = None):
         """
