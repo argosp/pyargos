@@ -2,6 +2,16 @@ import os
 import json
 import pandas
 from argos import thingsboard as tb
+from .argosWeb import GQLDataLayer
+
+class AbstractExperiment(object):
+
+    def setup(self):
+        raise NotImplementedError
+
+    def load(self):
+        raise NotImplementedError
+
 
 
 class Experiment(object):
@@ -390,3 +400,63 @@ class Experiment(object):
         entityProxy.delRelations()
         for attributeKey, attributeValue in JSON['attributes'].items():
             entityProxy.delAttributes(attributeKey)
+
+
+class ExperimentGQL(AbstractExperiment):
+
+    _experimentName = None
+    _gqlDL = None
+    _tbh = None
+
+    @property
+    def experimentName(self):
+        return self._experimentName
+
+    @property
+    def gqlDL(self):
+        return self._gqlDL
+
+    @property
+    def tbh(self):
+        return self._tbh
+
+    def __init__(self, experimentName: str, gql_config: dict, tb_connection_config: dict):
+        """
+
+
+        :param experimentName: The experiment name
+        :param gql_config: GraphQL configuration dictionary:
+                                                            {
+                                                                "url": gql_url,
+                                                                "token": gql_token
+                                                            }
+        :param tb_connection_config: Thingsboard configuration dictionary:
+                                                                            {
+                                                                                "login":{
+                                                                                    "username": username,
+                                                                                    "password": password
+                                                                                },
+                                                                                "server":{
+                                                                                    "ip" : ip,
+                                                                                    "port": port
+                                                                                }
+                                                                            }
+        """
+
+        self._experimentName = experimentName
+        self._gqlDL = GQLDataLayer(url=gql_config['url'], token=gql_config['token'])
+        self._tbh = tb.tbHome(tb_connection_config)
+
+
+    def setup(self):
+        entities = self.gqlDL.getThingsboardSetupConf(experimentName=self.experimentName)
+        for entity in entities:
+            windows = entity['windows'].split(',')
+            deviceName = entity['deviceName']
+            deviceType = entity['deviceTypeName']
+            deviceHome = getattr(self._tbh, "deviceHome")
+            deviceHome.createProxy(deviceName, deviceType)
+            for window in windows:
+                windowDeviceName = f'{deviceName}_{window}s'
+                windowDeviceType = f'calculated_{deviceType}'
+                deviceHome.createProxy(windowDeviceName, windowDeviceType)

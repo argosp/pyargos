@@ -473,15 +473,57 @@ class Trial:
                           )
         new_df = pandas.concat(dfList, sort=False)
         experimentDevices = self._experiment.devices
-        return new_df.join(experimentDevices[list(set(experimentDevices.columns)-set(new_df.columns))], how='left')
+        return new_df.join(experimentDevices[list(set(experimentDevices.columns)-set(new_df.columns))],
+                           how='left').dropna(axis=1, how='all')
 
     @property
     def deployedEntities(self):
         if not self._desc['deployedEntities']:
             return pandas.DataFrame()
         else:
-            deployedEntitiesKeys = pandas.DataFrame(self._desc['deployedEntities'])['key'].values
-            return self.entities.loc[deployedEntitiesKeys]
+            deployedEntities = pandas.DataFrame(self._desc['deployedEntities']).set_index('key')
+            dfList = []
+            for deviceKey in deployedEntities.index:
+                deviceType = self._experiment.getDeviceType(deviceTypeKey=deployedEntities.loc[deviceKey]['typeKey'])
+                properties = pandas.DataFrame(self._desc['deployedEntities']).set_index('key').loc[deviceKey]['properties']
+                data = []
+                columns = []
+                for property in properties:
+                    propertyKey = property['key']
+                    propertyLabel = deviceType.properties.loc[propertyKey]['label']
+                    propertyType = deviceType.properties.loc[propertyKey]['type']
+                    if propertyType == 'location':
+                        try:
+                            locationDict = json.loads(property['val'])
+                            locationName = locationDict['name']
+                            latitude = locationDict['coordinates'][0]
+                            longitude = locationDict['coordinates'][1]
+                            data += [locationName, latitude, longitude]
+                        except TypeError:
+                            data += [None] * 3
+                        columns += ['locationName', 'latitude', 'longitude']
+                    else:
+                        data.append(property['val'])
+                        columns.append(propertyLabel)
+                deviceProperties = deviceType.getDevice(deviceKey=deviceKey).properties
+                deviceProperties = pandas.DataFrame(data=[deviceProperties['val'].values],
+                                                    columns=deviceProperties['label'].values,
+                                                    index=[deviceKey]
+                                                    )
+                dfList.append(pandas.DataFrame(data=[data],
+                                               columns=columns,
+                                               index=[deviceKey]
+                                               )
+                              .join(deviceProperties[list(set(deviceProperties.columns) - set(columns))].dropna(axis=1,
+                                                                                                                how='all'
+                                                                                                                ),
+                                    how='left'
+                                    )
+                              )
+            new_df = pandas.concat(dfList, sort=False)
+            experimentDevices = self._experiment.devices
+            return new_df.join(experimentDevices[list(set(experimentDevices.columns) - set(new_df.columns))],
+                               how='left').dropna(axis=1, how='all')
 
     def __init__(self, experiment: Experiment, trialSet: TrialSet, desc: dict, client: Client):
         """
