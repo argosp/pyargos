@@ -81,19 +81,24 @@ class GQLDataLayer:
         devices = experiment.devices[['deviceTypeName', 'deviceName', 'windows']]
         return [devices.loc[key].to_dict() for key in devices.index]
 
-    def getThingsboardTrialLoadConf(self, experimentName: str, trialSetName: str, trialName: str):
+    def getThingsboardTrialLoadConf(self, experimentName: str, trialSetName: str, trialName: str, trialType: str = 'deploy'):
         """
         Gets the thingsboard trial loading configuration
 
         :param experimentName: The experiment name
         :param trialSetName: The trial set name
         :param trialName: The trial name
+        :param trialType: 'design'/'deploy'
         :return: dict
         """
+        assert(trialType in ['design', 'deploy'])
         experiment = self.getExperimentByName(experimentName=experimentName)
         trialSet = experiment.getTrialSetByName(trialSetName=trialSetName)
         trial = trialSet.getTrialByName(trialName=trialName)
-        devices = trial.deployedEntities
+        if trialType == 'deploy':
+            devices = trial.deployedEntities
+        else:
+            devices = trial.entities
         devicesList = []
         for deviceKey in devices.index:
             deviceDict = {}
