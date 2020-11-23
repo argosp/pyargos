@@ -6,15 +6,15 @@ from .argosWeb import GQLDataLayer
 
 class AbstractExperiment(object):
 
-    def setup(self):
+    def setup(self, **kwargs):
         raise NotImplementedError
 
-    def load(self):
+    def loadTrial(self, **kwargs):
         raise NotImplementedError
 
 
 
-class Experiment(object):
+class Experiment(AbstractExperiment):
 
     _experimentPath = None
     _experimentDataJSON = None
@@ -412,14 +412,6 @@ class ExperimentGQL(AbstractExperiment):
     def experimentName(self):
         return self._experimentName
 
-    @property
-    def gqlDL(self):
-        return self._gqlDL
-
-    @property
-    def tbh(self):
-        return self._tbh
-
     def __init__(self, experimentName: str, gql_config: dict, tb_connection_config: dict):
         """
 
@@ -447,9 +439,8 @@ class ExperimentGQL(AbstractExperiment):
         self._gqlDL = GQLDataLayer(url=gql_config['url'], token=gql_config['token'])
         self._tbh = tb.tbHome(tb_connection_config)
 
-
     def setup(self):
-        entities = self.gqlDL.getThingsboardSetupConf(experimentName=self.experimentName)
+        entities = self._gqlDL.getThingsboardSetupConf(experimentName=self.experimentName)
         for entity in entities:
             windows = entity['windows'].split(',')
             deviceName = entity['deviceName']
@@ -460,3 +451,18 @@ class ExperimentGQL(AbstractExperiment):
                 windowDeviceName = f'{deviceName}_{window}s'
                 windowDeviceType = f'calculated_{deviceType}'
                 deviceHome.createProxy(windowDeviceName, windowDeviceType)
+
+    def loadTrial(self, trialSetName: str, trialName: str, trialType: str = 'deploy'):
+        devicesList = self._gqlDL.getThingsboardTrialLoadConf(self.experimentName, trialSetName, trialName, trialType)
+        deviceHome = getattr(self._tbh, 'deviceHome')
+        for deviceDict in devicesList:
+            deviceProxy = deviceHome.createProxy(deviceDict['deviceName'])
+            for attributeKey, attributeValue in deviceDict['attributes'].items():
+                deviceProxy.delAttributes(attributeKey)
+                deviceProxy.setAttributes(deviceDict['attributes'])
+
+    def loadTrialFromDesign(self, trialSetName: str, trialName: str):
+        self.loadTrial(trialSetName, trialName, 'design')
+
+    def loadTrialFromDelpoy(self, trialSetName: str, trialName: str):
+        self.loadTrial(trialSetName, trialName, 'deploy')
