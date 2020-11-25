@@ -2,6 +2,8 @@ from gql import gql, Client, AIOHTTPTransport
 import pandas
 import json
 import os
+from typing import Union
+
 
 class GQLDataLayer:
     _client = None
@@ -78,7 +80,7 @@ class GQLDataLayer:
         :return: dict
         """
         experiment = self.getExperimentByName(experimentName=experimentName)
-        devices = experiment.devices[['deviceTypeName', 'deviceName', 'windows']]
+        devices = experiment.devices[['deviceTypeName', 'deviceName']]
         return [devices.loc[key].to_dict() for key in devices.index]
 
     def getThingsboardTrialLoadConf(self, experimentName: str, trialSetName: str, trialName: str, trialType: str = 'deploy'):
@@ -102,39 +104,42 @@ class GQLDataLayer:
         devicesList = []
         for deviceKey in devices.index:
             deviceDict = {}
-            deviceDict.update(devices[['windows', 'deviceName', 'deviceTypeName']].loc[deviceKey].to_dict())
-            deviceDict['attributes'] = devices.drop(columns=['windows', 'deviceName', 'deviceTypeName', 'deviceTypeKey']
+            deviceDict.update(devices[['deviceName', 'deviceTypeName']].loc[deviceKey].to_dict())
+            deviceDict['attributes'] = devices.drop(columns=['deviceName', 'deviceTypeName', 'deviceTypeKey']
                                                     ).loc[deviceKey].dropna().to_dict()
             devicesList.append(deviceDict)
         return devicesList
 
-    def getConsumersConf(self, experimentName: str):
+    def getKafkaConsumersConf(self, experimentName: str, configFile: Union[str, dict]):
         """
         Gets the consumers configuration
 
         :param experimentName: The experiment name
+        :param configFile: The config json/dict for this function.
         :return:
         """
-        retDict = {}
+        consumersConf = {}
 
-        configDir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'bin', 'join')
-
-        with open(os.path.join(configDir, 'deviceTypeSlide.json'), 'r') as myFile:
-            slideConf = json.load(myFile)
-
-        with open(os.path.join(configDir, 'deviceTypeToParquet.json'), 'r') as myFile:
-            toParquetConf = json.load(myFile)
+        if type(configFile) is str:
+            with open(configFile, 'r') as myFile:
+                configFile = json.load(myFile)
 
         devicesList = self.getThingsboardSetupConf(experimentName=experimentName)
         for deviceDict in devicesList:
             deviceName = deviceDict['deviceName']
             deviceType = deviceDict['deviceTypeName']
-            windows = deviceDict['windows']
-            slide = slideConf[deviceType]
-            retDict[slide] = {slide: toParquetConf[deviceType]}
-            retDict[deviceName] = {}
-            for window in windows:
-                #retDict[deviceName][window] =
+            deviceTypeConfig = configFile[deviceType]
+            slide = deviceTypeConfig['slide']
+            consumersConf[deviceName] = {}
+            processes = deviceTypeConfig['processes']
+            for window, processConfig in processes.items():
+                consumersConf[deviceName][window] = {slide: {}}
+                for processPath, processInputs in processConfig.items():
+                    consumersConf[deviceName][window][slide][processPath] = processInputs
+                windowDeviceName = f'{deviceName}-{window}-{slide}'
+                consumersConf[windowDeviceName] = {"None": {"None": {"argos.kafka.processes.to_thingsboard": {}}}}
+        return consumersConf
+
 
 class Experiment:
     _desc = None
