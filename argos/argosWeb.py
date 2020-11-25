@@ -1,7 +1,7 @@
 from gql import gql, Client, AIOHTTPTransport
 import pandas
 import json
-
+import os
 
 class GQLDataLayer:
     _client = None
@@ -108,6 +108,33 @@ class GQLDataLayer:
             devicesList.append(deviceDict)
         return devicesList
 
+    def getConsumersConf(self, experimentName: str):
+        """
+        Gets the consumers configuration
+
+        :param experimentName: The experiment name
+        :return:
+        """
+        retDict = {}
+
+        configDir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'bin', 'join')
+
+        with open(os.path.join(configDir, 'deviceTypeSlide.json'), 'r') as myFile:
+            slideConf = json.load(myFile)
+
+        with open(os.path.join(configDir, 'deviceTypeToParquet.json'), 'r') as myFile:
+            toParquetConf = json.load(myFile)
+
+        devicesList = self.getThingsboardSetupConf(experimentName=experimentName)
+        for deviceDict in devicesList:
+            deviceName = deviceDict['deviceName']
+            deviceType = deviceDict['deviceTypeName']
+            windows = deviceDict['windows']
+            slide = slideConf[deviceType]
+            retDict[slide] = {slide: toParquetConf[deviceType]}
+            retDict[deviceName] = {}
+            for window in windows:
+                #retDict[deviceName][window] =
 
 class Experiment:
     _desc = None
