@@ -440,26 +440,30 @@ class ExperimentGQL(AbstractExperiment):
         self._tbh = tb.tbHome(tb_connection_config)
 
     def setup(self):
-        entities = self._gqlDL.getThingsboardSetupConf(experimentName=self.experimentName)
-        for entity in entities:
-            windows = entity['windows'].split(',')
-            deviceName = entity['deviceName']
-            deviceType = entity['deviceTypeName']
-            deviceHome = getattr(self._tbh, "deviceHome")
-            deviceHome.createProxy(deviceName, deviceType)
+        devices = self._gqlDL.getThingsboardSetupConf(experimentName=self.experimentName)
+        for deviceDict in devices:
+            windows = deviceDict['windows'].split(',')
+            deviceName = deviceDict['deviceName']
+            deviceType = deviceDict['deviceTypeName']
+            self._tbh.deviceHome.createProxy(deviceName, deviceType)
             for window in windows:
                 windowDeviceName = f'{deviceName}_{window}s'
                 windowDeviceType = f'calculated_{deviceType}'
-                deviceHome.createProxy(windowDeviceName, windowDeviceType)
+                self._tbh.deviceHome.createProxy(windowDeviceName, windowDeviceType)
 
     def loadTrial(self, trialSetName: str, trialName: str, trialType: str = 'deploy'):
-        devicesList = self._gqlDL.getThingsboardTrialLoadConf(self.experimentName, trialSetName, trialName, trialType)
-        deviceHome = getattr(self._tbh, 'deviceHome')
-        for deviceDict in devicesList:
-            deviceProxy = deviceHome.createProxy(deviceDict['deviceName'])
+        devices = self._gqlDL.getThingsboardTrialLoadConf(self.experimentName, trialSetName, trialName, trialType)
+        for deviceDict in devices:
+            windows = deviceDict['windows'].split(',')
+            deviceProxy = self._tbh.deviceHome.createProxy(deviceDict['deviceName'])
             for attributeKey, attributeValue in deviceDict['attributes'].items():
                 deviceProxy.delAttributes(attributeKey)
                 deviceProxy.setAttributes(deviceDict['attributes'])
+                for window in windows:
+                    windowDeviceName = f'{deviceDict["deviceName"]}_{window}s'
+                    windowDeviceProxy = self._tbh.deviceHome.createProxy(windowDeviceName)
+                    windowDeviceProxy.delAttributes(attributeKey)
+                    windowDeviceProxy.setAttributes(deviceDict['attributes'])
 
     def loadTrialFromDesign(self, trialSetName: str, trialName: str):
         self.loadTrial(trialSetName, trialName, 'design')
