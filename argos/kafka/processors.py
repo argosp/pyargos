@@ -3,16 +3,10 @@ import pandas
 from . import toPandasDeserializer
 from hera import datalayer
 import dask.dataframe
-# from hera.datalayer import createDBConnection, getMongoConfigFromJson
-# from hera.datalayer import Measurements_Collection
 from kafka import KafkaConsumer, KafkaProducer
 from argos import tbHome
 import json
-# import paho.mqtt.client as mqtt
-# import logging
-# import time
-from multiprocessing import Process  # , Pool
-# import getpass
+from multiprocessing import Process
 import os
 
 
@@ -38,65 +32,33 @@ class ConsumersHandler(object):
         return self._kafkaHost
 
     @property
-    def expConf(self):
-        return self._expConf
+    def tbConf(self):
+        return self._tbConf
 
     @property
     def defaultSaveFolder(self):
         return self._defaultSaveFolder
 
-    @property
-    def runFile(self):
-        return self._runFile
-
-    def __init__(self, projectName, kafkaHost, expConf, config, defaultSaveFolder, runFile):
+    def __init__(self, projectName, kafkaHost, tbConf, config, defaultSaveFolder):
         """
         :param projectName: The project name
         :param kafkaHost: The kafka host IP
-        :param expConf: The experiment configuration json file path
-        :param config: Configuration json file for the consumers
-        :param runFile: Path to the script file to run
+        :param tbConf: The thingsboard configuration dict
+        :param config: Configuration json file/dict for the consumers
         """
 
         self._projectName = projectName
         self._kafkaHost = kafkaHost
-        self._expConf = expConf
+        self._tbConf = tbConf
         self._config = config
         self._defaultSaveFolder = defaultSaveFolder
-        self._runFile = runFile
 
-        with open(self.config, 'r') as configFile:
-            self._consumersConf = json.load(configFile)
-
-        # poolNum = 0
-        # for topic, topicDict in self.consumersConf.items():
-        #     for window, processesDict in topicDict['processesConfig'].items():
-        #             poolNum += len(processesDict)
-        #
-        # self._poolNum = poolNum
+        if type(config) is str:
+            with open(self.config, 'r') as configFile:
+                config = json.load(configFile)
+        self._consumersConf = config
 
     def run(self):
-        # with Pool(self._poolNum) as p:
-        #     startProcessesInputs = []
-        #     for topic, topicConfig in self.consumersConf.items():
-        #         slideWindow = str(topicConfig.get('slideWindow'))
-        #         for window in topicConfig['processesConfig']:
-        #             startProcessesInputs.append((topic, window, slideWindow))
-        #     print('---- ready ----')
-        #     p.starmap(self._startProcesses, startProcessesInputs)
-
-        # print('---- starting processors ----')
-        # startProcessesInputs = []
-        # for topic, topicConfig in self.consumersConf.items():
-        #     slideWindow = str(topicConfig.get('slideWindow'))
-        #     for window in topicConfig['processesConfig']:
-        #         startProcessesInputs.append((topic, window, slideWindow))
-        #
-        # for spi in startProcessesInputs:
-        #     print(spi)
-        #     Process(target=self._startProcesses, args=spi).start()
-        # print('---- ready ----')
-
         pList = []
         for topic, topicConfig in self.consumersConf.items():
             slideWindow = str(topicConfig.get('slideWindow'))
@@ -123,23 +85,19 @@ class ConsumersHandler(object):
                     sp = SlideProcessor(self.projectName, self.kafkaHost, topic, resource, slideWindow, processesDict)
                     pList.append(sp)
                 else:
-                    wp = WindowProcessor(self.projectName, self.kafkaHost, topic, resource, window, self.expConf, processesDict)
+                    wp = WindowProcessor(self.projectName, self.kafkaHost, topic, resource, window, self.tbConf, processesDict)
                     pList.append(wp)
 
         print('---- starting processes ----')
 
         for p in pList:
-            p = Process(target=self._startProcesses2, args=(p, ))
+            p = Process(target=self._startProcesses, args=(p, ))
             p.start()
-            # p.join()
 
         print('---- ready ----')
 
-    def _startProcesses2(self, processor):
+    def _startProcesses(self, processor):
         processor.start()
-
-    def _startProcesses(self, topic, window, slideWindow):
-        os.system(f'python {self.runFile} --config {self.config} --kafkaHost {self.kafkaHost} --projectName {self.projectName} --expConf {self.expConf} --topic {topic} --window {window} --slideWindow {slideWindow}')
 
 
 class AbstractProcessor(object):
@@ -149,8 +107,6 @@ class AbstractProcessor(object):
     _processesDict = None
 
     _kafkaConsumer = None
-
-    _Measurements = None
 
     @property
     def projectName(self):
@@ -192,14 +148,14 @@ class AbstractProcessor(object):
     def baseName(self):
         return f'{self.station}-{self.instrument}-{self.height}'
 
-
     def __init__(self, projectName, kafkaHost, topic, resource, processesDict):
         """
 
         :param projectName: The project name
         :param kafkaHost: The kafka host IP
-        :param expConf: The experiment configuration json file path
+        :param tbConf: The thingsboard configuration dictionary
         :param topic: The topic to process
+        :param resource: The path to the parquet
         :param processesDict: The configuration dictionary of the processes to run
         """
         self._projectName = projectName
@@ -212,17 +168,7 @@ class AbstractProcessor(object):
                                             bootstrap_servers=kafkaHost,
                                             auto_offset_reset='latest',
                                             enable_auto_commit=True
-                                            # group_id=f'{topic}'
                                             )
-
-        # user = getpass.getuser()
-        # alias = f'{self.topic}'
-        # createDBConnection(user=user,
-        #                    mongoConfig=getMongoConfigFromJson(user=user),
-        #                    alias=alias
-        #                    )
-        #
-        # self._Measurements =  Measurements_Collection(user=user, alias=alias)
 
 
 class WindowProcessor(AbstractProcessor):
@@ -251,53 +197,27 @@ class WindowProcessor(AbstractProcessor):
     def windowTime(self):
         return self._windowTime
 
-    def __init__(self, projectName, kafkaHost, topic, resource, window, expConf, processesDict):
+    def __init__(self, projectName, kafkaHost, topic, resource, window, tbConf, processesDict):
         """
 
         :param projectName: The project name
         :param kafkaHost: The kafka host IP
-        :param expConf: The path to the experiment configuration file
+        :param tbConf: The thingsboard configuration dictionary
         :param topic: The topic to process
+        :param resource: The path to the parquet
         :param window: The window size, in seconds, to process
         :param processesDict: The configuration dictionary of the processes to run
         """
 
         super().__init__(projectName, kafkaHost, topic, resource, processesDict)
 
-        with open(expConf, 'r') as jsonFile:
-            self._tbCredentialMap = json.load(jsonFile)
+        self._tbCredentialMap = tbConf
 
         self._window = window
 
         # self._initiateClient()
 
         self._windowTime = None
-
-    # def on_disconnect(self, client, userdata, rc=0):
-    #     logging.debug("DisConnected result code " + str(rc))
-    #     client.loop_stop()
-    #
-    # def on_connect(self, client, userdata, flags, rc):
-    #     if rc == 0:
-    #         print("Connected to broker")
-    #     else:
-    #         print("Connection failed")
-    #
-    # def _initiateClient(self):
-    #     if self.window=='None':
-    #         devices = self.tbh.deviceHome.getAllEntitiesName()
-    #         if self.topic in devices:
-    #             #print('Connecting to %s' % deviceName)
-    #             client = mqtt.Client("Me_%s" % self.topic)
-    #             client.on_connect = self.on_connect
-    #
-    #             accessToken = self.tbh.deviceHome.createProxy(self.topic).getCredentials()
-    #             client.username_pw_set(accessToken, password=None)
-    #             client.on_disconnect = self.on_disconnect
-    #             client.connect(host=self.tbHost, port=1883)
-    #             self._client = client
-    #             client.loop_start()
-    #             time.sleep(0.01)
 
     def setClient(self, client):
         self._client = client
@@ -334,8 +254,8 @@ class SlideProcessor(AbstractProcessor):
 
         :param projectName: The project name
         :param kafkaHost: The kafka host IP
-        :param expConf: The path to the experiment configuration file
         :param topic: The topic to process
+        :param resource: The path to the parquet
         :param slideWindow: The sliding window size, in seconds
         :param processesDict: The configuration dictionary of the processes to run
         """
@@ -356,10 +276,6 @@ class SlideProcessor(AbstractProcessor):
             try:
                 if self._lastTime != timeList[-2]:
                     self._lastTime = timeList[-2]
-                    # start = timeList[0]
-                    # end = timeList[1]
-                    # mask = (self._df.index>=start)*(self._df.index<end)
-                    # data = self._df[mask]
                     data = self._resampled_df.get_group(timeList[-2])
                     self._df = self._df[timeList[-1]:]
             except Exception as exception:
@@ -374,7 +290,6 @@ class SlideProcessor(AbstractProcessor):
         for message in self.kafkaConsumer:
             data, newWindowTime = self.processMessage(message)
             if data is not None:
-                # print(data)
                 for saveFunction, saveArguments in self.processesDict.items():
                     pydoc.locate(saveFunction)(processor=self, data=data, **saveArguments)
                 del(data)

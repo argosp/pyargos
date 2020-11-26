@@ -10,7 +10,7 @@ parser.add_argument("--expConf", dest="expConf" , help="The Experiment configura
 parser.add_argument("--reportName", dest="reportName" , help="The report name", required=True)
 args = parser.parse_args()
 
-with open(args.expConf, 'r') as confFile:
+with open(args.tbConf, 'r') as confFile:
     config = json.load(confFile)
 
 templatesPath = os.path.join(config['experimentPath'], 'reports', 'templates')
@@ -32,7 +32,7 @@ latex_jinja_env = jinja2.Environment(
     loader=jinja2.FileSystemLoader(templatesPath)
 )
 
-report = report_obj(args.expConf, latex_jinja_env)
+report = report_obj(args.tbConf, latex_jinja_env)
 report.makeReport()
 
 

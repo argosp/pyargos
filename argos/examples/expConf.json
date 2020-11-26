@@ -1,0 +1,50 @@
+{
+  "name": "edenTest",
+  "graphql": {
+    "url": "https://argos.new-aks-stage.linnovate.net/graphql",
+    "token": "eyJhbGciOiJIUzI1NiJ9.JTdCJTIyX2lkJTIyOiUyMjVkYzE3NjEwYWJiYTZjMzE3NGI2OThjOSUyMiwlMjJ1aWQlMjI6JTIyNjk3MDNkMjAtZmZjZS0xMWU5LTk4NjUtNWQxNWE4Y2M0ODFjJTIyLCUyMmlkJTIyOiUyMmFkbWluMUBsaW5ub3ZhdGUubmV0JTIyLCUyMm5hbWUlMjI6JTIyYWRtaW4lMjIsJTIyZW1haWwlMjI6JTIyYWRtaW4xQGxpbm5vdmF0ZS5uZXQlMjIsJTIydXNlcm5hbWUlMjI6JTIyYWRtaW4xJTIyLCUyMl9fdiUyMjowLCUyMnByb2ZpbGUlMjI6JTdCJTIyZnJlcXVlbnRVc2VycyUyMjolN0IlMjI1ZWU3MjcyODhjY2FmMGFjN2VlMTRmOGElMjI6MywlMjIlNUJvYmplY3QlMjBPYmplY3QlNUQlMjI6MSwlMjI1ZGFmZjc2ZmFiYmE2YzU3MjViNjk3YmUlMjI6MSU3RCU3RCwlMjJHZXRNYWlsRXZlcnlEYXlBYm91dE15VGFza3MlMjI6JTIybm8lMjIsJTIyR2V0TWFpbEV2ZXJ5V2Vla0Fib3V0R2l2ZW5UYXNrcyUyMjolMjJubyUyMiwlMjJHZXRNYWlsRXZlcnlXZWVrQWJvdXRNeVRhc2tzJTIyOiUyMm5vJTIyLCUyMnByb3ZpZGVyJTIyOiUyMmxvY2FsJTIyLCUyMnJvbGVzJTIyOiU1QiUyMmF1dGhlbnRpY2F0ZWQlMjIlNUQlN0Q.WASruZSQZH3f-zYTQzsEzPNoBaXnYwJEWV2vuGK_9Hg"
+  },
+  "thingsboard": {
+    "login": {
+	  "username": "tenant@thingsboard.org",
+      "password": "tenant"
+	},
+	"server": {
+      "ip": "127.0.0.1",
+      "port": "8080"
+	}
+  },
+  "kafka": {
+    "consumers": {
+      "deviceType1": {
+        "slide": "60",
+        "toParquet": ["argos.kafka.processes.to_parquet_type1", {}],
+        "processes": {
+          "180": {
+            "argos.kafka.processes.function1": {
+              "arg1": "value1",
+              "arg2": "value2"
+            }
+          },
+          "300": {
+            "argos.kafka.processes.function2": {
+              "arg3": "value3"
+            }
+          }
+        }
+      },
+      "deviceType2": {
+        "slide": 10,
+        "toParquet": ["argos.kafka.processes.to_parquet_type2", {}],
+        "processes": {
+          "60": {
+            "argos.kafka.processes.function3": {
+              "arg4": "value4"
+            }
+          }
+        }
+      }
+    },
+    "ip": "127.0.0.1"
+  }
+}

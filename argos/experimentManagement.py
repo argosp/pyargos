@@ -1,8 +1,10 @@
 import os
 import json
 import pandas
-from argos import thingsboard as tb
+from . import thingsboard as tb
 from .argosWeb import GQLDataLayer
+from typing import Union
+
 
 class AbstractExperiment(object):
 
@@ -13,8 +15,7 @@ class AbstractExperiment(object):
         raise NotImplementedError
 
 
-
-class Experiment(AbstractExperiment):
+class ExperimentJSON(AbstractExperiment):
 
     _experimentPath = None
     _experimentDataJSON = None
@@ -404,47 +405,40 @@ class Experiment(AbstractExperiment):
 
 class ExperimentGQL(AbstractExperiment):
 
-    _experimentName = None
+    _expConf = None
     _gqlDL = None
     _tbh = None
+    _windowsDict = None
 
     @property
     def experimentName(self):
-        return self._experimentName
+        return self._expConf['name']
 
-    def __init__(self, experimentName: str, gql_config: dict, tb_connection_config: dict):
+    def __init__(self, expConf: Union[str, dict]):
         """
 
-
-        :param experimentName: The experiment name
-        :param gql_config: GraphQL configuration dictionary:
-                                                            {
-                                                                "url": gql_url,
-                                                                "token": gql_token
-                                                            }
-        :param tb_connection_config: Thingsboard configuration dictionary:
-                                                                            {
-                                                                                "login":{
-                                                                                    "username": username,
-                                                                                    "password": password
-                                                                                },
-                                                                                "server":{
-                                                                                    "ip" : ip,
-                                                                                    "port": port
-                                                                                }
-                                                                            }
+        :param expConf: The experiment configuration
         """
 
-        self._experimentName = experimentName
+        if type(expConf) is str:
+            with open(expConf, 'r') as myFile:
+                expConf = json.load(myFile)
+        self._expConf = expConf
+
+        gql_config = expConf['graphql']
         self._gqlDL = GQLDataLayer(url=gql_config['url'], token=gql_config['token'])
-        self._tbh = tb.tbHome(tb_connection_config)
+
+        tb_config = expConf['thingsboard']
+        self._tbh = tb.tbHome(tb_config)
+        
+        self._windowsDict = {deviceType: list(self._expConf['kafka']['consumers'][deviceType]['processes'].keys()) for deviceType in self._expConf['kafka']['consumers'].keys()}
 
     def setup(self):
         devices = self._gqlDL.getThingsboardSetupConf(experimentName=self.experimentName)
         for deviceDict in devices:
-            windows = deviceDict['windows'].split(',')
             deviceName = deviceDict['deviceName']
             deviceType = deviceDict['deviceTypeName']
+            windows = self._windowsDict[deviceType]
             self._tbh.deviceHome.createProxy(deviceName, deviceType)
             for window in windows:
                 windowDeviceName = f'{deviceName}_{window}s'
@@ -454,7 +448,7 @@ class ExperimentGQL(AbstractExperiment):
     def loadTrial(self, trialSetName: str, trialName: str, trialType: str = 'deploy'):
         devices = self._gqlDL.getThingsboardTrialLoadConf(self.experimentName, trialSetName, trialName, trialType)
         for deviceDict in devices:
-            windows = deviceDict['windows'].split(',')
+            windows = self._windowsDict[deviceDict['deviceTypeName']]
             deviceProxy = self._tbh.deviceHome.createProxy(deviceDict['deviceName'])
             for attributeKey, attributeValue in deviceDict['attributes'].items():
                 deviceProxy.delAttributes(attributeKey)

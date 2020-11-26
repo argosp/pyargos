@@ -130,14 +130,14 @@ class GQLDataLayer:
             deviceType = deviceDict['deviceTypeName']
             deviceTypeConfig = configFile[deviceType]
             slide = deviceTypeConfig['slide']
-            consumersConf[deviceName] = {}
+            toParquet = deviceTypeConfig['toParquet']
+            consumersConf[deviceName] = dict(slideWindow=slide, processesConfig={"None":{toParquet[0]: toParquet[1]}})
             processes = deviceTypeConfig['processes']
-            for window, processConfig in processes.items():
-                consumersConf[deviceName][window] = {slide: {}}
-                for processPath, processInputs in processConfig.items():
-                    consumersConf[deviceName][window][slide][processPath] = processInputs
+            calcDeviceName = f'{deviceName}-calc'
+            consumersConf[calcDeviceName] = dict(processesConfig=processes)
+            for window in processes:
                 windowDeviceName = f'{deviceName}-{window}-{slide}'
-                consumersConf[windowDeviceName] = {"None": {"None": {"argos.kafka.processes.to_thingsboard": {}}}}
+                consumersConf[windowDeviceName] = dict(prcessesConfig={"None": {"argos.kafka.processes.to_thingsboard": {}}})
         return consumersConf
 
 
