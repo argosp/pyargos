@@ -74,7 +74,8 @@ class GQLDataLayer:
 
     def getThingsboardSetupConf(self, experimentName: str):
         """
-        Gets the thingsboard setup configuration
+        Gets the thingsboard setup configuration.
+        Its usage is for the setup of the devices in thingsboard.
 
         :param experimentName: The experiment name
         :return: dict
@@ -86,6 +87,7 @@ class GQLDataLayer:
     def getThingsboardTrialLoadConf(self, experimentName: str, trialSetName: str, trialName: str, trialType: str = 'deploy'):
         """
         Gets the thingsboard trial loading configuration
+        Its usage is for the load of the relevant attributes of the devices in thingsboard.
 
         :param experimentName: The experiment name
         :param trialSetName: The trial set name
@@ -112,7 +114,8 @@ class GQLDataLayer:
 
     def getKafkaConsumersConf(self, experimentName: str, configFile: Union[str, dict]):
         """
-        Gets the consumers configuration
+        Gets the kafka consumers configuration.
+        Its usage is for the run of the kafka consumers (processes).
 
         :param experimentName: The experiment name
         :param configFile: The config json/dict for this function.
@@ -139,6 +142,37 @@ class GQLDataLayer:
                 windowDeviceName = f'{deviceName}-{window}-{slide}'
                 consumersConf[windowDeviceName] = dict(processesConfig={"None": {"argos.kafka.processes.to_thingsboard": {}}})
         return consumersConf
+
+    def getFinalizeConf(self, experimentName: str):
+        """
+        Gets the finalize configuration.
+        Its usage is for the update of the devices attributes in the
+
+        :param experimentName:
+        :return:
+        """
+        experiment = self.getExperimentByName(experimentName=experimentName)
+        devicesDescDict = {}
+        for trialSetName in experiment.trialSets['name']:
+            trialSet = experiment.getTrialSetByName(trialSetName=trialSetName)
+            for trialName in trialSet.trials['name']:
+                deployed_df = self.getThingsboardTrialLoadConf(experimentName=experimentName,
+                                                               trialSetName=trialSetName,
+                                                               trialName=trialName
+                                                               )
+                for deviceDict in deployed_df:
+                    deviceName = deviceDict['deviceName']
+                    deviceType = deviceDict['deviceTypeName']
+                    attributes = deviceDict['attributes']
+                    currentDeviceDesc = devicesDescDict.setdefault(deviceName, {'deviceName': deviceName,
+                                                                                'deviceType': deviceType
+                                                                                }
+                                                                   )
+                    currentDeviceDesc[f'{trialName}_attributes'] = attributes
+        return devicesDescDict
+
+
+
 
 
 class Experiment:

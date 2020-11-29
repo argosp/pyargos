@@ -29,3 +29,8 @@ and allow for further functionality.
 
 
 """
+
+# def getJSON():
+#     return {
+#         'deviceType1': const1
+#     }

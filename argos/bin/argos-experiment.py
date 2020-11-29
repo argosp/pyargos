@@ -3,12 +3,15 @@ import argparse
 from argos import ExperimentGQL, GQLDataLayer
 from argos.kafka import ConsumersHandler
 import os
+from hera import datalayer
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--expConf", dest="expConf", help="The experiment configurations", required=True)
 parser.add_argument("--setup", dest="setup", action='store_true', default=False, help="Setup the experiment")
 parser.add_argument("--load", dest="load", nargs=2, default=None, help="Loads a given trial: {trialSetName} {trialName}")
 parser.add_argument("--runConsumers", dest="runConsumers", default=None, help="Run the kafka consumers. Need to deliever {defaultDataSaveFolder}")
+parser.add_argument("--finalize", dest="finalize", action='store_true', default=False, help="Updating the mongo documents desc with the attributes from the graphQL")
+# add finalize - updates the attributes to the mongo desc
 
 args = parser.parse_args()
 
@@ -32,3 +35,13 @@ if args.runConsumers is not None:
                      config=gqlDL.getKafkaConsumersConf(expConf['name'], consumersConf),
                      defaultSaveFolder=os.path.join(os.path.expanduser('~'), 'data'),
                      ).run()
+
+if args.finalize:
+    graphqlConf = expConf['graphql']
+    gqlDL = GQLDataLayer(graphqlConf['url'], graphqlConf['token'])
+    experimentName = expConf['name']
+    finalizeConf = gqlDL.getFinalizeConf(experimentName=experimentName)
+    for deviceName, deviceDesc in finalizeConf.items():
+        doc = datalayer.Measurements.getDocuments(projectName=experimentName, deviceName=deviceName)
+        doc['desc'].update(deviceDesc)
+        doc.save()

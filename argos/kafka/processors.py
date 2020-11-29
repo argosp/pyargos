@@ -9,6 +9,7 @@ import json
 from multiprocessing import Process
 import os
 
+METEOROLOGY = 'meteorological'
 
 class ConsumersHandler(object):
 
@@ -63,20 +64,16 @@ class ConsumersHandler(object):
         for topic, topicConfig in self.consumersConf.items():
             slideWindow = str(topicConfig.get('slideWindow'))
 
-            split_topic = topic.split('-')
-            station = split_topic[0]
-            instrument = split_topic[1]
-            height = split_topic[2]
-            docList = datalayer.Measurements.getDocuments(self.projectName, station=station, instrument=instrument, height=int(height))
+            docList = datalayer.Measurements.getDocuments(self.projectName, deviceName=topic)
             if docList:
                 resource = docList[0].resource
             else:
-                resource = os.path.join(self.defaultSaveFolder, station, instrument, height)
-                desc = dict(station=station, instrument=instrument, height=int(height))
+                resource = os.path.join(self.defaultSaveFolder, topic)
+                desc = dict(deviceName=topic)
                 datalayer.Measurements.addDocument(projectName=self.projectName,
                                                    resource=resource,
-                                                   dataFormat='parquet',
-                                                   type='meteorological',
+                                                   dataFormat=datalayer.datatypes.PARQUET,
+                                                   type=METEOROLOGY,
                                                    desc=desc
                                                    )
             for window in topicConfig['processesConfig']:
