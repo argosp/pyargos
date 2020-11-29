@@ -137,7 +137,7 @@ class GQLDataLayer:
             consumersConf[calcDeviceName] = dict(processesConfig=processes)
             for window in processes:
                 windowDeviceName = f'{deviceName}-{window}-{slide}'
-                consumersConf[windowDeviceName] = dict(prcessesConfig={"None": {"argos.kafka.processes.to_thingsboard": {}}})
+                consumersConf[windowDeviceName] = dict(processesConfig={"None": {"argos.kafka.processes.to_thingsboard": {}}})
         return consumersConf
 
 
