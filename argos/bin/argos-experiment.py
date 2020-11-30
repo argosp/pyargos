@@ -33,7 +33,7 @@ if args.runConsumers is not None:
                      kafkaHost=expConf['kafka']['ip'],
                      tbConf=expConf['thingsboard'],
                      config=gqlDL.getKafkaConsumersConf(expConf['name'], consumersConf),
-                     defaultSaveFolder=os.path.join(os.path.expanduser('~'), 'data'),
+                     defaultSaveFolder=args.runConsumers,
                      ).run()
 
 if args.finalize:
