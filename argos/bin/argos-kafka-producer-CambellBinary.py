@@ -22,23 +22,6 @@ def run(deviceName, deviceType, data, kafkaHost):
 
 
 def waitFileToUpdate(file):
-    tmpUpdateTime = pandas.Timestamp.utcfromtimestamp(os.stat(file).st_mtime)
-    time.sleep(30)
-    newUpdateTime = pandas.Timestamp.utcfromtimestamp(os.stat(file).st_mtime)
-    # Check that file firstly updated
-    while tmpUpdateTime==newUpdateTime:
-        tmpUpdateTime = newUpdateTime
-        time.sleep(10)
-        newUpdateTime = pandas.Timestamp.utcfromtimestamp(os.stat(file).st_mtime)
-    # Check that file is fuly updated
-    while tmpUpdateTime!=newUpdateTime:
-        tmpUpdateTime = newUpdateTime
-        time.sleep(30)
-        newUpdateTime = pandas.Timestamp.utcfromtimestamp(os.stat(file).st_mtime)
-    print('File is fully updated')
-
-
-def waitFileToUpdate2(file):
     cbi = meteo.CampbellBinaryInterface(file)
     tmpUpdateTime = cbi.lastTime
     time.sleep(30)
@@ -48,7 +31,7 @@ def waitFileToUpdate2(file):
         tmpUpdateTime = cbi.lastTime
         time.sleep(10)
         cbi = meteo.CampbellBinaryInterface(file)
-    # Check that file is fuly updated
+    # Check that file is fully updated
     while tmpUpdateTime!=cbi.lastTime:
         tmpUpdateTime = cbi.lastTime
         time.sleep(30)
@@ -108,7 +91,7 @@ if __name__ == "__main__":
 
         if tmpUpdateTime!=lastUpdateTime: # True
             print('New data: %s -------------------------------' % pandas.Timestamp.now())
-            lastUpdateTime = waitFileToUpdate2(args.file)
+            lastUpdateTime = waitFileToUpdate(args.file)
             cbi = meteo.CampbellBinaryInterface(args.file)
 
             print('Last produced time: %s' % lastProducedTime)
