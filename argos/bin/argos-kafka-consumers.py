@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
     ConsumersHandler(projectName=args.projectName,
                      kafkaHost=args.kafkaHost,
-                     tbConf=args.tbConf,
+                     tbConf=tbConf,
                      config=args.config,
                      defaultSaveFolder=os.path.join(os.path.expanduser('~'), 'data')
                      ).run()

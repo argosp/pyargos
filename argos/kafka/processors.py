@@ -66,18 +66,20 @@ class ConsumersHandler(object):
         for topic, topicConfig in self.consumersConf.items():
             slideWindow = str(topicConfig.get('slideWindow'))
 
-            docList = datalayer.Measurements.getDocuments(self.projectName, deviceName=topic)
-            if docList:
-                resource = docList[0].resource
-            else:
-                resource = os.path.join(self.defaultSaveFolder, topic)
-                desc = dict(deviceName=topic)
-                datalayer.Measurements.addDocument(projectName=self.projectName,
-                                                   resource=resource,
-                                                   dataFormat=datalayer.datatypes.PARQUET,
-                                                   type=METEOROLOGY,
-                                                   desc=desc
-                                                   )
+            if slideWindow != 'None':
+                docList = datalayer.Measurements.getDocuments(self.projectName, deviceName=topic)
+                if docList:
+                    resource = docList[0].resource
+                else:
+                    resource = os.path.join(self.defaultSaveFolder, topic)
+                    desc = dict(deviceName=topic)
+                    datalayer.Measurements.addDocument(projectName=self.projectName,
+                                                       resource=resource,
+                                                       dataFormat=datalayer.datatypes.PARQUET,
+                                                       type=METEOROLOGY,
+                                                       desc=desc
+                                                       )
+
             for window in topicConfig['processesConfig']:
                 processesDict = self.consumersConf[topic]['processesConfig'][window]
                 if slideWindow != 'None':
