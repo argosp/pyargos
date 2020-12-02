@@ -8,6 +8,7 @@ from kafka import KafkaProducer
 import logging
 import paho.mqtt.client as mqtt
 import time
+import pandas
 
 
 def calc_wind(processor, data):
@@ -19,7 +20,9 @@ def calc_wind(processor, data):
     topicToSend = '%s-%s' % (processor.baseName, processor.window)
     producer = KafkaProducer(bootstrap_servers=processor.kafkaHost)
     producer.send(topicToSend, message)
+    # processor.kafkaProducer.send(topicToSend, message)
     producer.flush()
+    # time.sleep(1)
 
 
 def to_thingsboard(processor, data):
@@ -63,7 +66,11 @@ def to_thingsboard(processor, data):
 def to_parquet_CampbellBinary(processor, data):
     print(f'to parquet - {processor.baseName}')
     # print(data)
-    new_dask = dask.dataframe.from_pandas(data, npartitions=1)
+    new_data = data.copy()
+    new_data['month'] = pandas.Timestamp(data.index[0]).month
+    new_data['year'] = pandas.Timestamp(data.index[0]).year
+    # raise EnvironmentError
+    new_dask = dask.dataframe.from_pandas(new_data, npartitions=1)
 
     resource = processor.resource
 
@@ -71,10 +78,12 @@ def to_parquet_CampbellBinary(processor, data):
         new_dask.to_parquet(path=resource,
                             append=True,
                             ignore_divisions=True,
-                            engine='pyarrow'
+                            engine='fastparquet',
+                            partition_on=['year', 'month']
                             )
     else:
         os.makedirs(resource, exist_ok=True)
         new_dask.to_parquet(path=resource,
-                            engine = 'pyarrow'
+                            engine = 'fastparquet',
+                            partition_on=['year', 'month']
                             )

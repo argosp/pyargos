@@ -14,6 +14,7 @@ import json
 from multiprocessing import Process  # , Pool
 # import getpass
 import os
+import time
 
 
 class ConsumersHandler(object):
@@ -49,7 +50,7 @@ class ConsumersHandler(object):
     def runFile(self):
         return self._runFile
 
-    def __init__(self, projectName, kafkaHost, expConf, config, defaultSaveFolder, runFile):
+    def __init__(self, projectName, kafkaHost, expConf, config, defaultSaveFolder):#, runFile):
         """
         :param projectName: The project name
         :param kafkaHost: The kafka host IP
@@ -63,7 +64,7 @@ class ConsumersHandler(object):
         self._expConf = expConf
         self._config = config
         self._defaultSaveFolder = defaultSaveFolder
-        self._runFile = runFile
+        # self._runFile = runFile
 
         with open(self.config, 'r') as configFile:
             self._consumersConf = json.load(configFile)
@@ -192,6 +193,9 @@ class AbstractProcessor(object):
     def baseName(self):
         return f'{self.station}-{self.instrument}-{self.height}'
 
+    @property
+    def kafkaProducer(self):
+        return self._kafkaProducer
 
     def __init__(self, projectName, kafkaHost, topic, resource, processesDict):
         """
@@ -214,6 +218,8 @@ class AbstractProcessor(object):
                                             enable_auto_commit=True
                                             # group_id=f'{topic}'
                                             )
+
+        # self._kafkaProducer = KafkaProducer(bootstrap_servers=self.kafkaHost, linger_ms=10)
 
         # user = getpass.getuser()
         # alias = f'{self.topic}'
@@ -316,7 +322,7 @@ class WindowProcessor(AbstractProcessor):
             data = self._getData(message=message)
             for process, processArgs in self.processesDict.items():
                 pydoc.locate(process)(processor=self, data=data, **processArgs)
-            del(data)
+            # del(data)
 
 
 class SlideProcessor(AbstractProcessor):
@@ -377,8 +383,10 @@ class SlideProcessor(AbstractProcessor):
                 # print(data)
                 for saveFunction, saveArguments in self.processesDict.items():
                     pydoc.locate(saveFunction)(processor=self, data=data, **saveArguments)
-                del(data)
+                # del(data)
                 window_topic = f"{self.topic}-calc"
                 newMessage = str(newWindowTime).encode('utf-8')
                 producer.send(window_topic, newMessage)
                 producer.flush()
+                # self.kafkaProducer.poll(0)
+                # self.kafkaProducer.flush()
