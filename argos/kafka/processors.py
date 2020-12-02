@@ -179,11 +179,11 @@ class WindowProcessor(AbstractProcessor):
 
     @property
     def tbh(self):
-        return tbHome(self._tbCredentialMap["connection"])
+        return tbHome(self._tbConf)
 
     @property
     def tbHost(self):
-        return self._tbCredentialMap["connection"]["server"]["ip"]
+        return self._tbConf["server"]["ip"]
 
     @property
     def window(self):
@@ -211,7 +211,7 @@ class WindowProcessor(AbstractProcessor):
 
         super().__init__(projectName, kafkaHost, topic, resource, processesDict)
 
-        self._tbCredentialMap = tbConf
+        self._tbConf = tbConf
 
         self._window = window
 
