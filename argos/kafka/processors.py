@@ -133,22 +133,6 @@ class AbstractProcessor(object):
     def processesDict(self):
         return self._processesDict
 
-    @property
-    def station(self):
-        return self.topic.split('-')[0]
-
-    @property
-    def instrument(self):
-        return self.topic.split('-')[1]
-
-    @property
-    def height(self):
-        return int(self.topic.split('-')[2])
-
-    @property
-    def baseName(self):
-        return f'{self.station}-{self.instrument}-{self.height}'
-
     def __init__(self, projectName, kafkaHost, topic, resource, processesDict):
         """
 

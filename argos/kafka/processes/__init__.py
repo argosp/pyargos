@@ -17,7 +17,8 @@ def calc_wind(processor, data):
     calculatedData = trc.wind_speed().wind_dir_std().compute()
     calculatedData.index = [processor.windowTime]
     message = pandasDataFrameSerializer(calculatedData)
-    topicToSend = '%s-%s' % (processor.baseName, processor.window)
+    deviceName = '-'.join(processor.topic.split('-')[:-1])
+    topicToSend = '%s-%s' % (deviceName, processor.window)
     producer = KafkaProducer(bootstrap_servers=processor.kafkaHost)
     producer.send(topicToSend, message)
     # processor.kafkaProducer.send(topicToSend, message)
@@ -65,7 +66,7 @@ def to_thingsboard(processor, data):
 
 
 def to_parquet_CampbellBinary(processor, data):
-    print(f'to parquet - {processor.baseName}')
+    print(f'to parquet - {processor.topic}')
     # print(data)
     new_data = data.copy()
     new_data['month'] = pandas.Timestamp(data.index[0]).month
