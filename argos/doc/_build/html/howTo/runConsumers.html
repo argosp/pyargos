@@ -1,0 +1,176 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Running kafka consumers &#8212; pyArgos 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Loading trial to Thingsboard." href="loadTrial.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="running-kafka-consumers">
+<h1>Running kafka consumers<a class="headerlink" href="#running-kafka-consumers" title="Permalink to this headline">¶</a></h1>
+<p>Run the following script</p>
+<dl class="simple">
+<dt>::</dt><dd><p>trialManager –config [consumers config json file] –projectName [The project name]</p>
+</dd>
+</dl>
+<p>The consumers config json file should be as follows:</p>
+<blockquote>
+<div><dl>
+<dt>{</dt><dd><dl>
+<dt>topic:{</dt><dd><dl>
+<dt>window:{</dt><dd><dl>
+<dt>slide:{</dt><dd><dl class="simple">
+<dt>process path:{</dt><dd><p>input key: input value</p>
+</dd>
+</dl>
+<p>}</p>
+</dd>
+</dl>
+<p>}</p>
+</dd>
+</dl>
+<p>}</p>
+</dd>
+</dl>
+<p>}</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>For example, a config file for consumers that listen on topic called “device1” with a time window of 60 seconds.
+There is one process with path “argos.kafka.processes.process1” on a 30 seconds sliding window without any inputs,
+and there is one process with path “argos.kafka.processes.process2” on a 60 seconds sliding window and one input ‘inputKey’ with value ‘inputValue’</p>
+<blockquote>
+<div><dl>
+<dt>{</dt><dd><dl>
+<dt>“device1”:{</dt><dd><dl>
+<dt>“60”:{</dt><dd><dl class="simple">
+<dt>“30”:{</dt><dd><p>“argos.kafka.processes.process1”:{
+}</p>
+</dd>
+</dl>
+<p>},
+“60”:{</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“argos.kafka.processes.process2”:{</dt><dd><p>inputKey: inputValue</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>}</p>
+</dd>
+</dl>
+<p>}</p>
+</dd>
+</dl>
+<p>}</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>Note you can add as many devices/windows/slides/processes as you wish.</p></li>
+</ul>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">pyArgos</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="howtos.html">How to of the pyArgos system</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="loadTrial.html">Loading trial to Thingsboard.</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Running kafka consumers</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="howtos.html">How to of the pyArgos system</a><ul>
+      <li>Previous: <a href="loadTrial.html" title="previous chapter">Loading trial to Thingsboard.</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Eden Nitzan, Yehuda Arav, Eyal Fattal.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/howTo/runConsumers.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

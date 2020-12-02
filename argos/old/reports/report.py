@@ -2,7 +2,7 @@ import os
 from collections.abc import Iterable
 from itertools import zip_longest
 
-from argos.experimentManagement import Experiment
+from argos.experimentManagement import ExperimentJSON
 
 
 def andClause(excludelist =[],**filters):
@@ -55,7 +55,7 @@ class abstractReport(object):
         self._templateName = templateName
         self._outPath = outPath
         self._outName = outName
-        self._exp = Experiment(expConf)
+        self._exp = ExperimentJSON(expConf)
         self._trialsProperties = self._exp.getTrials()
         self._trialsEntities = self._exp.getTrialsEntities()
 

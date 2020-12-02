@@ -56,6 +56,7 @@ def to_thingsboard(processor, data):
 
         return client
 
+
     print(f'to thingsboard - {processor.topic}')
     # print(data)
 

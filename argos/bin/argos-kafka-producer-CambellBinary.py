@@ -13,31 +13,19 @@ from multiprocessing import Pool
 def run(deviceName, deviceType, data, kafkaHost):
     print('run - %s' % deviceName)
     producer = KafkaProducer(bootstrap_servers=kafkaHost)
-    data = globals()['fix_%s' % deviceType](data)
+    if deviceType is not None:
+        try:
+            data = globals()['fix_%s' % deviceType](data)
+        except KeyError:
+            raise TypeError(f'There is no fix function for device type called "{deviceType}"')
     for timeIndex in data.index:
         message = pandasSeriesSerializer(data.loc[timeIndex])
         producer.send(deviceName, message)
         time.sleep(0.016)
+    producer.close()
 
 
 def waitFileToUpdate(file):
-    tmpUpdateTime = pandas.Timestamp.utcfromtimestamp(os.stat(file).st_mtime)
-    time.sleep(30)
-    newUpdateTime = pandas.Timestamp.utcfromtimestamp(os.stat(file).st_mtime)
-    # Check that file firstly updated
-    while tmpUpdateTime==newUpdateTime:
-        tmpUpdateTime = newUpdateTime
-        time.sleep(10)
-        newUpdateTime = pandas.Timestamp.utcfromtimestamp(os.stat(file).st_mtime)
-    # Check that file is fuly updated
-    while tmpUpdateTime!=newUpdateTime:
-        tmpUpdateTime = newUpdateTime
-        time.sleep(30)
-        newUpdateTime = pandas.Timestamp.utcfromtimestamp(os.stat(file).st_mtime)
-    print('File is fully updated')
-
-
-def waitFileToUpdate2(file):
     cbi = meteo.CampbellBinaryInterface(file)
     tmpUpdateTime = cbi.lastTime
     time.sleep(30)
@@ -47,7 +35,7 @@ def waitFileToUpdate2(file):
         tmpUpdateTime = cbi.lastTime
         time.sleep(10)
         cbi = meteo.CampbellBinaryInterface(file)
-    # Check that file is fuly updated
+    # Check that file is fully updated
     while tmpUpdateTime!=cbi.lastTime:
         tmpUpdateTime = cbi.lastTime
         time.sleep(30)
@@ -67,7 +55,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--file", dest="file", help="The binary data file path", required=True)
     parser.add_argument("--projectName", dest="projectName", help="The project name", required=True)
-    parser.add_argument("--deviceType", dest="deviceType", help="The device name to know how to fix the data", required=True)
+    parser.add_argument("--deviceType", dest="deviceType", default=None, help="The device name to know how to fix the data (needed only if data should be fixed)")
     parser.add_argument("--kafkaHost", dest="kafkaHost", default='localhost', help="The kafka host in the following format - IP(:port)")
     args = parser.parse_args()
 
@@ -107,7 +95,7 @@ if __name__ == "__main__":
 
         if tmpUpdateTime!=lastUpdateTime: # True
             print('New data: %s -------------------------------' % pandas.Timestamp.now())
-            lastUpdateTime = waitFileToUpdate2(args.file)
+            lastUpdateTime = waitFileToUpdate(args.file)
             cbi = meteo.CampbellBinaryInterface(args.file)
 
             print('Last produced time: %s' % lastProducedTime)

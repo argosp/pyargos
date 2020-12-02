@@ -1,10 +1,21 @@
 import os
 import json
 import pandas
-from argos import thingsboard as tb
+from . import thingsboard as tb
+from .argosWeb import GQLDataLayer
+from typing import Union
 
 
-class Experiment(object):
+class AbstractExperiment(object):
+
+    def setup(self, **kwargs):
+        raise NotImplementedError
+
+    def loadTrial(self, **kwargs):
+        raise NotImplementedError
+
+
+class ExperimentJSON(AbstractExperiment):
 
     _experimentPath = None
     _experimentDataJSON = None
@@ -94,6 +105,7 @@ class Experiment(object):
                                                   'Type': entitiesCreation['Type'],
                                                   'attributes': {'longitude': 0, 'latitude': 0, 'id': id},
                                                   'contains': windowEntitiesNames})
+        os.makedirs(os.path.join(self.trialsPath), exist_ok=True)
         with open(os.path.join(self.trialsPath , 'trialTemplate.json'), 'w') as trialTemplateJSON:
             json.dump(trialTemplate, trialTemplateJSON, indent=4, sort_keys=True)
 
@@ -389,3 +401,66 @@ class Experiment(object):
         entityProxy.delRelations()
         for attributeKey, attributeValue in JSON['attributes'].items():
             entityProxy.delAttributes(attributeKey)
+
+
+class ExperimentGQL(AbstractExperiment):
+
+    _expConf = None
+    _gqlDL = None
+    _tbh = None
+    _windowsDict = None
+
+    @property
+    def experimentName(self):
+        return self._expConf['name']
+
+    def __init__(self, expConf: Union[str, dict]):
+        """
+
+        :param expConf: The experiment configuration
+        """
+
+        if type(expConf) is str:
+            with open(expConf, 'r') as myFile:
+                expConf = json.load(myFile)
+        self._expConf = expConf
+
+        gql_config = expConf['graphql']
+        self._gqlDL = GQLDataLayer(url=gql_config['url'], token=gql_config['token'])
+
+        tb_config = expConf['thingsboard']
+        self._tbh = tb.tbHome(tb_config)
+        
+        self._windowsDict = {deviceType: list(self._expConf['kafka']['consumers'][deviceType]['processes'].keys()) for deviceType in self._expConf['kafka']['consumers'].keys()}
+
+    def setup(self):
+        devices = self._gqlDL.getThingsboardSetupConf(experimentName=self.experimentName)
+        for deviceDict in devices:
+            deviceName = deviceDict['deviceName']
+            deviceType = deviceDict['deviceTypeName']
+            windows = self._windowsDict[deviceType]
+            self._tbh.deviceHome.createProxy(deviceName, deviceType)
+            for window in windows:
+                windowDeviceName = f'{deviceName}_{window}s'
+                windowDeviceType = f'calculated_{deviceType}'
+                self._tbh.deviceHome.createProxy(windowDeviceName, windowDeviceType)
+
+    def loadTrial(self, trialSetName: str, trialName: str, trialType: str = 'deploy'):
+        devices = self._gqlDL.getThingsboardTrialLoadConf(self.experimentName, trialSetName, trialName, trialType)
+        for deviceDict in devices:
+            windows = self._windowsDict[deviceDict['deviceTypeName']]
+            deviceProxy = self._tbh.deviceHome.createProxy(deviceDict['deviceName'])
+            for attributeKey, attributeValue in deviceDict['attributes'].items():
+                deviceProxy.delAttributes(attributeKey)
+                deviceProxy.setAttributes(deviceDict['attributes'])
+                for window in windows:
+                    windowDeviceName = f'{deviceDict["deviceName"]}_{window}s'
+                    windowDeviceProxy = self._tbh.deviceHome.createProxy(windowDeviceName)
+                    windowDeviceProxy.delAttributes(attributeKey)
+                    windowDeviceProxy.setAttributes(deviceDict['attributes'])
+
+    def loadTrialFromDesign(self, trialSetName: str, trialName: str):
+        self.loadTrial(trialSetName, trialName, 'design')
+
+    def loadTrialFromDelpoy(self, trialSetName: str, trialName: str):
+        self.loadTrial(trialSetName, trialName, 'deploy')
