@@ -1,0 +1,16 @@
+{
+"experimentPath": "/home/eden/Projects.local/2020/DesertWalls/ExpExample",
+"connection":
+	{
+		"login":
+		{
+			"username":"tenant@thingsboard.org",
+			"password":"tenant"
+		},
+		"server" :
+		{
+			"ip" : "127.0.0.1",
+			"port":"8080"
+		}
+	}
+}

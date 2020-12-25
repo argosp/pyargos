@@ -1,2 +1,4 @@
-.idea/*
-thingsboard/__pycache__/
+.idea
+*.pyc
+doc/_build
+__pycache__

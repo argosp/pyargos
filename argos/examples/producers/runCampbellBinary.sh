@@ -1,0 +1,1 @@
+python argos-kafka-producer-CampbaellBinary.py --file {The path to the binary file} --projectName {The project Name} --deviceType {The type of the device(i.e 'Young81000')} --kafkaHost {ip(:port) of the kafka host}
