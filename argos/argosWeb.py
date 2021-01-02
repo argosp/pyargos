@@ -174,9 +174,6 @@ class GQLDataLayer:
         return devicesDescDict
 
 
-
-
-
 class Experiment:
     _desc = None
     _trialSets = None
