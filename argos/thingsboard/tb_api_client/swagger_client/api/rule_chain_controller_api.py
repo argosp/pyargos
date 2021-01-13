@@ -37,8 +37,8 @@ class RuleChainControllerApi(object):
         """deleteRuleChain  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_rule_chain_using_delete(rule_chain_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_rule_chain_using_delete(rule_chain_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -58,8 +58,8 @@ class RuleChainControllerApi(object):
         """deleteRuleChain  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_rule_chain_using_delete_with_http_info(rule_chain_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_rule_chain_using_delete_with_http_info(rule_chain_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -124,7 +124,7 @@ class RuleChainControllerApi(object):
             files=local_var_files,
             response_type=None,  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -134,8 +134,8 @@ class RuleChainControllerApi(object):
         """getLatestRuleNodeDebugInput  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_latest_rule_node_debug_input_using_get(rule_node_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_latest_rule_node_debug_input_using_get(rule_node_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -155,8 +155,8 @@ class RuleChainControllerApi(object):
         """getLatestRuleNodeDebugInput  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_latest_rule_node_debug_input_using_get_with_http_info(rule_node_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_latest_rule_node_debug_input_using_get_with_http_info(rule_node_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -221,7 +221,7 @@ class RuleChainControllerApi(object):
             files=local_var_files,
             response_type='str',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -231,8 +231,8 @@ class RuleChainControllerApi(object):
         """getRuleChainById  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_rule_chain_by_id_using_get(rule_chain_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_rule_chain_by_id_using_get(rule_chain_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -252,8 +252,8 @@ class RuleChainControllerApi(object):
         """getRuleChainById  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_rule_chain_by_id_using_get_with_http_info(rule_chain_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_rule_chain_by_id_using_get_with_http_info(rule_chain_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -318,7 +318,7 @@ class RuleChainControllerApi(object):
             files=local_var_files,
             response_type='RuleChain',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -328,8 +328,8 @@ class RuleChainControllerApi(object):
         """getRuleChainMetaData  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_rule_chain_meta_data_using_get(rule_chain_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_rule_chain_meta_data_using_get(rule_chain_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -349,8 +349,8 @@ class RuleChainControllerApi(object):
         """getRuleChainMetaData  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_rule_chain_meta_data_using_get_with_http_info(rule_chain_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_rule_chain_meta_data_using_get_with_http_info(rule_chain_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -415,7 +415,7 @@ class RuleChainControllerApi(object):
             files=local_var_files,
             response_type='RuleChainMetaData',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -425,8 +425,8 @@ class RuleChainControllerApi(object):
         """getRuleChains  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_rule_chains_using_get(limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_rule_chains_using_get(limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -449,8 +449,8 @@ class RuleChainControllerApi(object):
         """getRuleChains  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_rule_chains_using_get_with_http_info(limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_rule_chains_using_get_with_http_info(limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -524,7 +524,7 @@ class RuleChainControllerApi(object):
             files=local_var_files,
             response_type='TextPageDataRuleChain',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -534,8 +534,8 @@ class RuleChainControllerApi(object):
         """saveRuleChainMetaData  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_rule_chain_meta_data_using_post(rule_chain_meta_data, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_rule_chain_meta_data_using_post(rule_chain_meta_data, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -555,8 +555,8 @@ class RuleChainControllerApi(object):
         """saveRuleChainMetaData  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_rule_chain_meta_data_using_post_with_http_info(rule_chain_meta_data, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_rule_chain_meta_data_using_post_with_http_info(rule_chain_meta_data, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -621,7 +621,7 @@ class RuleChainControllerApi(object):
             files=local_var_files,
             response_type='RuleChainMetaData',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -631,8 +631,8 @@ class RuleChainControllerApi(object):
         """saveRuleChain  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_rule_chain_using_post(rule_chain, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_rule_chain_using_post(rule_chain, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -652,8 +652,8 @@ class RuleChainControllerApi(object):
         """saveRuleChain  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_rule_chain_using_post_with_http_info(rule_chain, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_rule_chain_using_post_with_http_info(rule_chain, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -718,7 +718,7 @@ class RuleChainControllerApi(object):
             files=local_var_files,
             response_type='RuleChain',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -728,8 +728,8 @@ class RuleChainControllerApi(object):
         """setRootRuleChain  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.set_root_rule_chain_using_post(rule_chain_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.set_root_rule_chain_using_post(rule_chain_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -749,8 +749,8 @@ class RuleChainControllerApi(object):
         """setRootRuleChain  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.set_root_rule_chain_using_post_with_http_info(rule_chain_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.set_root_rule_chain_using_post_with_http_info(rule_chain_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -815,7 +815,7 @@ class RuleChainControllerApi(object):
             files=local_var_files,
             response_type='RuleChain',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -825,8 +825,8 @@ class RuleChainControllerApi(object):
         """testScript  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.test_script_using_post(input_params, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.test_script_using_post(input_params, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -846,8 +846,8 @@ class RuleChainControllerApi(object):
         """testScript  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.test_script_using_post_with_http_info(input_params, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.test_script_using_post_with_http_info(input_params, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -912,7 +912,7 @@ class RuleChainControllerApi(object):
             files=local_var_files,
             response_type='str',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),

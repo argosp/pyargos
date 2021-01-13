@@ -4,15 +4,6 @@ import dask.dataframe as dd
 from pynodered import node_red, NodeProperty
 
 @node_red(category="argos",
-          properties=dict(ProjectName=NodeProperty("Project Name", value="")
-                          )
-          )
-def add_document(node, msg):
-    msg['payload'] = str(msg['payload']).lower()
-    return msg
-
-
-@node_red(category="argos",
           properties=dict(outputDirectory=NodeProperty("Output Directory", value=""),
                           timestampField  =NodeProperty("Timestamp field", value="timestamp"),
                           fileNameField  =NodeProperty("filename field", value=""),
@@ -23,16 +14,18 @@ def to_parquet(node,msgList):
     def saveParquetToFile(filename,data):
         print(filename)
 
-        if os.path.isdir(outputDirectory):
-            new_dask.to_parquet(path=filename,
+        if os.path.isdir(filename):
+
+            data.to_parquet(path=filename,
                                 append=True,
                                 ignore_divisions=True,
                                 engine='fastparquet',
                                 partition_on=partitionaFields
                                 )
         else:
-            os.makedirs(outputDirectory, exist_ok=True)
-            new_dask.to_parquet(path=filename,
+
+            os.makedirs(filename, exist_ok=True)
+            data.to_parquet(path=filename,
                                 engine = 'fastparquet',
                                 partition_on=partitionaFields
                                 )
@@ -54,6 +47,9 @@ def to_parquet(node,msgList):
     df = df.assign(day=df.timestamp.apply(lambda x: x.day))\
            .assign(month=df.timestamp.apply(lambda x: x.month)) \
            .assign(year=df.timestamp.apply(lambda x: x.year))
+
+    df = df.set_index("timestamp")
+
 
     if node.fileNameField.value =="":
 

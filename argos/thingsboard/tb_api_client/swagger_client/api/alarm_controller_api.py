@@ -37,7 +37,7 @@ class AlarmControllerApi(object):
         """ackAlarm  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
+        asynchhronous HTTP request, please pass async=True
         >>> thread = api.ack_alarm_using_post(alarm_id, async=True)
         >>> result = thread.get()
 
@@ -124,7 +124,7 @@ class AlarmControllerApi(object):
             files=local_var_files,
             response_type=None,  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -156,7 +156,7 @@ class AlarmControllerApi(object):
 
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async=True
-        >>> thread = api.clear_alarm_using_post_with_http_info(alarm_id, async=True)
+        >>> thread = api.clear_alarm_using_post_with_http_info(alarm_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -221,7 +221,7 @@ class AlarmControllerApi(object):
             files=local_var_files,
             response_type=None,  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -253,7 +253,7 @@ class AlarmControllerApi(object):
 
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_alarm_using_delete_with_http_info(alarm_id, async=True)
+        >>> thread = api.delete_alarm_using_delete_with_http_info(alarm_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -318,7 +318,7 @@ class AlarmControllerApi(object):
             files=local_var_files,
             response_type='bool',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -415,7 +415,7 @@ class AlarmControllerApi(object):
             files=local_var_files,
             response_type='Alarm',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -426,7 +426,7 @@ class AlarmControllerApi(object):
 
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_alarm_info_by_id_using_get(alarm_id, async=True)
+        >>> thread = api.get_alarm_info_by_id_using_get(alarm_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -447,7 +447,7 @@ class AlarmControllerApi(object):
 
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_alarm_info_by_id_using_get_with_http_info(alarm_id, async=True)
+        >>> thread = api.get_alarm_info_by_id_using_get_with_http_info(alarm_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -512,7 +512,7 @@ class AlarmControllerApi(object):
             files=local_var_files,
             response_type='AlarmInfo',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -523,7 +523,7 @@ class AlarmControllerApi(object):
 
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_alarms_using_get(entity_type, entity_id, limit, async=True)
+        >>> thread = api.get_alarms_using_get(entity_type, entity_id, limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -553,7 +553,7 @@ class AlarmControllerApi(object):
 
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_alarms_using_get_with_http_info(entity_type, entity_id, limit, async=True)
+        >>> thread = api.get_alarms_using_get_with_http_info(entity_type, entity_id, limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -653,7 +653,7 @@ class AlarmControllerApi(object):
             files=local_var_files,
             response_type='TimePageDataAlarmInfo',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -688,7 +688,7 @@ class AlarmControllerApi(object):
 
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_highest_alarm_severity_using_get_with_http_info(entity_type, entity_id, async=True)
+        >>> thread = api.get_highest_alarm_severity_using_get_with_http_info(entity_type, entity_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -766,7 +766,7 @@ class AlarmControllerApi(object):
             files=local_var_files,
             response_type='str',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -798,7 +798,7 @@ class AlarmControllerApi(object):
 
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_alarm_using_post_with_http_info(alarm, async=True)
+        >>> thread = api.save_alarm_using_post_with_http_info(alarm, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -863,7 +863,7 @@ class AlarmControllerApi(object):
             files=local_var_files,
             response_type='Alarm',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),

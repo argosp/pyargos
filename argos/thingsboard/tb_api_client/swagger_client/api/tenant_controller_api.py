@@ -37,8 +37,8 @@ class TenantControllerApi(object):
         """deleteTenant  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_tenant_using_delete(tenant_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_tenant_using_delete(tenant_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -58,8 +58,8 @@ class TenantControllerApi(object):
         """deleteTenant  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_tenant_using_delete_with_http_info(tenant_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_tenant_using_delete_with_http_info(tenant_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -124,7 +124,7 @@ class TenantControllerApi(object):
             files=local_var_files,
             response_type=None,  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -134,8 +134,8 @@ class TenantControllerApi(object):
         """getTenantById  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_tenant_by_id_using_get(tenant_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_tenant_by_id_using_get(tenant_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -155,8 +155,8 @@ class TenantControllerApi(object):
         """getTenantById  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_tenant_by_id_using_get_with_http_info(tenant_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_tenant_by_id_using_get_with_http_info(tenant_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -221,7 +221,7 @@ class TenantControllerApi(object):
             files=local_var_files,
             response_type='Tenant',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -231,8 +231,8 @@ class TenantControllerApi(object):
         """getTenants  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_tenants_using_get(limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_tenants_using_get(limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -255,8 +255,8 @@ class TenantControllerApi(object):
         """getTenants  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_tenants_using_get_with_http_info(limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_tenants_using_get_with_http_info(limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -330,7 +330,7 @@ class TenantControllerApi(object):
             files=local_var_files,
             response_type='TextPageDataTenant',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -340,8 +340,8 @@ class TenantControllerApi(object):
         """saveTenant  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_tenant_using_post(tenant, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_tenant_using_post(tenant, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -361,8 +361,8 @@ class TenantControllerApi(object):
         """saveTenant  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_tenant_using_post_with_http_info(tenant, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_tenant_using_post_with_http_info(tenant, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -427,7 +427,7 @@ class TenantControllerApi(object):
             files=local_var_files,
             response_type='Tenant',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),

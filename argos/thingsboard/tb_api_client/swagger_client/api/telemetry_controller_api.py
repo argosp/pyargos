@@ -37,8 +37,8 @@ class TelemetryControllerApi(object):
         """deleteEntityAttributes  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_entity_attributes_using_delete(device_id, scope, keys, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_entity_attributes_using_delete(device_id, scope, keys, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -60,8 +60,8 @@ class TelemetryControllerApi(object):
         """deleteEntityAttributes  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_entity_attributes_using_delete_with_http_info(device_id, scope, keys, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_entity_attributes_using_delete_with_http_info(device_id, scope, keys, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -140,7 +140,7 @@ class TelemetryControllerApi(object):
             files=local_var_files,
             response_type='DeferredResultResponseEntity',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -150,8 +150,8 @@ class TelemetryControllerApi(object):
         """deleteEntityAttributes  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_entity_attributes_using_delete1(entity_type, entity_id, scope, keys, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_entity_attributes_using_delete1(entity_type, entity_id, scope, keys, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -174,8 +174,8 @@ class TelemetryControllerApi(object):
         """deleteEntityAttributes  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_entity_attributes_using_delete1_with_http_info(entity_type, entity_id, scope, keys, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_entity_attributes_using_delete1_with_http_info(entity_type, entity_id, scope, keys, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -261,7 +261,7 @@ class TelemetryControllerApi(object):
             files=local_var_files,
             response_type='DeferredResultResponseEntity',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -271,8 +271,8 @@ class TelemetryControllerApi(object):
         """deleteEntityTimeseries  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_entity_timeseries_using_delete(entity_type, entity_id, keys, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_entity_timeseries_using_delete(entity_type, entity_id, keys, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -298,8 +298,8 @@ class TelemetryControllerApi(object):
         """deleteEntityTimeseries  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_entity_timeseries_using_delete_with_http_info(entity_type, entity_id, keys, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_entity_timeseries_using_delete_with_http_info(entity_type, entity_id, keys, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -390,7 +390,7 @@ class TelemetryControllerApi(object):
             files=local_var_files,
             response_type='DeferredResultResponseEntity',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -400,8 +400,8 @@ class TelemetryControllerApi(object):
         """getAttributeKeysByScope  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_attribute_keys_by_scope_using_get(entity_type, entity_id, scope, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_attribute_keys_by_scope_using_get(entity_type, entity_id, scope, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -423,8 +423,8 @@ class TelemetryControllerApi(object):
         """getAttributeKeysByScope  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_attribute_keys_by_scope_using_get_with_http_info(entity_type, entity_id, scope, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_attribute_keys_by_scope_using_get_with_http_info(entity_type, entity_id, scope, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -503,7 +503,7 @@ class TelemetryControllerApi(object):
             files=local_var_files,
             response_type='DeferredResultResponseEntity',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -513,8 +513,8 @@ class TelemetryControllerApi(object):
         """getAttributeKeys  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_attribute_keys_using_get(entity_type, entity_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_attribute_keys_using_get(entity_type, entity_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -535,8 +535,8 @@ class TelemetryControllerApi(object):
         """getAttributeKeys  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_attribute_keys_using_get_with_http_info(entity_type, entity_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_attribute_keys_using_get_with_http_info(entity_type, entity_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -608,7 +608,7 @@ class TelemetryControllerApi(object):
             files=local_var_files,
             response_type='DeferredResultResponseEntity',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -618,8 +618,8 @@ class TelemetryControllerApi(object):
         """getAttributesByScope  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_attributes_by_scope_using_get(entity_type, entity_id, scope, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_attributes_by_scope_using_get(entity_type, entity_id, scope, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -642,8 +642,8 @@ class TelemetryControllerApi(object):
         """getAttributesByScope  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_attributes_by_scope_using_get_with_http_info(entity_type, entity_id, scope, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_attributes_by_scope_using_get_with_http_info(entity_type, entity_id, scope, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -725,7 +725,7 @@ class TelemetryControllerApi(object):
             files=local_var_files,
             response_type='DeferredResultResponseEntity',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -735,8 +735,8 @@ class TelemetryControllerApi(object):
         """getAttributes  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_attributes_using_get(entity_type, entity_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_attributes_using_get(entity_type, entity_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -758,8 +758,8 @@ class TelemetryControllerApi(object):
         """getAttributes  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_attributes_using_get_with_http_info(entity_type, entity_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_attributes_using_get_with_http_info(entity_type, entity_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -834,7 +834,7 @@ class TelemetryControllerApi(object):
             files=local_var_files,
             response_type='DeferredResultResponseEntity',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -844,8 +844,8 @@ class TelemetryControllerApi(object):
         """getLatestTimeseries  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_latest_timeseries_using_get(entity_type, entity_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_latest_timeseries_using_get(entity_type, entity_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -867,8 +867,8 @@ class TelemetryControllerApi(object):
         """getLatestTimeseries  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_latest_timeseries_using_get_with_http_info(entity_type, entity_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_latest_timeseries_using_get_with_http_info(entity_type, entity_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -943,7 +943,7 @@ class TelemetryControllerApi(object):
             files=local_var_files,
             response_type='DeferredResultResponseEntity',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -953,8 +953,8 @@ class TelemetryControllerApi(object):
         """getTimeseriesKeys  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_timeseries_keys_using_get(entity_type, entity_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_timeseries_keys_using_get(entity_type, entity_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -975,8 +975,8 @@ class TelemetryControllerApi(object):
         """getTimeseriesKeys  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_timeseries_keys_using_get_with_http_info(entity_type, entity_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_timeseries_keys_using_get_with_http_info(entity_type, entity_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1048,7 +1048,7 @@ class TelemetryControllerApi(object):
             files=local_var_files,
             response_type='DeferredResultResponseEntity',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -1058,8 +1058,8 @@ class TelemetryControllerApi(object):
         """getTimeseries  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_timeseries_using_get(entity_type, entity_id, keys, start_ts, end_ts, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_timeseries_using_get(entity_type, entity_id, keys, start_ts, end_ts, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1086,8 +1086,8 @@ class TelemetryControllerApi(object):
         """getTimeseries  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_timeseries_using_get_with_http_info(entity_type, entity_id, keys, start_ts, end_ts, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_timeseries_using_get_with_http_info(entity_type, entity_id, keys, start_ts, end_ts, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1189,7 +1189,7 @@ class TelemetryControllerApi(object):
             files=local_var_files,
             response_type='DeferredResultResponseEntity',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -1199,8 +1199,8 @@ class TelemetryControllerApi(object):
         """saveDeviceAttributes  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_device_attributes_using_post(device_id, scope, request, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_device_attributes_using_post(device_id, scope, request, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1222,8 +1222,8 @@ class TelemetryControllerApi(object):
         """saveDeviceAttributes  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_device_attributes_using_post_with_http_info(device_id, scope, request, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_device_attributes_using_post_with_http_info(device_id, scope, request, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1302,7 +1302,7 @@ class TelemetryControllerApi(object):
             files=local_var_files,
             response_type='DeferredResultResponseEntity',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -1312,8 +1312,8 @@ class TelemetryControllerApi(object):
         """saveEntityAttributesV1  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_entity_attributes_v1_using_post(entity_type, entity_id, scope, request, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_entity_attributes_v1_using_post(entity_type, entity_id, scope, request, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1336,8 +1336,8 @@ class TelemetryControllerApi(object):
         """saveEntityAttributesV1  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_entity_attributes_v1_using_post_with_http_info(entity_type, entity_id, scope, request, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_entity_attributes_v1_using_post_with_http_info(entity_type, entity_id, scope, request, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1423,7 +1423,7 @@ class TelemetryControllerApi(object):
             files=local_var_files,
             response_type='DeferredResultResponseEntity',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -1433,8 +1433,8 @@ class TelemetryControllerApi(object):
         """saveEntityAttributesV2  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_entity_attributes_v2_using_post(entity_type, entity_id, scope, request, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_entity_attributes_v2_using_post(entity_type, entity_id, scope, request, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1457,8 +1457,8 @@ class TelemetryControllerApi(object):
         """saveEntityAttributesV2  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_entity_attributes_v2_using_post_with_http_info(entity_type, entity_id, scope, request, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_entity_attributes_v2_using_post_with_http_info(entity_type, entity_id, scope, request, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1544,7 +1544,7 @@ class TelemetryControllerApi(object):
             files=local_var_files,
             response_type='DeferredResultResponseEntity',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -1554,8 +1554,8 @@ class TelemetryControllerApi(object):
         """saveEntityTelemetry  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_entity_telemetry_using_post(entity_type, entity_id, scope, request_body, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_entity_telemetry_using_post(entity_type, entity_id, scope, request_body, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1578,8 +1578,8 @@ class TelemetryControllerApi(object):
         """saveEntityTelemetry  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_entity_telemetry_using_post_with_http_info(entity_type, entity_id, scope, request_body, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_entity_telemetry_using_post_with_http_info(entity_type, entity_id, scope, request_body, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1665,7 +1665,7 @@ class TelemetryControllerApi(object):
             files=local_var_files,
             response_type='DeferredResultResponseEntity',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -1675,8 +1675,8 @@ class TelemetryControllerApi(object):
         """saveEntityTelemetryWithTTL  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_entity_telemetry_with_ttl_using_post(entity_type, entity_id, scope, ttl, request_body, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_entity_telemetry_with_ttl_using_post(entity_type, entity_id, scope, ttl, request_body, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1700,8 +1700,8 @@ class TelemetryControllerApi(object):
         """saveEntityTelemetryWithTTL  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_entity_telemetry_with_ttl_using_post_with_http_info(entity_type, entity_id, scope, ttl, request_body, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_entity_telemetry_with_ttl_using_post_with_http_info(entity_type, entity_id, scope, ttl, request_body, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1794,7 +1794,7 @@ class TelemetryControllerApi(object):
             files=local_var_files,
             response_type='DeferredResultResponseEntity',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),

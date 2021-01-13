@@ -37,8 +37,8 @@ class AuthControllerApi(object):
         """activateUser  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.activate_user_using_post(activate_request, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.activate_user_using_post(activate_request, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -58,8 +58,8 @@ class AuthControllerApi(object):
         """activateUser  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.activate_user_using_post_with_http_info(activate_request, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.activate_user_using_post_with_http_info(activate_request, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -124,7 +124,7 @@ class AuthControllerApi(object):
             files=local_var_files,
             response_type='str',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -134,8 +134,8 @@ class AuthControllerApi(object):
         """changePassword  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.change_password_using_post(change_password_request, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.change_password_using_post(change_password_request, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -155,8 +155,8 @@ class AuthControllerApi(object):
         """changePassword  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.change_password_using_post_with_http_info(change_password_request, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.change_password_using_post_with_http_info(change_password_request, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -221,7 +221,7 @@ class AuthControllerApi(object):
             files=local_var_files,
             response_type=None,  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -231,8 +231,8 @@ class AuthControllerApi(object):
         """checkActivateToken  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.check_activate_token_using_get(activate_token, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.check_activate_token_using_get(activate_token, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -252,8 +252,8 @@ class AuthControllerApi(object):
         """checkActivateToken  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.check_activate_token_using_get_with_http_info(activate_token, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.check_activate_token_using_get_with_http_info(activate_token, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -318,7 +318,7 @@ class AuthControllerApi(object):
             files=local_var_files,
             response_type='str',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -328,8 +328,8 @@ class AuthControllerApi(object):
         """checkResetToken  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.check_reset_token_using_get(reset_token, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.check_reset_token_using_get(reset_token, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -349,8 +349,8 @@ class AuthControllerApi(object):
         """checkResetToken  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.check_reset_token_using_get_with_http_info(reset_token, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.check_reset_token_using_get_with_http_info(reset_token, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -415,7 +415,7 @@ class AuthControllerApi(object):
             files=local_var_files,
             response_type='str',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -425,8 +425,8 @@ class AuthControllerApi(object):
         """getUser  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_user_using_get(async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_user_using_get(asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -445,8 +445,8 @@ class AuthControllerApi(object):
         """getUser  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_user_using_get_with_http_info(async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_user_using_get_with_http_info(asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -504,7 +504,7 @@ class AuthControllerApi(object):
             files=local_var_files,
             response_type='User',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -514,8 +514,8 @@ class AuthControllerApi(object):
         """requestResetPasswordByEmail  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.request_reset_password_by_email_using_post(reset_password_by_email_request, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.request_reset_password_by_email_using_post(reset_password_by_email_request, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -535,8 +535,8 @@ class AuthControllerApi(object):
         """requestResetPasswordByEmail  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.request_reset_password_by_email_using_post_with_http_info(reset_password_by_email_request, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.request_reset_password_by_email_using_post_with_http_info(reset_password_by_email_request, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -601,7 +601,7 @@ class AuthControllerApi(object):
             files=local_var_files,
             response_type=None,  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -611,8 +611,8 @@ class AuthControllerApi(object):
         """resetPassword  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.reset_password_using_post(reset_password_request, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.reset_password_using_post(reset_password_request, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -632,8 +632,8 @@ class AuthControllerApi(object):
         """resetPassword  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.reset_password_using_post_with_http_info(reset_password_request, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.reset_password_using_post_with_http_info(reset_password_request, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -698,7 +698,7 @@ class AuthControllerApi(object):
             files=local_var_files,
             response_type='str',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),

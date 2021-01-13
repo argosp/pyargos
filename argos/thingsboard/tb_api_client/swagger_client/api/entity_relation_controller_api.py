@@ -37,8 +37,8 @@ class EntityRelationControllerApi(object):
         """deleteRelation  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_relation_using_delete(from_id, from_type, relation_type, to_id, to_type, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_relation_using_delete(from_id, from_type, relation_type, to_id, to_type, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -63,8 +63,8 @@ class EntityRelationControllerApi(object):
         """deleteRelation  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_relation_using_delete_with_http_info(from_id, from_type, relation_type, to_id, to_type, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_relation_using_delete_with_http_info(from_id, from_type, relation_type, to_id, to_type, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -160,7 +160,7 @@ class EntityRelationControllerApi(object):
             files=local_var_files,
             response_type=None,  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -170,8 +170,8 @@ class EntityRelationControllerApi(object):
         """deleteRelations  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_relations_using_delete(entity_id, entity_type, id, type, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_relations_using_delete(entity_id, entity_type, id, type, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -194,8 +194,8 @@ class EntityRelationControllerApi(object):
         """deleteRelations  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_relations_using_delete_with_http_info(entity_id, entity_type, id, type, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_relations_using_delete_with_http_info(entity_id, entity_type, id, type, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -281,7 +281,7 @@ class EntityRelationControllerApi(object):
             files=local_var_files,
             response_type=None,  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -291,8 +291,8 @@ class EntityRelationControllerApi(object):
         """findByFrom  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.find_by_from_using_get(from_id, from_type, relation_type, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.find_by_from_using_get(from_id, from_type, relation_type, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -315,8 +315,8 @@ class EntityRelationControllerApi(object):
         """findByFrom  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.find_by_from_using_get_with_http_info(from_id, from_type, relation_type, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.find_by_from_using_get_with_http_info(from_id, from_type, relation_type, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -398,7 +398,7 @@ class EntityRelationControllerApi(object):
             files=local_var_files,
             response_type='list[EntityRelation]',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -408,8 +408,8 @@ class EntityRelationControllerApi(object):
         """findByFrom  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.find_by_from_using_get1(from_id, from_type, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.find_by_from_using_get1(from_id, from_type, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -431,8 +431,8 @@ class EntityRelationControllerApi(object):
         """findByFrom  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.find_by_from_using_get1_with_http_info(from_id, from_type, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.find_by_from_using_get1_with_http_info(from_id, from_type, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -507,7 +507,7 @@ class EntityRelationControllerApi(object):
             files=local_var_files,
             response_type='list[EntityRelation]',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -517,8 +517,8 @@ class EntityRelationControllerApi(object):
         """findByQuery  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.find_by_query_using_post2(query, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.find_by_query_using_post2(query, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -538,8 +538,8 @@ class EntityRelationControllerApi(object):
         """findByQuery  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.find_by_query_using_post2_with_http_info(query, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.find_by_query_using_post2_with_http_info(query, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -604,7 +604,7 @@ class EntityRelationControllerApi(object):
             files=local_var_files,
             response_type='list[EntityRelation]',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -614,8 +614,8 @@ class EntityRelationControllerApi(object):
         """findByTo  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.find_by_to_using_get(to_id, to_type, relation_type, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.find_by_to_using_get(to_id, to_type, relation_type, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -638,8 +638,8 @@ class EntityRelationControllerApi(object):
         """findByTo  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.find_by_to_using_get_with_http_info(to_id, to_type, relation_type, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.find_by_to_using_get_with_http_info(to_id, to_type, relation_type, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -721,7 +721,7 @@ class EntityRelationControllerApi(object):
             files=local_var_files,
             response_type='list[EntityRelation]',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -731,8 +731,8 @@ class EntityRelationControllerApi(object):
         """findByTo  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.find_by_to_using_get1(to_id, to_type, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.find_by_to_using_get1(to_id, to_type, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -754,8 +754,8 @@ class EntityRelationControllerApi(object):
         """findByTo  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.find_by_to_using_get1_with_http_info(to_id, to_type, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.find_by_to_using_get1_with_http_info(to_id, to_type, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -830,7 +830,7 @@ class EntityRelationControllerApi(object):
             files=local_var_files,
             response_type='list[EntityRelation]',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -840,8 +840,8 @@ class EntityRelationControllerApi(object):
         """findInfoByFrom  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.find_info_by_from_using_get(from_id, from_type, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.find_info_by_from_using_get(from_id, from_type, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -863,8 +863,8 @@ class EntityRelationControllerApi(object):
         """findInfoByFrom  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.find_info_by_from_using_get_with_http_info(from_id, from_type, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.find_info_by_from_using_get_with_http_info(from_id, from_type, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -939,7 +939,7 @@ class EntityRelationControllerApi(object):
             files=local_var_files,
             response_type='list[EntityRelationInfo]',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -949,8 +949,8 @@ class EntityRelationControllerApi(object):
         """findInfoByQuery  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.find_info_by_query_using_post(query, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.find_info_by_query_using_post(query, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -970,8 +970,8 @@ class EntityRelationControllerApi(object):
         """findInfoByQuery  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.find_info_by_query_using_post_with_http_info(query, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.find_info_by_query_using_post_with_http_info(query, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1036,7 +1036,7 @@ class EntityRelationControllerApi(object):
             files=local_var_files,
             response_type='list[EntityRelationInfo]',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -1046,8 +1046,8 @@ class EntityRelationControllerApi(object):
         """findInfoByTo  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.find_info_by_to_using_get(to_id, to_type, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.find_info_by_to_using_get(to_id, to_type, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1069,8 +1069,8 @@ class EntityRelationControllerApi(object):
         """findInfoByTo  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.find_info_by_to_using_get_with_http_info(to_id, to_type, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.find_info_by_to_using_get_with_http_info(to_id, to_type, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1145,7 +1145,7 @@ class EntityRelationControllerApi(object):
             files=local_var_files,
             response_type='list[EntityRelationInfo]',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -1155,8 +1155,8 @@ class EntityRelationControllerApi(object):
         """getRelation  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_relation_using_get(from_id, from_type, relation_type, to_id, to_type, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_relation_using_get(from_id, from_type, relation_type, to_id, to_type, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1181,8 +1181,8 @@ class EntityRelationControllerApi(object):
         """getRelation  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_relation_using_get_with_http_info(from_id, from_type, relation_type, to_id, to_type, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_relation_using_get_with_http_info(from_id, from_type, relation_type, to_id, to_type, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1278,7 +1278,7 @@ class EntityRelationControllerApi(object):
             files=local_var_files,
             response_type='EntityRelation',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -1288,8 +1288,8 @@ class EntityRelationControllerApi(object):
         """saveRelation  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_relation_using_post(relation, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_relation_using_post(relation, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1309,8 +1309,8 @@ class EntityRelationControllerApi(object):
         """saveRelation  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_relation_using_post_with_http_info(relation, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_relation_using_post_with_http_info(relation, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1375,7 +1375,7 @@ class EntityRelationControllerApi(object):
             files=local_var_files,
             response_type=None,  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),

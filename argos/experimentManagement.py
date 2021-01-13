@@ -14,6 +14,8 @@ class AbstractExperiment(object):
     def loadTrial(self, **kwargs):
         raise NotImplementedError
 
+    def dumpTrial(self,**kwargs):
+        raise NotImplementedError
 
 class ExperimentJSON(AbstractExperiment):
 
@@ -35,8 +37,11 @@ class ExperimentJSON(AbstractExperiment):
             read the experiment JSON.
 
         """
-        with open(configJsonPath, 'r') as jsonFile:
-            JSON = json.load(jsonFile)
+        try:
+            JSON = json.loads(configJsonPath)
+        except json.JSONDecodeError:
+            with open(configJsonPath, 'r') as jsonFile:
+                JSON = json.load(jsonFile)
 
         self._experimentPath = JSON['experimentPath']
 
@@ -134,7 +139,7 @@ class ExperimentJSON(AbstractExperiment):
         return [x.split('.')[0] for x in os.listdir(os.path.join(self.trialsPath, 'design'))]
 
 
-    def getTrialJSON(self, trialName):
+    def getTrialJSON_from_execution(self, trialName):
         """
             Load and return the JSON of the trial
         :param trialName: The name of the trial
@@ -164,8 +169,8 @@ class ExperimentJSON(AbstractExperiment):
         return trialJson
 
     def getContainedEntities(self, trialName, entityType, entityName, trialState='execution'):
-        if trialState is 'execution':
-            trialJson = self.getTrialJSON(trialName)
+        if trialState == 'execution':
+            trialJson = self.getTrialJSON_from_execution(trialName)
         else:
             trialJson = self.getTrialJSON_from_design(trialName)
         containedEntities = pandas.DataFrame(columns=['entityType', 'entityName'])
@@ -190,7 +195,7 @@ class ExperimentJSON(AbstractExperiment):
         """
         if updateLevel is None:
             if trialJSON is None:
-                trialJSON = self.getTrialJSON(trialName)
+                trialJSON = self.getTrialJSON_from_execution(trialName)
 
             for i, entityJSON in enumerate(trialJSON['Entities']):
                 if entityJSON['Name']==entityName and entityJSON['entityType']==entityType:
@@ -218,7 +223,7 @@ class ExperimentJSON(AbstractExperiment):
                 os.system('git commit -a -m "Attributes of %s: %s, have been updated in trial: %s. Attributes: %s"' % (entityType, entityName, trialName, attrMap))
             else:
                 if trialJSON is None:
-                    trialJSON = self.getTrialJSON(trialName)
+                    trialJSON = self.getTrialJSON_from_execution(trialName)
 
                 for i, entityJSON in enumerate(trialJSON['Entities']):
                     if entityJSON['Name'] == entityName and entityJSON['entityType'] == entityType:
@@ -324,7 +329,7 @@ class ExperimentJSON(AbstractExperiment):
         :param name:
         :return:
         """
-        trialJSON = self.getTrialJSON(trialName)
+        trialJSON = self.getTrialJSON_from_execution(trialName)
         for entityJSON in trialJSON['Entities']:
             entityTypeHome = getattr(self._home, '%sHome' % entityJSON['entityType'].lower())
             entityProxy = entityTypeHome.createProxy(entityJSON['Name'])
@@ -404,6 +409,11 @@ class ExperimentJSON(AbstractExperiment):
 
 
 class ExperimentGQL(AbstractExperiment):
+    """
+        Gets the experiment configuration from the
+        argosWeb server using graphQL.
+
+    """
 
     _expConf = None
     _gqlDL = None
@@ -413,6 +423,24 @@ class ExperimentGQL(AbstractExperiment):
     @property
     def experimentName(self):
         return self._expConf['name']
+    
+    @property
+    def tbHome(self):
+
+        if self._tbh is None:
+            tb_config = self._expConf['thingsboard']
+            self._tbh = tb.tbHome(tb_config)
+
+
+        return self._tbh
+
+    @property
+    def gqDL(self):
+        return self._gqlDL
+
+    @property
+    def experiment(self):
+        return self.gqDL.getExperimentByName(self.experimentName)
 
     def __init__(self, expConf: Union[str, dict]):
         """
@@ -428,39 +456,54 @@ class ExperimentGQL(AbstractExperiment):
         gql_config = expConf['graphql']
         self._gqlDL = GQLDataLayer(url=gql_config['url'], token=gql_config['token'])
 
-        tb_config = expConf['thingsboard']
-        self._tbh = tb.tbHome(tb_config)
-        
+
         self._windowsDict = {deviceType: list(self._expConf['kafka']['consumers'][deviceType]['processes'].keys()) for deviceType in self._expConf['kafka']['consumers'].keys()}
 
     def setup(self):
-        devices = self._gqlDL.getThingsboardSetupConf(experimentName=self.experimentName)
+        devices = self._gqlDL.getExperimentDevices(experimentName=self.experimentName)
         for deviceDict in devices:
             deviceName = deviceDict['deviceName']
             deviceType = deviceDict['deviceTypeName']
             windows = self._windowsDict[deviceType]
-            self._tbh.deviceHome.createProxy(deviceName, deviceType)
+            self.tbHome.deviceHome.createProxy(deviceName, deviceType)
             for window in windows:
                 windowDeviceName = f'{deviceName}_{window}s'
                 windowDeviceType = f'calculated_{deviceType}'
-                self._tbh.deviceHome.createProxy(windowDeviceName, windowDeviceType)
+                self.tbHome.deviceHome.createProxy(windowDeviceName, windowDeviceType)
 
-    def loadTrial(self, trialSetName: str, trialName: str, trialType: str = 'deploy'):
-        devices = self._gqlDL.getThingsboardTrialLoadConf(self.experimentName, trialSetName, trialName, trialType)
+    def createTrialDevicesThingsboard(self, trialSetName: str, trialName: str, trialType: str = 'deploy'):
+
+        devices = self.glDL.getThingsboardTrialLoadConf(self.experimentName, trialSetName, trialName, trialType)
         for deviceDict in devices:
             windows = self._windowsDict[deviceDict['deviceTypeName']]
-            deviceProxy = self._tbh.deviceHome.createProxy(deviceDict['deviceName'])
+            deviceProxy = self.tbHome.deviceHome.createProxy(deviceDict['deviceName'])
             for attributeKey, attributeValue in deviceDict['attributes'].items():
                 deviceProxy.delAttributes(attributeKey)
                 deviceProxy.setAttributes(deviceDict['attributes'])
                 for window in windows:
                     windowDeviceName = f'{deviceDict["deviceName"]}_{window}s'
-                    windowDeviceProxy = self._tbh.deviceHome.createProxy(windowDeviceName)
+                    windowDeviceProxy = self.tbHome.deviceHome.createProxy(windowDeviceName)
                     windowDeviceProxy.delAttributes(attributeKey)
                     windowDeviceProxy.setAttributes(deviceDict['attributes'])
 
-    def loadTrialFromDesign(self, trialSetName: str, trialName: str):
+    def loadTrialDesignToTBF(self, trialSetName: str, trialName: str):
         self.loadTrial(trialSetName, trialName, 'design')
 
-    def loadTrialFromDelpoy(self, trialSetName: str, trialName: str):
+    def loadTrialDeployToTBF(self, trialSetName: str, trialName: str):
         self.loadTrial(trialSetName, trialName, 'deploy')
+
+
+    def dumpExperimentDevices(self,experimentName):
+        """
+            Writes the devices and the properties to a file.
+
+        :return:
+            None
+        """
+        devices = self.experiment.devices[['deviceTypeName', 'deviceName']]
+        devicesJSON = [devices.loc[key].to_dict() for key in devices.index]
+
+
+        with open(f"{experimentName}.json", 'w') as outputFile:
+            outputFile.write(json.dumps(devicesJSON, indent=4, sort_keys=True))
+

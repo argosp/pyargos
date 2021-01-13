@@ -37,8 +37,8 @@ class DeviceApiControllerApi(object):
         """getDeviceAttributes  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_device_attributes_using_get(device_token, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_device_attributes_using_get(device_token, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -60,8 +60,8 @@ class DeviceApiControllerApi(object):
         """getDeviceAttributes  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_device_attributes_using_get_with_http_info(device_token, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_device_attributes_using_get_with_http_info(device_token, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -132,7 +132,7 @@ class DeviceApiControllerApi(object):
             files=local_var_files,
             response_type='DeferredResultResponseEntity',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -142,8 +142,8 @@ class DeviceApiControllerApi(object):
         """postDeviceAttributes  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.post_device_attributes_using_post(device_token, json, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.post_device_attributes_using_post(device_token, json, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -164,8 +164,8 @@ class DeviceApiControllerApi(object):
         """postDeviceAttributes  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.post_device_attributes_using_post_with_http_info(device_token, json, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.post_device_attributes_using_post_with_http_info(device_token, json, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -237,7 +237,7 @@ class DeviceApiControllerApi(object):
             files=local_var_files,
             response_type='DeferredResultResponseEntity',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -247,8 +247,8 @@ class DeviceApiControllerApi(object):
         """postRpcRequest  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.post_rpc_request_using_post(device_token, json, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.post_rpc_request_using_post(device_token, json, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -269,8 +269,8 @@ class DeviceApiControllerApi(object):
         """postRpcRequest  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.post_rpc_request_using_post_with_http_info(device_token, json, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.post_rpc_request_using_post_with_http_info(device_token, json, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -342,7 +342,7 @@ class DeviceApiControllerApi(object):
             files=local_var_files,
             response_type='DeferredResultResponseEntity',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -352,8 +352,8 @@ class DeviceApiControllerApi(object):
         """postTelemetry  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.post_telemetry_using_post(device_token, json, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.post_telemetry_using_post(device_token, json, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -374,8 +374,8 @@ class DeviceApiControllerApi(object):
         """postTelemetry  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.post_telemetry_using_post_with_http_info(device_token, json, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.post_telemetry_using_post_with_http_info(device_token, json, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -447,7 +447,7 @@ class DeviceApiControllerApi(object):
             files=local_var_files,
             response_type='DeferredResultResponseEntity',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -457,8 +457,8 @@ class DeviceApiControllerApi(object):
         """replyToCommand  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.reply_to_command_using_post(device_token, request_id, json, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.reply_to_command_using_post(device_token, request_id, json, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -480,8 +480,8 @@ class DeviceApiControllerApi(object):
         """replyToCommand  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.reply_to_command_using_post_with_http_info(device_token, request_id, json, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.reply_to_command_using_post_with_http_info(device_token, request_id, json, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -560,7 +560,7 @@ class DeviceApiControllerApi(object):
             files=local_var_files,
             response_type='DeferredResultResponseEntity',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -570,8 +570,8 @@ class DeviceApiControllerApi(object):
         """subscribeToAttributes  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.subscribe_to_attributes_using_get(device_token, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.subscribe_to_attributes_using_get(device_token, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -592,8 +592,8 @@ class DeviceApiControllerApi(object):
         """subscribeToAttributes  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.subscribe_to_attributes_using_get_with_http_info(device_token, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.subscribe_to_attributes_using_get_with_http_info(device_token, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -661,7 +661,7 @@ class DeviceApiControllerApi(object):
             files=local_var_files,
             response_type='DeferredResultResponseEntity',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -671,8 +671,8 @@ class DeviceApiControllerApi(object):
         """subscribeToCommands  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.subscribe_to_commands_using_get(device_token, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.subscribe_to_commands_using_get(device_token, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -693,8 +693,8 @@ class DeviceApiControllerApi(object):
         """subscribeToCommands  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.subscribe_to_commands_using_get_with_http_info(device_token, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.subscribe_to_commands_using_get_with_http_info(device_token, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -762,7 +762,7 @@ class DeviceApiControllerApi(object):
             files=local_var_files,
             response_type='DeferredResultResponseEntity',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),

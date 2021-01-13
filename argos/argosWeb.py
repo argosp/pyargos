@@ -52,7 +52,7 @@ class GQLDataLayer:
             expDesc['id'] = id
             self._experimentsDict[id] = dict(desc=expDesc, client=self._client)
 
-    def getExperiment(self, experimentId: str):
+    def getExperimentByID(self, experimentId: str):
         """
         Gets an Experiment object of a specific experiment by id
 
@@ -71,20 +71,8 @@ class GQLDataLayer:
         :return: Experiment object
         """
         experimentId = self.experiments.query(f"name=='{experimentName}'").index[0]
-        experiment = self.getExperiment(experimentId=experimentId)
+        experiment = self.getExperimentByID(experimentId=experimentId)
         return experiment
-
-    def getThingsboardSetupConf(self, experimentName: str):
-        """
-        Gets the thingsboard setup configuration.
-        Its usage is for the setup of the devices in thingsboard.
-
-        :param experimentName: The experiment name
-        :return: dict
-        """
-        experiment = self.getExperimentByName(experimentName=experimentName)
-        devices = experiment.devices[['deviceTypeName', 'deviceName']]
-        return [devices.loc[key].to_dict() for key in devices.index]
 
     def getThingsboardTrialLoadConf(self, experimentName: str, trialSetName: str, trialName: str, trialType: str = 'deploy'):
         """
@@ -129,7 +117,7 @@ class GQLDataLayer:
             with open(configFile, 'r') as myFile:
                 configFile = json.load(myFile)
 
-        devicesList = self.getThingsboardSetupConf(experimentName=experimentName)
+        devicesList = self.getExperimentDevices(experimentName=experimentName)
         for deviceDict in devicesList:
             deviceName = deviceDict['deviceName']
             deviceType = deviceDict['deviceTypeName']
@@ -332,6 +320,7 @@ class Experiment:
         trialSetKey = self.trialSets.query(f'name=="{trialSetName}"').index[0]
         trialSet = self.getTrialSet(trialSetKey=trialSetKey)
         return trialSet
+
 
 
 class TrialSet:

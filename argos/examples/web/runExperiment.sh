@@ -1,13 +1,13 @@
 # Experiment configuration example can be found in this directory as expConf.json
 
 # Experiment setup
-python argos-experiment.py --expConf {The experiment configuration} --setup
+python argos-experiment-web.py --expConf {The experiment configuration} --setup
 
 # Trial load
-python argos-experiment.py --expConf {The experiment configuration} --load {trial set name} {trial name}
+python argos-experiment-web.py --expConf {The experiment configuration} --load {trial set name} {trial name}
 
 # Run consumers
-python argos-experiment.py --expConf {The experiment configuration} --runConsumers {default folder for saving data}
+python argos-experiment-web.py --expConf {The experiment configuration} --runConsumers {default folder for saving data}
 
 # Finalize (Updating the database documents desc with the information from the trials)
-python argos-exeperiment.py --expConf {The experiments configuration} --finalize
+python argos-exeperiment-web.py --expConf {The experiments configuration} --finalize

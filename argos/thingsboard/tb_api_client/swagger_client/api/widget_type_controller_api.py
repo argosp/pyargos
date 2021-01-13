@@ -37,8 +37,8 @@ class WidgetTypeControllerApi(object):
         """deleteWidgetType  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_widget_type_using_delete(widget_type_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_widget_type_using_delete(widget_type_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -58,8 +58,8 @@ class WidgetTypeControllerApi(object):
         """deleteWidgetType  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_widget_type_using_delete_with_http_info(widget_type_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_widget_type_using_delete_with_http_info(widget_type_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -124,7 +124,7 @@ class WidgetTypeControllerApi(object):
             files=local_var_files,
             response_type=None,  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -134,8 +134,8 @@ class WidgetTypeControllerApi(object):
         """getBundleWidgetTypes  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_bundle_widget_types_using_get(is_system, bundle_alias, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_bundle_widget_types_using_get(is_system, bundle_alias, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -156,8 +156,8 @@ class WidgetTypeControllerApi(object):
         """getBundleWidgetTypes  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_bundle_widget_types_using_get_with_http_info(is_system, bundle_alias, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_bundle_widget_types_using_get_with_http_info(is_system, bundle_alias, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -229,7 +229,7 @@ class WidgetTypeControllerApi(object):
             files=local_var_files,
             response_type='list[WidgetType]',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -239,8 +239,8 @@ class WidgetTypeControllerApi(object):
         """getWidgetTypeById  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_widget_type_by_id_using_get(widget_type_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_widget_type_by_id_using_get(widget_type_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -260,8 +260,8 @@ class WidgetTypeControllerApi(object):
         """getWidgetTypeById  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_widget_type_by_id_using_get_with_http_info(widget_type_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_widget_type_by_id_using_get_with_http_info(widget_type_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -326,7 +326,7 @@ class WidgetTypeControllerApi(object):
             files=local_var_files,
             response_type='WidgetType',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -336,8 +336,8 @@ class WidgetTypeControllerApi(object):
         """getWidgetType  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_widget_type_using_get(is_system, bundle_alias, alias, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_widget_type_using_get(is_system, bundle_alias, alias, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -359,8 +359,8 @@ class WidgetTypeControllerApi(object):
         """getWidgetType  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_widget_type_using_get_with_http_info(is_system, bundle_alias, alias, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_widget_type_using_get_with_http_info(is_system, bundle_alias, alias, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -439,7 +439,7 @@ class WidgetTypeControllerApi(object):
             files=local_var_files,
             response_type='WidgetType',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -449,8 +449,8 @@ class WidgetTypeControllerApi(object):
         """saveWidgetType  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_widget_type_using_post(widget_type, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_widget_type_using_post(widget_type, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -470,8 +470,8 @@ class WidgetTypeControllerApi(object):
         """saveWidgetType  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_widget_type_using_post_with_http_info(widget_type, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_widget_type_using_post_with_http_info(widget_type, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -536,7 +536,7 @@ class WidgetTypeControllerApi(object):
             files=local_var_files,
             response_type='WidgetType',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),

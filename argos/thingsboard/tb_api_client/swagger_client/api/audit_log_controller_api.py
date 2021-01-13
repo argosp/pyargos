@@ -37,8 +37,8 @@ class AuditLogControllerApi(object):
         """getAuditLogsByCustomerId  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_audit_logs_by_customer_id_using_get(customer_id, limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_audit_logs_by_customer_id_using_get(customer_id, limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -63,8 +63,8 @@ class AuditLogControllerApi(object):
         """getAuditLogsByCustomerId  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_audit_logs_by_customer_id_using_get_with_http_info(customer_id, limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_audit_logs_by_customer_id_using_get_with_http_info(customer_id, limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -148,7 +148,7 @@ class AuditLogControllerApi(object):
             files=local_var_files,
             response_type='TimePageDataAuditLog',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -158,8 +158,8 @@ class AuditLogControllerApi(object):
         """getAuditLogsByEntityId  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_audit_logs_by_entity_id_using_get(entity_type, entity_id, limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_audit_logs_by_entity_id_using_get(entity_type, entity_id, limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -185,8 +185,8 @@ class AuditLogControllerApi(object):
         """getAuditLogsByEntityId  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_audit_logs_by_entity_id_using_get_with_http_info(entity_type, entity_id, limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_audit_logs_by_entity_id_using_get_with_http_info(entity_type, entity_id, limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -277,7 +277,7 @@ class AuditLogControllerApi(object):
             files=local_var_files,
             response_type='TimePageDataAuditLog',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -287,8 +287,8 @@ class AuditLogControllerApi(object):
         """getAuditLogsByUserId  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_audit_logs_by_user_id_using_get(user_id, limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_audit_logs_by_user_id_using_get(user_id, limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -313,8 +313,8 @@ class AuditLogControllerApi(object):
         """getAuditLogsByUserId  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_audit_logs_by_user_id_using_get_with_http_info(user_id, limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_audit_logs_by_user_id_using_get_with_http_info(user_id, limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -398,7 +398,7 @@ class AuditLogControllerApi(object):
             files=local_var_files,
             response_type='TimePageDataAuditLog',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -408,8 +408,8 @@ class AuditLogControllerApi(object):
         """getAuditLogs  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_audit_logs_using_get(limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_audit_logs_using_get(limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -433,8 +433,8 @@ class AuditLogControllerApi(object):
         """getAuditLogs  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_audit_logs_using_get_with_http_info(limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_audit_logs_using_get_with_http_info(limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -511,7 +511,7 @@ class AuditLogControllerApi(object):
             files=local_var_files,
             response_type='TimePageDataAuditLog',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),

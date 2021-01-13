@@ -37,8 +37,8 @@ class AssetControllerApi(object):
         """assignAssetToCustomer  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.assign_asset_to_customer_using_post(customer_id, asset_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.assign_asset_to_customer_using_post(customer_id, asset_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -59,8 +59,8 @@ class AssetControllerApi(object):
         """assignAssetToCustomer  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.assign_asset_to_customer_using_post_with_http_info(customer_id, asset_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.assign_asset_to_customer_using_post_with_http_info(customer_id, asset_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -132,7 +132,7 @@ class AssetControllerApi(object):
             files=local_var_files,
             response_type='Asset',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -142,8 +142,8 @@ class AssetControllerApi(object):
         """assignAssetToPublicCustomer  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.assign_asset_to_public_customer_using_post(asset_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.assign_asset_to_public_customer_using_post(asset_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -163,8 +163,8 @@ class AssetControllerApi(object):
         """assignAssetToPublicCustomer  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.assign_asset_to_public_customer_using_post_with_http_info(asset_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.assign_asset_to_public_customer_using_post_with_http_info(asset_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -229,7 +229,7 @@ class AssetControllerApi(object):
             files=local_var_files,
             response_type='Asset',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -239,8 +239,8 @@ class AssetControllerApi(object):
         """deleteAsset  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_asset_using_delete(asset_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_asset_using_delete(asset_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -260,8 +260,8 @@ class AssetControllerApi(object):
         """deleteAsset  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_asset_using_delete_with_http_info(asset_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_asset_using_delete_with_http_info(asset_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -326,7 +326,7 @@ class AssetControllerApi(object):
             files=local_var_files,
             response_type=None,  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -336,8 +336,8 @@ class AssetControllerApi(object):
         """findByQuery  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.find_by_query_using_post(query, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.find_by_query_using_post(query, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -357,8 +357,8 @@ class AssetControllerApi(object):
         """findByQuery  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.find_by_query_using_post_with_http_info(query, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.find_by_query_using_post_with_http_info(query, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -423,7 +423,7 @@ class AssetControllerApi(object):
             files=local_var_files,
             response_type='list[Asset]',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -433,8 +433,8 @@ class AssetControllerApi(object):
         """getAssetById  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_asset_by_id_using_get(asset_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_asset_by_id_using_get(asset_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -454,8 +454,8 @@ class AssetControllerApi(object):
         """getAssetById  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_asset_by_id_using_get_with_http_info(asset_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_asset_by_id_using_get_with_http_info(asset_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -520,7 +520,7 @@ class AssetControllerApi(object):
             files=local_var_files,
             response_type='Asset',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -530,8 +530,8 @@ class AssetControllerApi(object):
         """getAssetTypes  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_asset_types_using_get(async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_asset_types_using_get(asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -550,8 +550,8 @@ class AssetControllerApi(object):
         """getAssetTypes  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_asset_types_using_get_with_http_info(async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_asset_types_using_get_with_http_info(asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -609,7 +609,7 @@ class AssetControllerApi(object):
             files=local_var_files,
             response_type='list[EntitySubtype]',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -619,8 +619,8 @@ class AssetControllerApi(object):
         """getAssetsByIds  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_assets_by_ids_using_get(asset_ids, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_assets_by_ids_using_get(asset_ids, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -640,8 +640,8 @@ class AssetControllerApi(object):
         """getAssetsByIds  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_assets_by_ids_using_get_with_http_info(asset_ids, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_assets_by_ids_using_get_with_http_info(asset_ids, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -706,7 +706,7 @@ class AssetControllerApi(object):
             files=local_var_files,
             response_type='list[Asset]',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -716,8 +716,8 @@ class AssetControllerApi(object):
         """getCustomerAssets  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_customer_assets_using_get(customer_id, limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_customer_assets_using_get(customer_id, limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -742,8 +742,8 @@ class AssetControllerApi(object):
         """getCustomerAssets  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_customer_assets_using_get_with_http_info(customer_id, limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_customer_assets_using_get_with_http_info(customer_id, limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -827,7 +827,7 @@ class AssetControllerApi(object):
             files=local_var_files,
             response_type='TextPageDataAsset',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -837,8 +837,8 @@ class AssetControllerApi(object):
         """getTenantAsset  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_tenant_asset_using_get(asset_name, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_tenant_asset_using_get(asset_name, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -858,8 +858,8 @@ class AssetControllerApi(object):
         """getTenantAsset  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_tenant_asset_using_get_with_http_info(asset_name, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_tenant_asset_using_get_with_http_info(asset_name, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -924,7 +924,7 @@ class AssetControllerApi(object):
             files=local_var_files,
             response_type='Asset',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -934,8 +934,8 @@ class AssetControllerApi(object):
         """getTenantAssets  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_tenant_assets_using_get(limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_tenant_assets_using_get(limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -959,8 +959,8 @@ class AssetControllerApi(object):
         """getTenantAssets  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_tenant_assets_using_get_with_http_info(limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_tenant_assets_using_get_with_http_info(limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1037,7 +1037,7 @@ class AssetControllerApi(object):
             files=local_var_files,
             response_type='TextPageDataAsset',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -1047,8 +1047,8 @@ class AssetControllerApi(object):
         """saveAsset  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_asset_using_post(asset, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_asset_using_post(asset, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1068,8 +1068,8 @@ class AssetControllerApi(object):
         """saveAsset  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_asset_using_post_with_http_info(asset, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_asset_using_post_with_http_info(asset, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1134,7 +1134,7 @@ class AssetControllerApi(object):
             files=local_var_files,
             response_type='Asset',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -1144,8 +1144,8 @@ class AssetControllerApi(object):
         """unassignAssetFromCustomer  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.unassign_asset_from_customer_using_delete(asset_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.unassign_asset_from_customer_using_delete(asset_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1165,8 +1165,8 @@ class AssetControllerApi(object):
         """unassignAssetFromCustomer  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.unassign_asset_from_customer_using_delete_with_http_info(asset_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.unassign_asset_from_customer_using_delete_with_http_info(asset_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1231,7 +1231,7 @@ class AssetControllerApi(object):
             files=local_var_files,
             response_type='Asset',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),

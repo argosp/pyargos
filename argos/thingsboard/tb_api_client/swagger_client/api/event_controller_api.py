@@ -37,8 +37,8 @@ class EventControllerApi(object):
         """getEvents  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_events_using_get(entity_type, entity_id, event_type, tenant_id, limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_events_using_get(entity_type, entity_id, event_type, tenant_id, limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -66,8 +66,8 @@ class EventControllerApi(object):
         """getEvents  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_events_using_get_with_http_info(entity_type, entity_id, event_type, tenant_id, limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_events_using_get_with_http_info(entity_type, entity_id, event_type, tenant_id, limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -172,7 +172,7 @@ class EventControllerApi(object):
             files=local_var_files,
             response_type='TimePageDataEvent',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -182,8 +182,8 @@ class EventControllerApi(object):
         """getEvents  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_events_using_get1(entity_type, entity_id, tenant_id, limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_events_using_get1(entity_type, entity_id, tenant_id, limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -210,8 +210,8 @@ class EventControllerApi(object):
         """getEvents  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_events_using_get1_with_http_info(entity_type, entity_id, tenant_id, limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_events_using_get1_with_http_info(entity_type, entity_id, tenant_id, limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -309,7 +309,7 @@ class EventControllerApi(object):
             files=local_var_files,
             response_type='TimePageDataEvent',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
