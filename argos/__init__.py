@@ -1,9 +1,9 @@
 __version__ = '0.1.0'
 
 # from argos.old.reports.report import abstractReport,andClause
-from .experimentManagement import ExperimentJSON, ExperimentGQL
-from .thingsboard.tbHome import tbHome
-from .argosWeb import GQLDataLayer
+#from .manager import ExperimentJSON, ExperimentGQL
+#from .thingsboard.tbHome import tbHome
+from .datalayer.argosWebDatalayer import GQLDataLayerFactory
 
 
 """

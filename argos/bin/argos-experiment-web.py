@@ -1,9 +1,8 @@
 #! /usr/bin/env python
 import json
 import argparse
-from argos import ExperimentGQL, GQLDataLayer
-from argos.kafka import ConsumersHandler
-import os
+from argos import ExperimentGQL, GQLDataLayerFactory
+from argos.old.kafka import ConsumersHandler
 from hera import datalayer
 
 parser = argparse.ArgumentParser()
@@ -29,7 +28,7 @@ elif args.action[0] =="load":
     ExperimentGQL(expConf=expConf).loadTrial(args.load[0], args.load[1])
 elif args.action[0]=="runConsumers":
     graphqlConf = expConf['graphql']
-    gqlDL = GQLDataLayer(graphqlConf['url'], graphqlConf['token'])
+    gqlDL = GQLDataLayerFactory(graphqlConf['url'], graphqlConf['token'])
     experimentName = expConf['name']
     consumersConf = expConf['kafka']['consumers']
     ConsumersHandler(projectName=experimentName,
@@ -40,7 +39,7 @@ elif args.action[0]=="runConsumers":
                      ).run()
 elif args.action[0]=="finalize":
     graphqlConf = expConf['graphql']
-    gqlDL = GQLDataLayer(graphqlConf['url'], graphqlConf['token'])
+    gqlDL = GQLDataLayerFactory(graphqlConf['url'], graphqlConf['token'])
     experimentName = expConf['name']
     finalizeConf = gqlDL.getFinalizeConf(experimentName=experimentName)
     for deviceName, deviceDesc in finalizeConf.items():

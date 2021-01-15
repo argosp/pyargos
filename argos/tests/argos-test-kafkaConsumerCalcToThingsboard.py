@@ -4,7 +4,7 @@ from kafka import KafkaConsumer
 import argparse
 import json
 import logging
-from argos.kafka import pandasDataFrameSerializer, toPandasDeserializer
+from argos.old.kafka import pandasDataFrameSerializer, toPandasDeserializer
 from hera import meteo
 
 

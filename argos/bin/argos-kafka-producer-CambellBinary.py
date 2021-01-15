@@ -6,7 +6,7 @@ from kafka import KafkaProducer
 import time
 import pandas
 from hera import meteo
-from argos.kafka import pandasSeriesSerializer
+from argos.old.kafka import pandasSeriesSerializer
 from multiprocessing import Pool
 
 

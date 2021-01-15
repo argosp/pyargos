@@ -4,7 +4,7 @@ from kafka import KafkaConsumer
 import argparse
 import json
 import logging
-from argos.kafka import toThingsboardDeserializer
+from argos.old.kafka import toThingsboardDeserializer
 
 
 parser = argparse.ArgumentParser()

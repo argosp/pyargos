@@ -2,7 +2,7 @@ import os
 from collections.abc import Iterable
 from itertools import zip_longest
 
-from argos.experimentManagement import ExperimentJSON
+from argos.manager import ExperimentJSON
 
 
 def andClause(excludelist =[],**filters):

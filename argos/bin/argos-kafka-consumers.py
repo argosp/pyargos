@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 import argparse
-from argos.kafka import ConsumersHandler
+from argos.old.kafka import ConsumersHandler
 import os
 import json
 
