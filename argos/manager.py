@@ -1,3 +1,4 @@
+import os
 import json
 from . import thingsboard as tb
 from .datalayer.argosWebDatalayer import GQLDataLayerFactory
@@ -7,9 +8,13 @@ from typing import Union
 class ExperimentManager:
 
     _expConf = None
-    _experimentDatalayer = None
+    _experiment = None
     _tbh = None
     _windowsDict = None
+
+    @property
+    def experimentConfigurationPath(self):
+        return self._expConf['experimentConfigurationPath']
 
     @property
     def experimentName(self):
@@ -26,17 +31,16 @@ class ExperimentManager:
         return self._tbh
 
     @property
-    def datalayer(self):
-        return self._experimentDatalayer
-
-    @property
     def experiment(self):
-        return self.experiment.getExperimentByName(self.experimentName)
+        return self._experiment
 
-    def __init__(self, expConf: Union[str, dict]):
+    def __init__(self, datalayerCLS, expConf):
         """
 
-        :param expConf: The experiment configuration
+        :param datalayer: Datalayer class
+                Either argosWeb or JSON datalayer.
+        :param expConf : str, file or JSON
+                The configuration file.
         """
 
         if type(expConf) is str:
@@ -45,22 +49,64 @@ class ExperimentManager:
         self._expConf = expConf
 
         gql_config = expConf['graphql']
-        self._experimentDatalayer = GQLDataLayerFactory(url=gql_config['url'], token=gql_config['token'])
+        self._experiment = GQLDataLayerFactory(experimentConfiguration=expConf).experiment
 
+        self._windowsDict = expConf['analysis']
 
-        self._windowsDict = {deviceType: list(self._expConf['kafka']['consumers'][deviceType]['processes'].keys()) for deviceType in self._expConf['kafka']['consumers'].keys()}
+    def setupExperiment(self):
+        """
+            1. Create the devices in Thingsboard.
+            2. Get the credentials and add the to the device list.
 
-    def setup(self):
-        devices = self._experimentDatalayer.getExperimentDevices(experimentName=self.experimentName)
+        :return:
+        """
+
+        pathToDeviceFile = os.path.abspath(self.experimentConfigurationPath)
+
+        devices = self._experiment.getExperimentDevices()
+        deviceList,computationDeviceList = self._loadToThingsboard(devices)
+
+        with open(os.path.join(pathToDeviceFile,"devices.json"),"w") as outFile:
+            outFile.write(json.dumps(deviceList, indent=4, sort_keys=True))
+
+        with open(os.path.join(pathToDeviceFile,"computationalDevices.json"),"w") as outFile:
+            outFile.write(json.dumps(computationDeviceList, indent=4, sort_keys=True))
+
+        return deviceList
+
+    def _loadToThingsboard(self,devices : list):
+        """
+            Create all the computed devices in the TB
+
+        :param deviceDict: list
+                The list of  {'deviceName': <device Name>, 'deviceTypeName': <device Type>}
+
+        :return: tuple
+                * list of devices with the credentials, adds the windowed devices as well.
+                * list of computed devices.
+
+        """
+        deviceList = []
+        computationDeviceList = []
         for deviceDict in devices:
             deviceName = deviceDict['deviceName']
             deviceType = deviceDict['deviceTypeName']
             windows = self._windowsDict[deviceType]
-            self.tbHome.deviceHome.createProxy(deviceName, deviceType)
+            #dvceProxy = self.tbHome.deviceHome.createProxy(deviceName, deviceType)
+            #deviceDict['credentials'] = dvceProxy.getCredentials()
+
+            deviceList.append(dict(deviceDict))
             for window in windows:
                 windowDeviceName = f'{deviceName}_{window}s'
                 windowDeviceType = f'calculated_{deviceType}'
-                self.tbHome.deviceHome.createProxy(windowDeviceName, windowDeviceType)
+                dvceProxy = self.tbHome.deviceHome.createProxy(windowDeviceName, windowDeviceType)
+                newdevice = dict(deviceName=windowDeviceName,deviceTypeName=windowDeviceType,credentials=dvceProxy.getCredentials())
+
+                computationDeviceList.append(newdevice)
+
+        return deviceList,computationDeviceList
+
+
 
     def createTrialDevicesThingsboard(self, trialSetName: str, trialName: str, trialType: str = 'deploy'):
 

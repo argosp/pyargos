@@ -205,10 +205,6 @@ class Experiment:
         else:
             return self._deviceTypesDict[item]
 
-    @property
-    def devices(self):
-        devicesDfList = []
-
 
     def __init__(self, desc: dict, client: Client):
         """
@@ -254,8 +250,6 @@ class Experiment:
         for trialset in result:
             self._trialSetsDict[trialset['name']] = TrialSet(experiment=self, metadata=trialset)
 
-
-
     def _initDeviceTypes(self):
         query = '''
         {
@@ -279,7 +273,6 @@ class Experiment:
 
         for deviceType in result:
             self._deviceTypesDict[deviceType['name']] = DeviceType(experiment=self,metadata = deviceType)
-
 
     def toJSON(self,allData=True):
         """
@@ -314,6 +307,24 @@ class Experiment:
         :return: dict
                 The dict
         """
+        pass
+
+    def getExperimentDevices(self):
+        """
+            Returns the list of all the devices
+
+        :return: dict
+            Return a list of the devices.
+        """
+
+        retList = []
+
+        for devicetypeName, deviceTypeObj in self._deviceTypesDict.items():
+            for deviceName in deviceTypeObj.devices():
+                retList.append(dict(deviceName=deviceName,deviceTypeName=devicetypeName))
+
+        return retList
+
 
 
 class TrialSet:
@@ -648,6 +659,10 @@ class DeviceType:
             return self._devicesDict.keys()
         else:
             return self._devicesDict[name]
+
+
+    def __getitem__(self, item):
+        return self._devicesDict[item]
 
     def __init__(self, experiment: Experiment, metadata: dict):
         """
