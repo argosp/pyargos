@@ -10,7 +10,7 @@ class CassandraBag:
     def __init__(self, deviceID, IP='127.0.0.1', db_name='thingsboard', set_name='ts_kv_cf'):
         """
 
-        :param IP: The IP of the cassandra host
+        :param IP: The IP of the noSQLdask host
         :param db_name: The name of the database
         :param set_name: The name of the data's table
         :param deviceID: The ID of the device

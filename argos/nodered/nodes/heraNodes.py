@@ -1,6 +1,8 @@
 import os
+import json
 import pandas
 import dask.dataframe as dd
+import pandas
 from pynodered import node_red, NodeProperty
 
 @node_red(category="argos",
@@ -41,6 +43,7 @@ def to_parquet(node,msgList):
         partitionaFields = node.fileNameField.value.split(",")
 
 
+
     df = pandas.DataFrame(msgList['payload'])
     df[timestampField] = df[timestampField].astype('datetime64[ns]')
 
@@ -49,7 +52,6 @@ def to_parquet(node,msgList):
            .assign(year=df.timestamp.apply(lambda x: x.year))
 
     df = df.set_index("timestamp")
-
 
     if node.fileNameField.value =="":
 
@@ -67,3 +69,27 @@ def to_parquet(node,msgList):
 
 
 
+@node_red(category="argos",
+          properties=dict(ProjectName=NodeProperty("Project Name", value="")
+                          )
+          )
+def analysis(node, msg):
+
+    deviceData = json.loads(msg['payload']['value'])
+
+    print(f"analysis {deviceData}")
+
+    strt = (pandas.Timestamp(deviceData["timestamp"],unit="ms",tz="israel") - pandas.to_timedelta(f"{deviceData['interval']}s"))
+    endtme = pandas.Timestamp(deviceData["timestamp"],unit="ms",tz="israel")
+
+    data = pandas.read_parquet(f"/home/yehuda/Projects/2021/NTA/data/{deviceData['device']}.parquet")
+
+    windowData = data[strt.tz_localize(None):endtme.tz_localize(None)]
+    cnt = windowData.groupby('deviceName').count()
+    if cnt.shape[0] > 0:
+        print(f"{strt} [----> {endtme}", cnt.iloc[0])
+
+    #print(f"{deviceData['device']} ===> {data.index.min()} [-] {data.index.max()} window {strt} [-] {endtme} -> {windowData['deviceName'].count()}")
+
+
+    return msg

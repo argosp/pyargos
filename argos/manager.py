@@ -18,7 +18,7 @@ class ExperimentManager:
 
     @property
     def experimentName(self):
-        return self._expConf['name']
+        return self._expConf['experimentName']
     
     @property
     def tbHome(self):
@@ -33,6 +33,7 @@ class ExperimentManager:
     @property
     def experiment(self):
         return self._experiment
+
 
     def __init__(self, datalayerCLS, expConf):
         """
@@ -57,6 +58,7 @@ class ExperimentManager:
         """
             1. Create the devices in Thingsboard.
             2. Get the credentials and add the to the device list.
+            3. Create the Hera documents (if Hera exists).
 
         :return:
         """
@@ -65,6 +67,8 @@ class ExperimentManager:
 
         devices = self._experiment.getExperimentDevices()
         deviceList,computationDeviceList = self._loadToThingsboard(devices)
+
+        self._loadToHera()
 
         with open(os.path.join(pathToDeviceFile,"devices.json"),"w") as outFile:
             outFile.write(json.dumps(deviceList, indent=4, sort_keys=True))
@@ -106,6 +110,66 @@ class ExperimentManager:
 
         return deviceList,computationDeviceList
 
+    def _loadToHera(self):
+        """
+            Creates the documents for the computational and raw data.
+
+            the data is written in directory 'data'.
+
+        :return:
+        """
+        try:
+            from hera.datalayer import Measurements
+            from hera.datalayer import datatypes
+
+            for devicetype in self.experiment.deviceType():
+                windowsList = self._windowsDict[devicetype]
+
+                dataPath = os.path.join(os.path.abspath("."),"data")
+
+                # rawData
+                docList = Measurements.getDocuments(projectName=self.experimentName,
+                                                    type='rawData',
+                                                    deviceType=devicetype)
+
+
+                if len(docList)==0:
+
+                    Measurements.addDocument(projectName=self.experimentName,
+                                              dataFormat=datatypes.PARQUET,
+                                              type='rawData',
+                                              resource=os.path.join(dataPath, f"{devicetype}.parquet"),
+                                              desc=dict(experimentName=self.experimentName,
+                                                        deviceType=devicetype)
+
+                                              )
+                # --------------------------
+                # For now we don't need the computations.
+                # we can calculate them simply from the real data.
+                #
+                #
+                # for window in windowsList:
+                #     docList = Measurements.getDocuments(projectName=self.experimentName,
+                #                                         type='rawData',
+                #                                         deviceType=devicetype,
+                #                                         window=window)
+                #
+                #     if len(docList)==0:
+                #         Measurements.addDocument(projectName=self.experimentName,
+                #                                  dataFormat=datatypes.PARQUET,
+                #                                  type='computationalData',
+                #                                  resource=os.path.join(dataPath, f"{devicetype}_{window}.parquet"),
+                #                                  desc=dict(experimentName=self.experimentName,
+                #                                            deviceType=devicetype,
+                #                                            window=window)
+                #
+                #                                  )
+
+
+
+
+        except ImportError:
+            print("Hera is not found. Cannot create the documents.")
 
 
     def createTrialDevicesThingsboard(self, trialSetName: str, trialName: str, trialType: str = 'deploy'):

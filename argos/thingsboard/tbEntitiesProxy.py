@@ -1,7 +1,7 @@
 from .tb_api_client.swagger_client import Asset, EntityId, Device,  EntityRelation, EntityId
 from .tb_api_client.swagger_client.rest import ApiException
 
-from ..cassandra import CassandraBag
+from ..noSQLdask import CassandraBag
 
 import pandas
 import json
