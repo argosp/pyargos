@@ -21,12 +21,12 @@ class MongoBag:
     def timestamp_field(self):
         return self._timestamp_field
 
-    def __init__(self,db_name, collection_name,datetimeField="timestamp",**qry):
+    def __init__(self,db_name, collection_name,datetimeField="timestamp"):
         self._db_name = db_name
         self._collection_name = collection_name
         self._timestamp_field  = datetimeField
 
-    def bag(self, start_time, end_time, periods: int = 10 ,freq : str =None):
+    def bag(self, start_time, end_time, periods: int = 10 ,freq : str =None,**qry):
 
         start_time = pandas.to_datetime(start_time)
         end_time   = pandas.to_datetime(end_time)
@@ -41,8 +41,8 @@ class MongoBag:
 
     def read_datetime_interval_from_collection(self, args,**qry):
 
-        start_ts = args[0].strftime("%Y-%-m-%d %H:%-M:%-S.%f")
-        end_ts   = args[1].strftime("%Y-%-m-%d %H:%-M:%-S.%f")
+        start_ts = args[0].strftime("%Y-%-m-%-d %-H:%-M:%-S.%f")
+        end_ts   = args[1].strftime("%Y-%-m-%-d %-H:%-M:%-S.%f")
 
         full_qry = {self._timestamp_field: {'$gte': start_ts, '$lte': end_ts}}
         full_qry.update(qry)

@@ -68,28 +68,3 @@ def to_parquet(node,msgList):
             saveParquetToFile(filename,new_dask)
 
 
-
-@node_red(category="argos",
-          properties=dict(ProjectName=NodeProperty("Project Name", value="")
-                          )
-          )
-def analysis(node, msg):
-
-    deviceData = json.loads(msg['payload']['value'])
-
-    print(f"analysis {deviceData}")
-
-    strt = (pandas.Timestamp(deviceData["timestamp"],unit="ms",tz="israel") - pandas.to_timedelta(f"{deviceData['interval']}s"))
-    endtme = pandas.Timestamp(deviceData["timestamp"],unit="ms",tz="israel")
-
-    data = pandas.read_parquet(f"/home/yehuda/Projects/2021/NTA/data/{deviceData['device']}.parquet")
-
-    windowData = data[strt.tz_localize(None):endtme.tz_localize(None)]
-    cnt = windowData.groupby('deviceName').count()
-    if cnt.shape[0] > 0:
-        print(f"{strt} [----> {endtme}", cnt.iloc[0])
-
-    #print(f"{deviceData['device']} ===> {data.index.min()} [-] {data.index.max()} window {strt} [-] {endtme} -> {windowData['deviceName'].count()}")
-
-
-    return msg
