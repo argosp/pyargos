@@ -1,64 +1,50 @@
 from gql import gql, Client
 from gql.transport.aiohttp import AIOHTTPTransport
-from .abstractDatalayer import abstractDatalayerFactory
-
 import pandas
 import json
-import os
-from typing import Union
 
-
-class GQLDataLayerFactory(abstractDatalayerFactory):
+class webExperimentHome:
     """
-        The configuration
+        Manages the experiment trials from the web.
 
-        also include:
+        Getting the data from the WEB:
 
-        "graphql": {
-            "url": "...",
-            "token": "..."
-        }
-
+        - The list of experiments.
+        - Get the experiment Object that manages a specific experiment.
 
     """
     _client = None
-    _experiment = None
 
-    @property
-    def experiment(self):
-        return self._experiment
-
-    @property
-    def argosWebConfiguration(self):
-        return self._configuration['graphql']
-
-    def __init__(self, experimentConfiguration: Union[str, dict]):
+    def __init__(self, url: str, token: str):
         """
 
-        A data layer to get information from the graphql server
-
-        :param url: The url of the graphql server
-        :param authorization: the authorization token
+        url: str
+            The url of the server.
+        token: str
+            The token to access the server.
         """
-
-        super().__init__(experimentConfiguration)
-
-        url = self.argosWebConfiguration['url']
-        token = self.argosWebConfiguration['token']
-
         headers = None if token=='' else dict(authorization=token)
         transport = AIOHTTPTransport(url=url, headers=headers)
         self._client = Client(transport=transport, fetch_schema_from_transport=True)
 
-        experimentDict = self.listExperiments().query(f"name=='{self.experimentName}'").reset_index().iloc[0].to_dict()
-        self._experiment = Experiment(desc=experimentDict,client=self._client)
+        # experimentDict = self.listExperiments().query(f"name=='{self.experimentName}'").reset_index().iloc[0].to_dict()
+        # self._experiment = Experiment(desc=experimentDict,client=self._client)
 
 
-    def getExperiment(self):
-        return self._experiment
+    def getExperiment(self,experimentName):
+        experimentDict = self.listExperiments().query(f"name=='{experimentName}'").reset_index().iloc[0].to_dict()
+        return Experiment(desc=experimentDict,client=self._client)
 
-    def listExperiments(self):
+    def listExperiments(self,returnPandas=True):
         """
+            Lists all the experiments in the server.
+
+        Parameters:
+        -----------
+
+        pandas: bool
+            if True return the experiment as a pandas,
+            else return the result as JSON
 
         :return:
         """
@@ -73,104 +59,33 @@ class GQLDataLayerFactory(abstractDatalayerFactory):
         }
         '''
         result = self._client.execute(gql(query))['experiments']
-        return pandas.DataFrame(result).set_index('id') if result else pandas.DataFrame()
+        if returnPandas:
+            return pandas.DataFrame(result).set_index('id') if result else pandas.DataFrame()
+        else:
+            return result
 
-    #
-    # def getThingsboardTrialLoadConf(self, experimentName: str, trialSetName: str, trialName: str, trialType: str = 'deploy'):
-    #     """
-    #     Gets the thingsboard trial loading configuration
-    #     Its usage is for the load of the relevant attributes of the devices in thingsboard.
-    #
-    #     :param experimentName: The experiment name
-    #     :param trialSetName: The trial set name
-    #     :param trialName: The trial name
-    #     :param trialType: 'design'/'deploy'
-    #     :return: dict
-    #     """
-    #     assert(trialType in ['design', 'deploy'])
-    #     experiment = self.getExperimentByName(experimentName=experimentName)
-    #     trialSet = experiment.getTrialSetByName(trialSetName=trialSetName)
-    #     trial = trialSet.getTrialByName(trialName=trialName)
-    #     if trialType == 'deploy':
-    #         devices = trial.deployedEntities
-    #     else:
-    #         devices = trial.entities
-    #     devicesList = []
-    #     for deviceKey in devices.index:
-    #         deviceDict = {}
-    #         deviceDict.update(devices[['deviceName', 'deviceTypeName']].loc[deviceKey].to_dict())
-    #         deviceDict['attributes'] = devices.drop(columns=['deviceName', 'deviceTypeName', 'deviceTypeKey']
-    #                                                 ).loc[deviceKey].dropna().to_dict()
-    #         devicesList.append(deviceDict)
-    #     return devicesList
-    #
-    # def getKafkaConsumersConf(self, experimentName: str, configFile: Union[str, dict]):
-    #     """
-    #     Gets the kafka consumers configuration.
-    #     Its usage is for the run of the kafka consumers (processes).
-    #
-    #     :param experimentName: The experiment name
-    #     :param configFile: The config json/dict for this function.
-    #     :return:
-    #     """
-    #     consumersConf = {}
-    #
-    #     if type(configFile) is str:
-    #         with open(configFile, 'r') as myFile:
-    #             configFile = json.load(myFile)
-    #
-    #     devicesList = self.getExperimentDevices(experimentName=experimentName)
-    #     for deviceDict in devicesList:
-    #         deviceName = deviceDict['deviceName']
-    #         deviceType = deviceDict['deviceTypeName']
-    #         deviceTypeConfig = configFile[deviceType]
-    #         slide = deviceTypeConfig['slide']
-    #         toParquet = deviceTypeConfig['toParquet']
-    #         consumersConf[deviceName] = dict(slideWindow=slide, processesConfig={"None":{toParquet[0]: toParquet[1]}})
-    #         processes = deviceTypeConfig['processes']
-    #         calcDeviceName = f'{deviceName}-calc'
-    #         consumersConf[calcDeviceName] = dict(processesConfig=processes)
-    #         for window in processes:
-    #             windowDeviceName = f'{deviceName}-{window}-{slide}'
-    #             consumersConf[windowDeviceName] = dict(processesConfig={"None": {"argos.kafka.processes.to_thingsboard": {}}})
-    #     return consumersConf
-    #
-    # def getFinalizeConf(self, experimentName: str):
-    #     """
-    #     Gets the finalize configuration.
-    #     Its usage is for the update of the devices attributes in the
-    #
-    #     :param experimentName:
-    #     :return:
-    #     """
-    #     experiment = self.getExperimentByName(experimentName=experimentName)
-    #     devicesDescDict = {}
-    #     for trialSetName in experiment.trialSets['name']:
-    #         trialSet = experiment.getTrialSetByName(trialSetName=trialSetName)
-    #         for trialName in trialSet.trials['name']:
-    #             deployed_df = self.getThingsboardTrialLoadConf(experimentName=experimentName,
-    #                                                            trialSetName=trialSetName,
-    #                                                            trialName=trialName
-    #                                                            )
-    #             for deviceDict in deployed_df:
-    #                 deviceName = deviceDict['deviceName']
-    #                 deviceType = deviceDict['deviceTypeName']
-    #                 attributes = deviceDict['attributes']
-    #                 currentDeviceDesc = devicesDescDict.setdefault(deviceName, {'deviceName': deviceName,
-    #                                                                             'deviceType': deviceType
-    #                                                                             }
-    #                                                                )
-    #                 currentDeviceDesc[f'{trialName}_attributes'] = attributes
-    #     return devicesDescDict
+    def __getitem__(self, item):
+        self.getExperiment(experimentName=item)
+
+    def keys(self):
+        """
+            Return the list of experiment names.
+        """
+        return self.listExperiments()['name']
 
 
 class Experiment:
-    _desc = None
-    _trialSets = None
-    _trialSetsDict = None
+    """
+        Interface to the WEB experiment object.
 
-    _deviceTypesDict = None
-    _client = None
+    """
+
+    _desc = None            # experiment description holds its name, descrition and ect.
+
+    _trialSetsDict = None   # A dictionary of the trial sets.
+    _deviceTypesDict = None # A dictionary of the devices types.
+
+    _client = None          # The client of the connection to the WEB.
 
 
     @property
@@ -193,17 +108,18 @@ class Experiment:
     def status(self):
         return self._desc['status']
 
-    def trialSet(self,item :str = None ):
-        if item is None:
-            return self._trialSetsDict.keys()
-        else:
-            return self._trialSetsDict[item]
 
-    def deviceType(self,item:str = None):
-        if item is None:
-            return self._deviceTypesDict.keys()
-        else:
-            return self._deviceTypesDict[item]
+    def trialSetList(self):
+        return self._trialSetsDict.keys()
+
+    def trialSet(self,item :str):
+        return self._trialSetsDict[item]
+
+    def deviceTypeList(self):
+        return self._deviceTypesDict.keys()
+
+    def deviceType(self,item:str):
+        return self._deviceTypesDict[item]
 
 
     def __init__(self, desc: dict, client: Client):
@@ -316,7 +232,6 @@ class Experiment:
         :return: dict
             Return a list of the devices.
         """
-
         retList = []
 
         for devicetypeName, deviceTypeObj in self._deviceTypesDict.items():
@@ -326,8 +241,11 @@ class Experiment:
         return retList
 
 
-
 class TrialSet:
+    """
+        Interface to the web trial set object.
+
+    """
     _experiment = None
     _metadata = None
 
@@ -437,6 +355,10 @@ class TrialSet:
 
 
 class Trial:
+    """
+        Interface to the WEB trials.
+
+    """
 
     _trialSet = None
     _metadata = None
@@ -491,6 +413,27 @@ class Trial:
             return self._properties
         else:
             return self._properties[name]
+
+    def __init__(self, trialSet: TrialSet, metadata : dict):
+        """
+        Trial object contains information on a specific trial
+
+        Parameters
+        ----------
+
+        experiment: The experiment object
+        trialSet: The trial set object
+        desc: A dictionary with information on the trial
+        client: GraphQL client
+        """
+        self._trialSet = trialSet
+        self._metadata = metadata
+        propertiesPandas = pandas.DataFrame(metadata['properties']).set_index('key')
+
+        properties = propertiesPandas.merge(trialSet.properties, left_index=True, right_index=True)[['val', 'type', 'label', 'description']]\
+                                     .set_index("label")
+
+        self._properties = dict([(key, data['val']) for key, data in properties.T.to_dict().items()])
 
 
     @property
@@ -591,24 +534,6 @@ class Trial:
     def __getitem__(self, item):
         return self._properties.loc[item].val
 
-    def __init__(self, trialSet: TrialSet, metadata : dict):
-        """
-        Trial object contains information on a specific trial
-
-        :param experiment: The experiment object
-        :param trialSet: The trial set object
-        :param desc: A dictionary with information on the trial
-        :param client: GraphQL client
-        """
-        self._trialSet = trialSet
-        self._metadata = metadata
-        propertiesPandas = pandas.DataFrame(metadata['properties']).set_index('key')
-
-        properties = propertiesPandas.merge(trialSet.properties, left_index=True, right_index=True)[['val', 'type', 'label', 'description']]\
-                                     .set_index("label")
-
-        self._properties = dict([(key, data['val']) for key, data in properties.T.to_dict().items()])
-
 
 class DeviceType:
     _experiment = None
@@ -699,7 +624,6 @@ class DeviceType:
             self._devicesDict[device['name']] = Device(deviceType=self,metadata=device)
 
 
-
 class Device:
 
     _deviceType = None
@@ -769,3 +693,93 @@ class Device:
                                      .set_index("label")
 
         self._properties = dict([(key, data['val']) for key, data in properties.T.to_dict().items()])
+
+
+
+    #
+    # def getThingsboardTrialLoadConf(self, experimentName: str, trialSetName: str, trialName: str, trialType: str = 'deploy'):
+    #     """
+    #     Gets the thingsboard trial loading configuration
+    #     Its usage is for the load of the relevant attributes of the devices in thingsboard.
+    #
+    #     :param experimentName: The experiment name
+    #     :param trialSetName: The trial set name
+    #     :param trialName: The trial name
+    #     :param trialType: 'design'/'deploy'
+    #     :return: dict
+    #     """
+    #     assert(trialType in ['design', 'deploy'])
+    #     experiment = self.getExperimentByName(experimentName=experimentName)
+    #     trialSet = experiment.getTrialSetByName(trialSetName=trialSetName)
+    #     trial = trialSet.getTrialByName(trialName=trialName)
+    #     if trialType == 'deploy':
+    #         devices = trial.deployedEntities
+    #     else:
+    #         devices = trial.entities
+    #     devicesList = []
+    #     for deviceKey in devices.index:
+    #         deviceDict = {}
+    #         deviceDict.update(devices[['deviceName', 'deviceTypeName']].loc[deviceKey].to_dict())
+    #         deviceDict['attributes'] = devices.drop(columns=['deviceName', 'deviceTypeName', 'deviceTypeKey']
+    #                                                 ).loc[deviceKey].dropna().to_dict()
+    #         devicesList.append(deviceDict)
+    #     return devicesList
+    #
+    # def getKafkaConsumersConf(self, experimentName: str, configFile: Union[str, dict]):
+    #     """
+    #     Gets the kafka consumers configuration.
+    #     Its usage is for the run of the kafka consumers (processes).
+    #
+    #     :param experimentName: The experiment name
+    #     :param configFile: The config json/dict for this function.
+    #     :return:
+    #     """
+    #     consumersConf = {}
+    #
+    #     if type(configFile) is str:
+    #         with open(configFile, 'r') as myFile:
+    #             configFile = json.load(myFile)
+    #
+    #     devicesList = self.getExperimentDevices(experimentName=experimentName)
+    #     for deviceDict in devicesList:
+    #         deviceName = deviceDict['deviceName']
+    #         deviceType = deviceDict['deviceTypeName']
+    #         deviceTypeConfig = configFile[deviceType]
+    #         slide = deviceTypeConfig['slide']
+    #         toParquet = deviceTypeConfig['toParquet']
+    #         consumersConf[deviceName] = dict(slideWindow=slide, processesConfig={"None":{toParquet[0]: toParquet[1]}})
+    #         processes = deviceTypeConfig['processes']
+    #         calcDeviceName = f'{deviceName}-calc'
+    #         consumersConf[calcDeviceName] = dict(processesConfig=processes)
+    #         for window in processes:
+    #             windowDeviceName = f'{deviceName}-{window}-{slide}'
+    #             consumersConf[windowDeviceName] = dict(processesConfig={"None": {"argos.kafka.processes.to_thingsboard": {}}})
+    #     return consumersConf
+    #
+    # def getFinalizeConf(self, experimentName: str):
+    #     """
+    #     Gets the finalize configuration.
+    #     Its usage is for the update of the devices attributes in the
+    #
+    #     :param experimentName:
+    #     :return:
+    #     """
+    #     experiment = self.getExperimentByName(experimentName=experimentName)
+    #     devicesDescDict = {}
+    #     for trialSetName in experiment.trialSets['name']:
+    #         trialSet = experiment.getTrialSetByName(trialSetName=trialSetName)
+    #         for trialName in trialSet.trials['name']:
+    #             deployed_df = self.getThingsboardTrialLoadConf(experimentName=experimentName,
+    #                                                            trialSetName=trialSetName,
+    #                                                            trialName=trialName
+    #                                                            )
+    #             for deviceDict in deployed_df:
+    #                 deviceName = deviceDict['deviceName']
+    #                 deviceType = deviceDict['deviceTypeName']
+    #                 attributes = deviceDict['attributes']
+    #                 currentDeviceDesc = devicesDescDict.setdefault(deviceName, {'deviceName': deviceName,
+    #                                                                             'deviceType': deviceType
+    #                                                                             }
+    #                                                                )
+    #                 currentDeviceDesc[f'{trialName}_attributes'] = attributes
+    #     return devicesDescDict

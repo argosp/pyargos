@@ -1,12 +1,14 @@
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
-# from argos.old.reports.report import abstractReport,andClause
-#from .manager import ExperimentJSON, ExperimentGQL
-#from .thingsboard.tbHome import tbHome
-from .datalayer.argosWebDatalayer import GQLDataLayerFactory
 
 
 """
+Version 0.2.0
+-------------
+
+* Refactoring the graphQL interface  
+* Removed the report 
+
 Version 0.1.0
 -------------
 * Added graphQL interface

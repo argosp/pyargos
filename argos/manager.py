@@ -1,33 +1,75 @@
 import os
 import json
 from . import thingsboard as tb
-from .datalayer.argosWebDatalayer import GQLDataLayerFactory
-
-from typing import Union
+from .experimentSetup import getExperimentSetup
 
 class ExperimentManager:
+    """
+        Manages the experiment.
 
-    _expConf = None
+        Provides interface to work with experiment setup (either file or web).
+
+        contains the:
+
+        - Interface to the experiment setup (from experimentSetup package)
+        - Interface to the Thingsboard (TB).
+        - Provides information on the shadow (computed) devices and their time window for operation.
+
+        The structure of the configuration file:
+
+        {
+
+          "thingsboard": {
+            "login": {
+              "username": "...",
+              "password": "..."
+            },
+            "server": {
+              "ip": "127.0.0.1",
+              "port": "8080"
+            }
+          },
+        "analysis": {
+            <deviceName> : [list averaging windows (in sec)],
+        }
+
+        In addition, the definition of the experiment setup is given by:
+
+        "web": {
+            "experimentName" : ....
+            "url": "...",
+            "token": "..."
+          },
+
+        or
+
+        "file": {
+            "configurationFile": "...",
+          },
+    """
+
+    _configuration = None
     _experiment = None
     _tbh = None
     _windowsDict = None
 
     @property
-    def experimentConfigurationPath(self):
-        return self._expConf['experimentConfigurationPath']
+    def configuration(self):
+        return self._configuration
+
+    @property
+    def deviceAveragingWindows(self):
+        return self._configuration['analysis']
 
     @property
     def experimentName(self):
-        return self._expConf['experimentName']
+        return self._configuration['experimentName']
     
     @property
     def tbHome(self):
-
         if self._tbh is None:
-            tb_config = self._expConf['thingsboard']
+            tb_config = self._configuration['thingsboard']
             self._tbh = tb.tbHome(tb_config)
-
-
         return self._tbh
 
     @property
@@ -35,24 +77,33 @@ class ExperimentManager:
         return self._experiment
 
 
-    def __init__(self, datalayerCLS, expConf):
+    def __init__(self, experimentConfiguration,datalayerType):
         """
+            Initializes the experiment manager
 
-        :param datalayer: Datalayer class
-                Either argosWeb or JSON datalayer.
-        :param expConf : str, file or JSON
+        Parameters
+        ----------
+        experimentConfiguration : str, file or JSON
                 The configuration file.
+
+        datalayerType : str
+            Either   WEB,FILE
         """
+        if isinstance(experimentConfiguration,str):
+            if os.path.exists(experimentConfiguration):
+                with open(experimentConfiguration,'r')  as inputFile:
+                    self._configuration = json.load(inputFile)
+            else:
+                try:
+                    self._configuration = json.load(experimentConfiguration)
+                except json.JSONDecodeError:
+                    raise ValueError("input must be a JSON file, JSON string or a JSON object")
 
-        if type(expConf) is str:
-            with open(expConf, 'r') as myFile:
-                expConf = json.load(myFile)
-        self._expConf = expConf
+        else:
+            self._configuration = experimentConfiguration
 
-        gql_config = expConf['graphql']
-        self._experiment = GQLDataLayerFactory(experimentConfiguration=expConf).experiment
+        self._experiment = getExperimentSetup(datalayerType,**self._configuration[datalayerType])
 
-        self._windowsDict = expConf['analysis']
 
     def setupExperiment(self):
         """
@@ -65,7 +116,7 @@ class ExperimentManager:
 
         pathToDeviceFile = os.path.abspath(self.experimentConfigurationPath)
 
-        devices = self._experiment.getExperimentDevices()
+        devices = self.experiment.getExperimentDevices()
         deviceList,computationDeviceList = self._loadToThingsboard(devices)
 
         self._loadToHera()
@@ -123,7 +174,6 @@ class ExperimentManager:
             from hera.datalayer import datatypes
 
             for devicetype in self.experiment.deviceType():
-                windowsList = self._windowsDict[devicetype]
 
                 dataPath = os.path.join(os.path.abspath("."),"data")
 
@@ -143,29 +193,6 @@ class ExperimentManager:
                                                         deviceType=devicetype)
 
                                               )
-                # --------------------------
-                # For now we don't need the computations.
-                # we can calculate them simply from the real data.
-                #
-                #
-                # for window in windowsList:
-                #     docList = Measurements.getDocuments(projectName=self.experimentName,
-                #                                         type='rawData',
-                #                                         deviceType=devicetype,
-                #                                         window=window)
-                #
-                #     if len(docList)==0:
-                #         Measurements.addDocument(projectName=self.experimentName,
-                #                                  dataFormat=datatypes.PARQUET,
-                #                                  type='computationalData',
-                #                                  resource=os.path.join(dataPath, f"{devicetype}_{window}.parquet"),
-                #                                  desc=dict(experimentName=self.experimentName,
-                #                                            deviceType=devicetype,
-                #                                            window=window)
-                #
-                #                                  )
-
-
 
 
         except ImportError:

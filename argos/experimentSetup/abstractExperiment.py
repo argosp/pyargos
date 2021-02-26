@@ -1,32 +1,18 @@
 import json
 import os
 
-class abstractDatalayerFactory:
+class abstractDatalayer:
     """
-    The structure of a configuration file:
 
-    {
-      "experimentName": "NTA",
-      "thingsboard": {
-        "login": {
-          "username": "...",
-          "password": "..."
-        },
-        "server": {
-          "ip": "127.0.0.1",
-          "port": "8080"
-        }
-      },
+        Abstract experimentSetup.
 
-    }
+        Holds the configuration and allows either string, file or dict configuration
+        as input.
 
+        The structure of the configuration
     """
 
     _configuration = None
-
-    @property
-    def experimentName(self):
-        return self._configuration['experimentName']
 
     @property
     def experimentConfiguration(self):
@@ -39,9 +25,11 @@ class abstractDatalayerFactory:
 
     def __init__(self,experimentConfiguration):
         """
-            Initializes the absrtact factory.
+            Initializes the abstract factory with the configuration file.
 
-        :param experimentConfiguration: str, json
+        Parameters
+        ----------
+        experimentConfiguration: str, json
                 Either filename or JSON string or a json object.
         """
         if isinstance(experimentConfiguration,str):
