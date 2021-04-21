@@ -1,5 +1,5 @@
 __version__ = '0.2.0'
-
+from .experimentSetup import WEB,FILE
 
 
 """

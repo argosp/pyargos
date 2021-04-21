@@ -23,7 +23,7 @@ def to_parquet(node,msgList):
                                 ignore_divisions=True,
                                 engine='fastparquet',
                                 partition_on=partitionaFields
-                                )
+                           )
         else:
 
             os.makedirs(filename, exist_ok=True)

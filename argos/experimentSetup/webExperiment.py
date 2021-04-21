@@ -15,6 +15,10 @@ class webExperimentHome:
     """
     _client = None
 
+    @property
+    def client(self):
+        return self._client
+
     def __init__(self, url: str, token: str):
         """
 
@@ -32,40 +36,119 @@ class webExperimentHome:
 
 
     def getExperiment(self,experimentName):
-        experimentDict = self.listExperiments().query(f"name=='{experimentName}'").reset_index().iloc[0].to_dict()
+        experimentDict = self.getExperimentDescriptor(experimentName)
         return Experiment(desc=experimentDict,client=self._client)
 
-    def listExperiments(self,returnPandas=True):
+    def listExperimentsDescriptions(self):
         """
-            Lists all the experiments in the server.
+            Returns a list of the experiment description as JSON (dict)
 
-        Parameters:
-        -----------
+            The structure of the dict:
 
-        pandas: bool
-            if True return the experiment as a pandas,
-            else return the result as JSON
+            * id: The id of the experiment in the server.
+            * project
+                            id
 
-        :return:
+            * name: The name of the experiment
+            * description: The description of the project
+            * begin:        The beginning of the experiment
+            * end:          The end of the experiment.
+            * numberOfTrials: The number of trial sets that are present in the
+            * maps: descirption of the maps (images) of the project
+                    {
+                    imageUrl
+                    imageName
+                    lower
+                    upper
+                    left
+                    right
+                    width
+                    height
+                    embedded
+                    }
+
+        Returns
+        -------
+            The list of experiment descriptions.
+
         """
         query = '''
-        {
-            experiments{
-                id
-                name
-                description
-                status
-            }
-        }
+                {
+                    experimentsWithData {
+                        name
+                        description
+                        begin
+                        end
+                        numberOfTrials
+                        project {
+                            id
+                        }                        
+                        maps {
+                            imageUrl
+                            imageName
+                            lower
+                            upper
+                            left
+                            right
+                            width
+                            height
+                            embedded
+                        }
+                    }
+                }
         '''
-        result = self._client.execute(gql(query))['experiments']
-        if returnPandas:
-            return pandas.DataFrame(result).set_index('id') if result else pandas.DataFrame()
-        else:
-            return result
+        return self._client.execute(gql(query))['experimentsWithData']
+
+    def getExperimentDescriptor(self,experimentName):
+        """
+            Returns the JSON (dict) descriptor of the requested expeiment.
+
+
+        Parameters
+        ----------
+
+        experimentName: str
+
+        Returns
+        -------
+            the dict that describes the experiment
+
+            id
+            name
+            description
+            begin
+            end
+            numberOfTrials
+            maps {
+                imageUrl
+                imageName
+                lower
+                upper
+                left
+                right
+                width
+                height
+                embedded
+            }
+
+        """
+        descs = self.listExperimentsDescriptions()
+
+        return [x for x in descs if x['name']==experimentName][0]
+
+
+    def listExperimentsNames(self):
+        """
+            Lists the names of all the experiments in the server.
+
+        Returns
+        -------
+            A list of experiment names.
+        """
+        return [x['name'] for x in self.listExperimentsDescriptions()]
 
     def __getitem__(self, item):
-        self.getExperiment(experimentName=item)
+        return self.getExperiment(experimentName=item)
 
     def keys(self):
         """
@@ -94,7 +177,8 @@ class Experiment:
 
     @property
     def id(self):
-        return self._desc['id']
+        ## DO NOT USE the self._desc['id']. It is not useful here.
+        return self._desc['project']['id']
 
     @property
     def name(self):
@@ -104,10 +188,6 @@ class Experiment:
     def description(self):
         return self._desc['description']
 
-    @property
-    def status(self):
-        return self._desc['status']
-
 
     def trialSetList(self):
         return self._trialSetsDict.keys()
@@ -115,19 +195,24 @@ class Experiment:
     def trialSet(self,item :str):
         return self._trialSetsDict[item]
 
-    def deviceTypeList(self):
-        return self._deviceTypesDict.keys()
-
-    def deviceType(self,item:str):
-        return self._deviceTypesDict[item]
+    @property
+    def deviceType(self):
+        return self._deviceTypesDict
 
 
     def __init__(self, desc: dict, client: Client):
         """
         Experiment object contains information on a specific experiment
 
-        :param desc: A dictionary with information on the experiment
-        :param client: GraphQL client
+        Parameters
+        -----------
+
+        desc: dict
+
+            A dictionary with information on the experiment
+
+        client: dict
+            GraphQL client
         """
 
         self._trialSetsDict = dict()
@@ -144,7 +229,6 @@ class Experiment:
         {
             trialSets(experimentId: "%s"){
                 key
-                id
                 name
                 description
                 numberOfTrials
@@ -161,6 +245,7 @@ class Experiment:
             }
         }
         ''' % self.id
+
         result = self._client.execute(gql(query))['trialSets']
 
         for trialset in result:
@@ -185,6 +270,9 @@ class Experiment:
             }
         }
         ''' % self.id
+
+        print(query)
+
         result = self._client.execute(gql(query))['deviceTypes']
 
         for deviceType in result:
@@ -585,6 +673,14 @@ class DeviceType:
         else:
             return self._devicesDict[name]
 
+    def keys(self):
+        return self._devicesDict.keys()
+
+    def values(self):
+        return self._devicesDict.values()
+
+    def items(self):
+        return self._devicesDict.items()
 
     def __getitem__(self, item):
         return self._devicesDict[item]
@@ -607,7 +703,6 @@ class DeviceType:
         {
             devices(experimentId: "%s", deviceTypeKey: "%s"){
                 key
-                id
                 name
                 deviceTypeKey
                 state
@@ -656,11 +751,7 @@ class Device:
     @property
     def deviceTypeKey(self):
         return self._desc['deviceTypeKey']
-    
-    @property
-    def state(self):
-        return self._desc['state']
-    
+
 
     def properties(self,item : str = None):
         if item is None:
@@ -693,6 +784,9 @@ class Device:
                                      .set_index("label")
 
         self._properties = dict([(key, data['val']) for key, data in properties.T.to_dict().items()])
+
+
+
 
 
 

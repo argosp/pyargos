@@ -1,7 +1,7 @@
 import os
 import json
 from . import thingsboard as tb
-from .experimentSetup import getExperimentSetup
+from .experimentSetup import getExperimentSetup,FILE,WEB
 
 class ExperimentManager:
     """
@@ -19,6 +19,14 @@ class ExperimentManager:
 
         {
 
+          "setupManager" : {
+            "web" : {
+
+            },
+            "file" : {
+
+            }
+          },
           "thingsboard": {
             "login": {
               "username": "...",
@@ -47,6 +55,7 @@ class ExperimentManager:
             "configurationFile": "...",
           },
     """
+
 
     _configuration = None
     _experiment = None
@@ -87,22 +96,25 @@ class ExperimentManager:
                 The configuration file.
 
         datalayerType : str
-            Either   WEB,FILE
+            Either   MANAGER_FILE or MANAGER_WEB constants.
         """
+        if datalayerType not in [FILE,WEB]:
+            raise ValueError(f"datalayerType must be either FILE or WEB constant defined in ExperimentManager. Got {datalayerType}")
+
         if isinstance(experimentConfiguration,str):
             if os.path.exists(experimentConfiguration):
                 with open(experimentConfiguration,'r')  as inputFile:
                     self._configuration = json.load(inputFile)
             else:
                 try:
-                    self._configuration = json.load(experimentConfiguration)
+                    self._configuration = json.loads(experimentConfiguration)
                 except json.JSONDecodeError:
                     raise ValueError("input must be a JSON file, JSON string or a JSON object")
 
         else:
             self._configuration = experimentConfiguration
 
-        self._experiment = getExperimentSetup(datalayerType,**self._configuration[datalayerType])
+        self._experiment = getExperimentSetup(datalayerType,**self._configuration['setupManager'][datalayerType])
 
 
     def setupExperiment(self):
