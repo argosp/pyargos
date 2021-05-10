@@ -37,8 +37,8 @@ class DashboardControllerApi(object):
         """addDashboardCustomers  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.add_dashboard_customers_using_post(dashboard_id, str_customer_ids, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.add_dashboard_customers_using_post(dashboard_id, str_customer_ids, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -59,8 +59,8 @@ class DashboardControllerApi(object):
         """addDashboardCustomers  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.add_dashboard_customers_using_post_with_http_info(dashboard_id, str_customer_ids, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.add_dashboard_customers_using_post_with_http_info(dashboard_id, str_customer_ids, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -132,7 +132,7 @@ class DashboardControllerApi(object):
             files=local_var_files,
             response_type='Dashboard',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -142,8 +142,8 @@ class DashboardControllerApi(object):
         """assignDashboardToCustomer  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.assign_dashboard_to_customer_using_post(customer_id, dashboard_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.assign_dashboard_to_customer_using_post(customer_id, dashboard_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -164,8 +164,8 @@ class DashboardControllerApi(object):
         """assignDashboardToCustomer  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.assign_dashboard_to_customer_using_post_with_http_info(customer_id, dashboard_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.assign_dashboard_to_customer_using_post_with_http_info(customer_id, dashboard_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -237,7 +237,7 @@ class DashboardControllerApi(object):
             files=local_var_files,
             response_type='Dashboard',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -247,8 +247,8 @@ class DashboardControllerApi(object):
         """assignDashboardToPublicCustomer  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.assign_dashboard_to_public_customer_using_post(dashboard_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.assign_dashboard_to_public_customer_using_post(dashboard_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -268,8 +268,8 @@ class DashboardControllerApi(object):
         """assignDashboardToPublicCustomer  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.assign_dashboard_to_public_customer_using_post_with_http_info(dashboard_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.assign_dashboard_to_public_customer_using_post_with_http_info(dashboard_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -334,7 +334,7 @@ class DashboardControllerApi(object):
             files=local_var_files,
             response_type='Dashboard',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -344,8 +344,8 @@ class DashboardControllerApi(object):
         """deleteDashboard  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_dashboard_using_delete(dashboard_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_dashboard_using_delete(dashboard_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -365,8 +365,8 @@ class DashboardControllerApi(object):
         """deleteDashboard  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_dashboard_using_delete_with_http_info(dashboard_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_dashboard_using_delete_with_http_info(dashboard_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -431,7 +431,7 @@ class DashboardControllerApi(object):
             files=local_var_files,
             response_type=None,  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -441,8 +441,8 @@ class DashboardControllerApi(object):
         """getCustomerDashboards  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_customer_dashboards_using_get(customer_id, limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_customer_dashboards_using_get(customer_id, limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -467,8 +467,8 @@ class DashboardControllerApi(object):
         """getCustomerDashboards  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_customer_dashboards_using_get_with_http_info(customer_id, limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_customer_dashboards_using_get_with_http_info(customer_id, limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -552,7 +552,7 @@ class DashboardControllerApi(object):
             files=local_var_files,
             response_type='TimePageDataDashboardInfo',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -562,8 +562,8 @@ class DashboardControllerApi(object):
         """getDashboardById  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_dashboard_by_id_using_get(dashboard_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_dashboard_by_id_using_get(dashboard_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -583,8 +583,8 @@ class DashboardControllerApi(object):
         """getDashboardById  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_dashboard_by_id_using_get_with_http_info(dashboard_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_dashboard_by_id_using_get_with_http_info(dashboard_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -649,7 +649,7 @@ class DashboardControllerApi(object):
             files=local_var_files,
             response_type='Dashboard',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -659,8 +659,8 @@ class DashboardControllerApi(object):
         """getDashboardInfoById  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_dashboard_info_by_id_using_get(dashboard_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_dashboard_info_by_id_using_get(dashboard_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -680,8 +680,8 @@ class DashboardControllerApi(object):
         """getDashboardInfoById  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_dashboard_info_by_id_using_get_with_http_info(dashboard_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_dashboard_info_by_id_using_get_with_http_info(dashboard_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -746,7 +746,7 @@ class DashboardControllerApi(object):
             files=local_var_files,
             response_type='DashboardInfo',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -756,8 +756,8 @@ class DashboardControllerApi(object):
         """getMaxDatapointsLimit  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_max_datapoints_limit_using_get(async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_max_datapoints_limit_using_get(asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -776,8 +776,8 @@ class DashboardControllerApi(object):
         """getMaxDatapointsLimit  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_max_datapoints_limit_using_get_with_http_info(async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_max_datapoints_limit_using_get_with_http_info(asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -835,7 +835,7 @@ class DashboardControllerApi(object):
             files=local_var_files,
             response_type='int',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -845,8 +845,8 @@ class DashboardControllerApi(object):
         """getServerTime  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_server_time_using_get(async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_server_time_using_get(asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -865,8 +865,8 @@ class DashboardControllerApi(object):
         """getServerTime  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_server_time_using_get_with_http_info(async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_server_time_using_get_with_http_info(asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -924,7 +924,7 @@ class DashboardControllerApi(object):
             files=local_var_files,
             response_type='int',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -934,8 +934,8 @@ class DashboardControllerApi(object):
         """getTenantDashboards  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_tenant_dashboards_using_get(limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_tenant_dashboards_using_get(limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -958,8 +958,8 @@ class DashboardControllerApi(object):
         """getTenantDashboards  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_tenant_dashboards_using_get_with_http_info(limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_tenant_dashboards_using_get_with_http_info(limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1033,7 +1033,7 @@ class DashboardControllerApi(object):
             files=local_var_files,
             response_type='TextPageDataDashboardInfo',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -1043,8 +1043,8 @@ class DashboardControllerApi(object):
         """getTenantDashboards  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_tenant_dashboards_using_get1(tenant_id, limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_tenant_dashboards_using_get1(tenant_id, limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1068,8 +1068,8 @@ class DashboardControllerApi(object):
         """getTenantDashboards  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_tenant_dashboards_using_get1_with_http_info(tenant_id, limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_tenant_dashboards_using_get1_with_http_info(tenant_id, limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1150,7 +1150,7 @@ class DashboardControllerApi(object):
             files=local_var_files,
             response_type='TextPageDataDashboardInfo',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -1160,8 +1160,8 @@ class DashboardControllerApi(object):
         """removeDashboardCustomers  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.remove_dashboard_customers_using_post(dashboard_id, str_customer_ids, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.remove_dashboard_customers_using_post(dashboard_id, str_customer_ids, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1182,8 +1182,8 @@ class DashboardControllerApi(object):
         """removeDashboardCustomers  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.remove_dashboard_customers_using_post_with_http_info(dashboard_id, str_customer_ids, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.remove_dashboard_customers_using_post_with_http_info(dashboard_id, str_customer_ids, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1255,7 +1255,7 @@ class DashboardControllerApi(object):
             files=local_var_files,
             response_type='Dashboard',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -1265,8 +1265,8 @@ class DashboardControllerApi(object):
         """saveDashboard  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_dashboard_using_post(dashboard, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_dashboard_using_post(dashboard, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1286,8 +1286,8 @@ class DashboardControllerApi(object):
         """saveDashboard  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_dashboard_using_post_with_http_info(dashboard, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_dashboard_using_post_with_http_info(dashboard, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1352,7 +1352,7 @@ class DashboardControllerApi(object):
             files=local_var_files,
             response_type='Dashboard',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -1362,8 +1362,8 @@ class DashboardControllerApi(object):
         """unassignDashboardFromCustomer  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.unassign_dashboard_from_customer_using_delete(customer_id, dashboard_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.unassign_dashboard_from_customer_using_delete(customer_id, dashboard_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1384,8 +1384,8 @@ class DashboardControllerApi(object):
         """unassignDashboardFromCustomer  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.unassign_dashboard_from_customer_using_delete_with_http_info(customer_id, dashboard_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.unassign_dashboard_from_customer_using_delete_with_http_info(customer_id, dashboard_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1457,7 +1457,7 @@ class DashboardControllerApi(object):
             files=local_var_files,
             response_type='Dashboard',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -1467,8 +1467,8 @@ class DashboardControllerApi(object):
         """unassignDashboardFromPublicCustomer  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.unassign_dashboard_from_public_customer_using_delete(dashboard_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.unassign_dashboard_from_public_customer_using_delete(dashboard_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1488,8 +1488,8 @@ class DashboardControllerApi(object):
         """unassignDashboardFromPublicCustomer  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.unassign_dashboard_from_public_customer_using_delete_with_http_info(dashboard_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.unassign_dashboard_from_public_customer_using_delete_with_http_info(dashboard_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1554,7 +1554,7 @@ class DashboardControllerApi(object):
             files=local_var_files,
             response_type='Dashboard',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -1564,8 +1564,8 @@ class DashboardControllerApi(object):
         """updateDashboardCustomers  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.update_dashboard_customers_using_post(dashboard_id, str_customer_ids, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.update_dashboard_customers_using_post(dashboard_id, str_customer_ids, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1586,8 +1586,8 @@ class DashboardControllerApi(object):
         """updateDashboardCustomers  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.update_dashboard_customers_using_post_with_http_info(dashboard_id, str_customer_ids, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.update_dashboard_customers_using_post_with_http_info(dashboard_id, str_customer_ids, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -1659,7 +1659,7 @@ class DashboardControllerApi(object):
             files=local_var_files,
             response_type='Dashboard',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),

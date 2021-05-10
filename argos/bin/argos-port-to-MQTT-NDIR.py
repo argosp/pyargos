@@ -1,20 +1,3 @@
-"""
-    Todo:
-    -----
-    1. change name to serverNDIR.
-    2. Read all the devices and fileter only NDIR
-    3. Create the clients for the NDIR (get credential).
-
-    4. Make a run.sh file with the execution of : spark and server.
-
-    5. Test (and test with writing from a remote computer).
-    
-    [Future]
-    5. Add logs.
-
-
-
-"""
 import errno
 import functools
 import socket
@@ -27,6 +10,8 @@ from argos import tbHome
 import tornado.ioloop
 from tornado.iostream import IOStream
 from multiprocessing.pool import ThreadPool
+import argparse
+
 
 _workers = ThreadPool(50)
 
@@ -92,10 +77,18 @@ def connection_ready(sock, fd, events):
 
 
 if __name__ == '__main__':
-    ## Test
-    with open('/home/yehudaa/Projects/2019/DesertWalls/experimentConfiguration.json') as credentialOpen:
-        credentialMap = json.load(credentialOpen)
-    tbh = tbHome(credentialMap["connection"])
+    ## configuration file is examples/web/expConf.json.
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--expConf", dest="expConf", help="The experiment configurations", required=True)
+
+
+    args = parser.parse_args()
+
+
+    with open(args.expConf, 'r') as myFile:
+        expConf = json.load(myFile)
+
+    tbh = tbHome(expConf ['thingsboard'])
 
     devicesNames = tbh.deviceHome.getAllEntitiesNameByType('NDIR')
 

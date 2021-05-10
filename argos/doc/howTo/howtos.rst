@@ -6,3 +6,4 @@ How to of the pyArgos system
    :caption: Contents:
 
    loadTrial
+   runConsumers

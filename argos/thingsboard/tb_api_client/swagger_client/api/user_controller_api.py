@@ -37,8 +37,8 @@ class UserControllerApi(object):
         """deleteUser  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_user_using_delete(user_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_user_using_delete(user_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -58,8 +58,8 @@ class UserControllerApi(object):
         """deleteUser  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_user_using_delete_with_http_info(user_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_user_using_delete_with_http_info(user_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -124,7 +124,7 @@ class UserControllerApi(object):
             files=local_var_files,
             response_type=None,  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -134,8 +134,8 @@ class UserControllerApi(object):
         """getActivationLink  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_activation_link_using_get(user_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_activation_link_using_get(user_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -155,8 +155,8 @@ class UserControllerApi(object):
         """getActivationLink  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_activation_link_using_get_with_http_info(user_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_activation_link_using_get_with_http_info(user_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -221,7 +221,7 @@ class UserControllerApi(object):
             files=local_var_files,
             response_type='str',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -231,8 +231,8 @@ class UserControllerApi(object):
         """getCustomerUsers  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_customer_users_using_get(customer_id, limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_customer_users_using_get(customer_id, limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -256,8 +256,8 @@ class UserControllerApi(object):
         """getCustomerUsers  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_customer_users_using_get_with_http_info(customer_id, limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_customer_users_using_get_with_http_info(customer_id, limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -338,7 +338,7 @@ class UserControllerApi(object):
             files=local_var_files,
             response_type='TextPageDataUser',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -348,8 +348,8 @@ class UserControllerApi(object):
         """getTenantAdmins  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_tenant_admins_using_get(tenant_id, limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_tenant_admins_using_get(tenant_id, limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -373,8 +373,8 @@ class UserControllerApi(object):
         """getTenantAdmins  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_tenant_admins_using_get_with_http_info(tenant_id, limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_tenant_admins_using_get_with_http_info(tenant_id, limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -455,7 +455,7 @@ class UserControllerApi(object):
             files=local_var_files,
             response_type='TextPageDataUser',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -465,8 +465,8 @@ class UserControllerApi(object):
         """getUserById  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_user_by_id_using_get(user_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_user_by_id_using_get(user_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -486,8 +486,8 @@ class UserControllerApi(object):
         """getUserById  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_user_by_id_using_get_with_http_info(user_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_user_by_id_using_get_with_http_info(user_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -552,7 +552,7 @@ class UserControllerApi(object):
             files=local_var_files,
             response_type='User',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -562,8 +562,8 @@ class UserControllerApi(object):
         """getUserToken  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_user_token_using_get(user_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_user_token_using_get(user_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -583,8 +583,8 @@ class UserControllerApi(object):
         """getUserToken  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_user_token_using_get_with_http_info(user_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_user_token_using_get_with_http_info(user_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -649,7 +649,7 @@ class UserControllerApi(object):
             files=local_var_files,
             response_type='str',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -659,8 +659,8 @@ class UserControllerApi(object):
         """isUserTokenAccessEnabled  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.is_user_token_access_enabled_using_get(async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.is_user_token_access_enabled_using_get(asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -679,8 +679,8 @@ class UserControllerApi(object):
         """isUserTokenAccessEnabled  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.is_user_token_access_enabled_using_get_with_http_info(async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.is_user_token_access_enabled_using_get_with_http_info(asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -738,7 +738,7 @@ class UserControllerApi(object):
             files=local_var_files,
             response_type='bool',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -748,8 +748,8 @@ class UserControllerApi(object):
         """saveUser  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_user_using_post(user, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_user_using_post(user, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -770,8 +770,8 @@ class UserControllerApi(object):
         """saveUser  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_user_using_post_with_http_info(user, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_user_using_post_with_http_info(user, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -839,7 +839,7 @@ class UserControllerApi(object):
             files=local_var_files,
             response_type='User',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -849,8 +849,8 @@ class UserControllerApi(object):
         """sendActivationEmail  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.send_activation_email_using_post(email, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.send_activation_email_using_post(email, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -870,8 +870,8 @@ class UserControllerApi(object):
         """sendActivationEmail  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.send_activation_email_using_post_with_http_info(email, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.send_activation_email_using_post_with_http_info(email, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -936,7 +936,7 @@ class UserControllerApi(object):
             files=local_var_files,
             response_type=None,  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),

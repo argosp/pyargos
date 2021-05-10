@@ -37,8 +37,8 @@ class WidgetsBundleControllerApi(object):
         """deleteWidgetsBundle  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_widgets_bundle_using_delete(widgets_bundle_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_widgets_bundle_using_delete(widgets_bundle_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -58,8 +58,8 @@ class WidgetsBundleControllerApi(object):
         """deleteWidgetsBundle  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_widgets_bundle_using_delete_with_http_info(widgets_bundle_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_widgets_bundle_using_delete_with_http_info(widgets_bundle_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -124,7 +124,7 @@ class WidgetsBundleControllerApi(object):
             files=local_var_files,
             response_type=None,  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -134,8 +134,8 @@ class WidgetsBundleControllerApi(object):
         """getWidgetsBundleById  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_widgets_bundle_by_id_using_get(widgets_bundle_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_widgets_bundle_by_id_using_get(widgets_bundle_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -155,8 +155,8 @@ class WidgetsBundleControllerApi(object):
         """getWidgetsBundleById  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_widgets_bundle_by_id_using_get_with_http_info(widgets_bundle_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_widgets_bundle_by_id_using_get_with_http_info(widgets_bundle_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -221,7 +221,7 @@ class WidgetsBundleControllerApi(object):
             files=local_var_files,
             response_type='WidgetsBundle',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -231,8 +231,8 @@ class WidgetsBundleControllerApi(object):
         """getWidgetsBundles  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_widgets_bundles_using_get(limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_widgets_bundles_using_get(limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -255,8 +255,8 @@ class WidgetsBundleControllerApi(object):
         """getWidgetsBundles  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_widgets_bundles_using_get_with_http_info(limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_widgets_bundles_using_get_with_http_info(limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -330,7 +330,7 @@ class WidgetsBundleControllerApi(object):
             files=local_var_files,
             response_type='TextPageDataWidgetsBundle',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -340,8 +340,8 @@ class WidgetsBundleControllerApi(object):
         """getWidgetsBundles  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_widgets_bundles_using_get1(async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_widgets_bundles_using_get1(asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -360,8 +360,8 @@ class WidgetsBundleControllerApi(object):
         """getWidgetsBundles  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_widgets_bundles_using_get1_with_http_info(async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_widgets_bundles_using_get1_with_http_info(asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -419,7 +419,7 @@ class WidgetsBundleControllerApi(object):
             files=local_var_files,
             response_type='list[WidgetsBundle]',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -429,8 +429,8 @@ class WidgetsBundleControllerApi(object):
         """saveWidgetsBundle  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_widgets_bundle_using_post(widgets_bundle, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_widgets_bundle_using_post(widgets_bundle, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -450,8 +450,8 @@ class WidgetsBundleControllerApi(object):
         """saveWidgetsBundle  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_widgets_bundle_using_post_with_http_info(widgets_bundle, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_widgets_bundle_using_post_with_http_info(widgets_bundle, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -516,7 +516,7 @@ class WidgetsBundleControllerApi(object):
             files=local_var_files,
             response_type='WidgetsBundle',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),

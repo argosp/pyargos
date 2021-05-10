@@ -37,8 +37,8 @@ class CustomerControllerApi(object):
         """deleteCustomer  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_customer_using_delete(customer_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_customer_using_delete(customer_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -58,8 +58,8 @@ class CustomerControllerApi(object):
         """deleteCustomer  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.delete_customer_using_delete_with_http_info(customer_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.delete_customer_using_delete_with_http_info(customer_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -124,7 +124,7 @@ class CustomerControllerApi(object):
             files=local_var_files,
             response_type=None,  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -134,8 +134,8 @@ class CustomerControllerApi(object):
         """getCustomerById  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_customer_by_id_using_get(customer_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_customer_by_id_using_get(customer_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -155,8 +155,8 @@ class CustomerControllerApi(object):
         """getCustomerById  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_customer_by_id_using_get_with_http_info(customer_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_customer_by_id_using_get_with_http_info(customer_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -221,7 +221,7 @@ class CustomerControllerApi(object):
             files=local_var_files,
             response_type='Customer',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -231,8 +231,8 @@ class CustomerControllerApi(object):
         """getCustomerTitleById  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_customer_title_by_id_using_get(customer_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_customer_title_by_id_using_get(customer_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -252,8 +252,8 @@ class CustomerControllerApi(object):
         """getCustomerTitleById  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_customer_title_by_id_using_get_with_http_info(customer_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_customer_title_by_id_using_get_with_http_info(customer_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -318,7 +318,7 @@ class CustomerControllerApi(object):
             files=local_var_files,
             response_type='str',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -328,8 +328,8 @@ class CustomerControllerApi(object):
         """getCustomers  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_customers_using_get(limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_customers_using_get(limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -352,8 +352,8 @@ class CustomerControllerApi(object):
         """getCustomers  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_customers_using_get_with_http_info(limit, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_customers_using_get_with_http_info(limit, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -427,7 +427,7 @@ class CustomerControllerApi(object):
             files=local_var_files,
             response_type='TextPageDataCustomer',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -437,8 +437,8 @@ class CustomerControllerApi(object):
         """getShortCustomerInfoById  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_short_customer_info_by_id_using_get(customer_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_short_customer_info_by_id_using_get(customer_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -458,8 +458,8 @@ class CustomerControllerApi(object):
         """getShortCustomerInfoById  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_short_customer_info_by_id_using_get_with_http_info(customer_id, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_short_customer_info_by_id_using_get_with_http_info(customer_id, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -524,7 +524,7 @@ class CustomerControllerApi(object):
             files=local_var_files,
             response_type='str',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -534,8 +534,8 @@ class CustomerControllerApi(object):
         """getTenantCustomer  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_tenant_customer_using_get(customer_title, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_tenant_customer_using_get(customer_title, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -555,8 +555,8 @@ class CustomerControllerApi(object):
         """getTenantCustomer  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_tenant_customer_using_get_with_http_info(customer_title, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_tenant_customer_using_get_with_http_info(customer_title, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -621,7 +621,7 @@ class CustomerControllerApi(object):
             files=local_var_files,
             response_type='Customer',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -631,8 +631,8 @@ class CustomerControllerApi(object):
         """saveCustomer  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_customer_using_post(customer, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_customer_using_post(customer, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -652,8 +652,8 @@ class CustomerControllerApi(object):
         """saveCustomer  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_customer_using_post_with_http_info(customer, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_customer_using_post_with_http_info(customer, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -718,7 +718,7 @@ class CustomerControllerApi(object):
             files=local_var_files,
             response_type='Customer',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),

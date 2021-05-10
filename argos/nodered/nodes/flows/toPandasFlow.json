@@ -1,0 +1,132 @@
+[
+  {
+    "id": "9d8098e9.c07c38",
+    "type": "tab",
+    "label": "Flow 1",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "bc6454ed.8f34b8",
+    "type": "tcp in",
+    "z": "9d8098e9.c07c38",
+    "name": "InPlace",
+    "server": "server",
+    "host": "",
+    "port": "5000",
+    "datamode": "stream",
+    "datatype": "buffer",
+    "newline": "",
+    "topic": "",
+    "base64": false,
+    "x": 160,
+    "y": 260,
+    "wires": [
+      [
+        "7c0fcbe5.dd3014"
+      ]
+    ]
+  },
+  {
+    "id": "fe9cd08e.f516f",
+    "type": "csv",
+    "z": "9d8098e9.c07c38",
+    "name": "",
+    "sep": ",",
+    "hdrin": "",
+    "hdrout": "none",
+    "multi": "one",
+    "ret": "\\n",
+    "temp": "deviceName,timestamp,value",
+    "skip": "0",
+    "strings": true,
+    "include_empty_strings": "",
+    "include_null_values": "",
+    "x": 510,
+    "y": 260,
+    "wires": [
+      [
+        "c572cc6d.a98e8"
+      ]
+    ]
+  },
+  {
+    "id": "7c0fcbe5.dd3014",
+    "type": "function",
+    "z": "9d8098e9.c07c38",
+    "name": "toStr",
+    "func": "msg.payload = msg.payload.toString(\"ascii\");\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 330,
+    "y": 200,
+    "wires": [
+      [
+        "fe9cd08e.f516f"
+      ]
+    ]
+  },
+  {
+    "id": "4cf33574.95ef7c",
+    "type": "join",
+    "z": "9d8098e9.c07c38",
+    "name": "",
+    "mode": "auto",
+    "build": "string",
+    "property": "payload",
+    "propertyType": "msg",
+    "key": "topic",
+    "joiner": "\\n",
+    "joinerType": "str",
+    "accumulate": false,
+    "timeout": "",
+    "count": "",
+    "reduceRight": false,
+    "reduceExp": "",
+    "reduceInit": "",
+    "reduceInitType": "num",
+    "reduceFixup": "",
+    "x": 850,
+    "y": 260,
+    "wires": [
+      [
+        "d2704737.dea048"
+      ]
+    ]
+  },
+  {
+    "id": "c572cc6d.a98e8",
+    "type": "batch",
+    "z": "9d8098e9.c07c38",
+    "name": "Grouping",
+    "mode": "count",
+    "count": 10,
+    "overlap": 0,
+    "interval": 10,
+    "allowEmptySequence": false,
+    "topics": [],
+    "x": 700,
+    "y": 200,
+    "wires": [
+      [
+        "4cf33574.95ef7c"
+      ]
+    ]
+  },
+  {
+    "id": "d2704737.dea048",
+    "type": "to_parquet",
+    "z": "9d8098e9.c07c38",
+    "outputDirectory": "/home/yehuda/tmp/data.parquet",
+    "timestampField": "timestamp",
+    "fileNameField": "",
+    "partitionaFields": "day",
+    "x": 1050,
+    "y": 200,
+    "wires": [
+      []
+    ]
+  }
+]

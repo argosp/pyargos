@@ -37,8 +37,8 @@ class AdminControllerApi(object):
         """checkUpdates  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.check_updates_using_get(async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.check_updates_using_get(asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -57,8 +57,8 @@ class AdminControllerApi(object):
         """checkUpdates  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.check_updates_using_get_with_http_info(async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.check_updates_using_get_with_http_info(asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -116,7 +116,7 @@ class AdminControllerApi(object):
             files=local_var_files,
             response_type='UpdateMessage',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -126,8 +126,8 @@ class AdminControllerApi(object):
         """getAdminSettings  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_admin_settings_using_get(key, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_admin_settings_using_get(key, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -147,8 +147,8 @@ class AdminControllerApi(object):
         """getAdminSettings  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.get_admin_settings_using_get_with_http_info(key, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.get_admin_settings_using_get_with_http_info(key, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -213,7 +213,7 @@ class AdminControllerApi(object):
             files=local_var_files,
             response_type='AdminSettings',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -223,8 +223,8 @@ class AdminControllerApi(object):
         """saveAdminSettings  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_admin_settings_using_post(admin_settings, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_admin_settings_using_post(admin_settings, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -244,8 +244,8 @@ class AdminControllerApi(object):
         """saveAdminSettings  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.save_admin_settings_using_post_with_http_info(admin_settings, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.save_admin_settings_using_post_with_http_info(admin_settings, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -310,7 +310,7 @@ class AdminControllerApi(object):
             files=local_var_files,
             response_type='AdminSettings',  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),
@@ -320,8 +320,8 @@ class AdminControllerApi(object):
         """sendTestMail  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.send_test_mail_using_post(admin_settings, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.send_test_mail_using_post(admin_settings, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -341,8 +341,8 @@ class AdminControllerApi(object):
         """sendTestMail  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async=True
-        >>> thread = api.send_test_mail_using_post_with_http_info(admin_settings, async=True)
+        asynchronous HTTP request, please pass asynch=True
+        >>> thread = api.send_test_mail_using_post_with_http_info(admin_settings, asynch=True)
         >>> result = thread.get()
 
         :param async bool
@@ -407,7 +407,7 @@ class AdminControllerApi(object):
             files=local_var_files,
             response_type=None,  # noqa: E501
             auth_settings=auth_settings,
-            async=params.get('async'),
+            asynch=params.get('async'),
             _return_http_data_only=params.get('_return_http_data_only'),
             _preload_content=params.get('_preload_content', True),
             _request_timeout=params.get('_request_timeout'),

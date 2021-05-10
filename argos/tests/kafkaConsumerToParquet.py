@@ -4,7 +4,7 @@ import os
 from hera import datalayer
 import dask.dataframe
 import warnings
-from argos.kafka import toPandasDeserializer
+from argos.old.kafka import toPandasDeserializer
 import json
 
 

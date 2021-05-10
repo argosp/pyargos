@@ -1,7 +1,7 @@
 #! /opt/anaconda3/envs/Argos/bin/python
 import json
 import argparse
-from pyargos.experimentManagement import Experiment
+from argos.manager import ExperimentJSON
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--expConf", dest="expConf" , help="The Experiment configuration JSON", required=True)
@@ -10,7 +10,7 @@ parser.add_argument("--load", dest="loadName", default=None, help="Loads a given
 parser.add_argument("--updateAttr", dest="attrJSON", default=None, help='Update attributs according to a given JSON')
 args = parser.parse_args()
 
-exp = Experiment(args.expConf)
+exp = ExperimentJSON(args.tbConf)
 
 if args.setupFlag:
     exp.setup()

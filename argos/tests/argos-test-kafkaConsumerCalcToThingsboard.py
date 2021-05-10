@@ -4,7 +4,8 @@ from kafka import KafkaConsumer
 import argparse
 import json
 import logging
-from argos.kafka import toThingsboardDeserializer
+from argos.old.kafka import pandasDataFrameSerializer, toPandasDeserializer
+from hera import meteo
 
 
 parser = argparse.ArgumentParser()
@@ -31,7 +32,7 @@ consumer = KafkaConsumer(args.topic,
                          auto_offset_reset='latest',
                          enable_auto_commit=True,
                          group_id='my-group'
-                         #value_deserializer=thingsboardDeserializer
+                         #value_deserializer=pandasDeserializer
                          )
 
 with open('/home/eden/Projects.local/2019/DesertWalls/experimentConfiguration.json') as credentialOpen:  # with open(args.expConf)
@@ -49,8 +50,15 @@ client.loop_start()
 
 for message in consumer:
     # print('----------',pandas.Timestamp.fromtimestamp(message.timestamp/1000.0),'----------')
+    # print('message')
     try:
-        client.publish('v1/devices/me/telemetry', toThingsboardDeserializer(message.value))
+        data = toPandasDeserializer(message.value).sort_index()
+        print(data)
     except json.JSONDecodeError:
         print('exception')
         continue
+    trc = meteo.getTurbulenceCalculator(data=data, samplingWindow=None)
+    calculatedData = trc.fluctuations().compute()
+    calculatedData.index = [x.tz_localize('israel') for x in calculatedData.index]
+    # print(calculatedData)
+    client.publish('v1/devices/me/telemetry', pandasDataFrameSerializer(calculatedData))
