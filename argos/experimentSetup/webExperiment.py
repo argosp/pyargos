@@ -165,7 +165,6 @@ class webExperimentHome:
         """
         return self.listExperiments()['name']
 
-
 class Experiment:
     """
         Interface to the WEB experiment object.
@@ -205,6 +204,16 @@ class Experiment:
     @property
     def deviceType(self):
         return self._deviceTypesDict
+
+    @property
+    def deviceTypeTable(self):
+            deviceTypeList = []
+            for deviceTypeName, deviceTypeData in self.deviceType.items():
+                for deviceName,deviceData in deviceTypeData.items():
+                    deviceTypeList.append(pandas.DataFrame(deviceData.properties,index=[0]).assign(deviceType=deviceTypeName))
+
+            return pandas.concat(deviceTypeList,ignore_index=True)
+
 
 
     def __init__(self, desc: dict, client: Client):
@@ -349,6 +358,17 @@ class Experiment:
         return retList
 
 
+    def getDeviceTypeByID(self,deviceTypeID):
+
+        ret = None
+        for deviceTypeName,deviceTypeData in self.deviceType.items():
+            if deviceTypeID == deviceTypeData.keyID:
+                ret = deviceTypeData
+                break
+
+        return ret
+
+
 class TrialSet(dict):
     """
         Interface to the web trial set object.
@@ -422,8 +442,7 @@ class TrialSet(dict):
     def trials(self):
         retList = []
         for trialName,trialData in self.items():
-            trialProps = trialData.propertiesTable
-            trialProps = trialProps.assign(trialName=trialName)
+            trialProps = trialData.propertiesTable.assign(trialName=trialName,key=trialData.key)
             retList.append(trialProps)
         return pandas.concat(retList,ignore_index=True)
 
@@ -481,7 +500,6 @@ class TrialSet(dict):
 
         for trial in result:
             self[trial['name']] = Trial(trialSet=self,metadata=trial)
-
 
 
     def dumps(self):
@@ -550,6 +568,10 @@ class Trial:
     def properties(self):
             return self._properties
 
+    @property
+    def trialSet(self):
+        return self._trialSet
+
 
     @property
     def propertiesTable(self):
@@ -591,19 +613,21 @@ class Trial:
     def __repr__(self):
         return json.dumps(dict(name=self.name,status=self.status,state=self.state))
 
-    @property
-    def designEntities(self):
-        entities = pandas.DataFrame(self._metadata['entities']).set_index('key')
+
+    def _composeProperties(self,entities):
+        fullData = self.experiment.deviceTypeTable.set_index("key").join(entities)
         dfList = []
-        for deviceKey in entities.index:
-            deviceType = self.experiment.getDeviceType(deviceTypeKey=entities.loc[deviceKey]['typeKey'])
-            properties = pandas.DataFrame(self._metadata['entities']).set_index('key').loc[deviceKey]['properties']
+        for devicekey,devicedata in fullData.iterrows():
+
+            properties = devicedata['properties']
+            deviceType = self.experiment.getDeviceTypeByID(deviceTypeID=entities.loc[devicekey]['typeKey'])
+
             data = []
             columns = []
             for property in properties:
                 propertyKey = property['key']
-                propertyLabel = deviceType.properties.loc[propertyKey]['label']
-                propertyType = deviceType.properties.loc[propertyKey]['type']
+                propertyLabel = deviceType.propertiesTable.loc[propertyKey]['label']
+                propertyType = deviceType.propertiesTable.loc[propertyKey]['type']
                 if propertyType == 'location':
                     try:
                         locationDict = json.loads(property['val'])
@@ -617,74 +641,50 @@ class Trial:
                 else:
                     data.append(property['val'])
                     columns.append(propertyLabel)
-            deviceProperties = deviceType.getDevice(deviceKey=deviceKey).properties
-            deviceProperties = pandas.DataFrame(data=[deviceProperties['val'].values],
-                                                columns=deviceProperties['label'].values,
-                                                index=[deviceKey]
-                                                )
-            dfList.append(pandas.DataFrame(data=[data],
-                                           columns=columns,
-                                           index=[deviceKey]
-                                           )
-                          .join(deviceProperties[list(set(deviceProperties.columns)-set(columns))].dropna(axis=1,
-                                                                                                          how='all'
-                                                                                                          ),
-                                how='left'
-                                )
-                          )
-        new_df = pandas.concat(dfList, sort=False)
-        experimentDevices = self._experiment.devices
-        return new_df.join(experimentDevices[list(set(experimentDevices.columns)-set(new_df.columns))],
-                           how='left').dropna(axis=1, how='all')
+
+
+            device_trial_properties = pandas.DataFrame(data=[data], columns=columns, index=[0])
+            deviceProperties = deviceType[devicedata['name']].propertiesTable.copy()
+            device_total_properties = device_trial_properties.join(deviceProperties,how='left')#.assign(trialSet = self.trialSet.name,
+                                                                                               #        trial = self.name)
+            dfList.append(device_total_properties)
+        new_df = pandas.concat(dfList, sort=False,ignore_index=True)
+
+        return new_df
+
+
 
     @property
-    def deployedEntities(self):
+    def designEntities(self):
+        ret = self.designEntitiesTable
+        if ret.empty:
+            return dict()
+        else:
+            return ret.set_index("deviceName").T.to_dict()
+
+
+    @property
+    def deployEntities(self):
+        ret = self.deployEntitiesTable
+        if ret.empty:
+            return dict()
+        else:
+            return ret.set_index("deviceName").T.to_dict()
+
+    @property
+    def designEntitiesTable(self):
+        entities = pandas.DataFrame(self._metadata['entities']).set_index('key')
+
+        return self._composeProperties(entities)
+
+    @property
+    def deployEntitiesTable(self):
         if not self._metadata['deployedEntities']:
             return pandas.DataFrame()
         else:
-            deployedEntities = pandas.DataFrame(self._metadata['deployedEntities']).set_index('key')
-            dfList = []
-            for deviceKey in deployedEntities.index:
-                deviceType = self.experiment.getDeviceType(deviceTypeKey=deployedEntities.loc[deviceKey]['typeKey'])
-                properties = pandas.DataFrame(self._metadata['deployedEntities']).set_index('key').loc[deviceKey]['properties']
-                data = []
-                columns = []
-                for property in properties:
-                    propertyKey = property['key']
-                    propertyLabel = deviceType.properties.loc[propertyKey]['label']
-                    propertyType = deviceType.properties.loc[propertyKey]['type']
-                    if propertyType == 'location':
-                        try:
-                            locationDict = json.loads(property['val'])
-                            locationName = locationDict['name']
-                            latitude = locationDict['coordinates'][0]
-                            longitude = locationDict['coordinates'][1]
-                            data += [locationName, latitude, longitude]
-                        except TypeError:
-                            data += [None] * 3
-                        columns += ['locationName', 'latitude', 'longitude']
-                    else:
-                        data.append(property['val'])
-                        columns.append(propertyLabel)
-                deviceProperties = deviceType.getDevice(deviceKey=deviceKey).properties
-                deviceProperties = pandas.DataFrame(data=[deviceProperties['val'].values],
-                                                    columns=deviceProperties['label'].values,
-                                                    index=[deviceKey]
-                                                    )
-                dfList.append(pandas.DataFrame(data=[data],
-                                               columns=columns,
-                                               index=[deviceKey]
-                                               )
-                              .join(deviceProperties[list(set(deviceProperties.columns) - set(columns))].dropna(axis=1,
-                                                                                                                how='all'
-                                                                                                                ),
-                                    how='left'
-                                    )
-                              )
-            new_df = pandas.concat(dfList, sort=False)
-            experimentDevices = self._experiment.devices
-            return new_df.join(experimentDevices[list(set(experimentDevices.columns) - set(new_df.columns))],
-                               how='left').dropna(axis=1, how='all')
+            entities = pandas.DataFrame(self._metadata['deployedEntities']).set_index('key')
+            return self._composeProperties(entities)
+
 
     def __getitem__(self, item):
         return self._properties.loc[item].val
@@ -790,8 +790,7 @@ class DeviceType(dict):
     def devices(self):
         retList = []
         for deviceName, deviceData in self.items():
-            trialProps = deviceData.propertiesTable
-            trialProps = trialProps.assign(deviceName=deviceName)
+            trialProps = deviceData.propertiesTable.assign(deviceName=deviceName,key=deviceData.key)
             retList.append(trialProps)
         return pandas.concat(retList, ignore_index=True)
 
@@ -832,7 +831,61 @@ class Device:
 
     @property
     def properties(self):
-        return self._properties
+
+        ret = dict(self._properties)
+
+        ret['key'] = self.key
+        ret['deviceTypeKey']  = self._metadata['deviceTypeKey']
+        ret['name'] = self.name
+        ret['deviceType'] = self.deviceType.name
+
+        return ret
+
+
+    @property
+    def allProperties(self):
+        trialsetdict = dict()
+
+        for trialsSetsName in self.experiment.trialSet.keys():
+            trialsetdict[trialsSetsName] = dict()
+            for trialName in self.experiment.trialSet[trialsSetsName].keys():
+                ddp = trialsetdict[trialsSetsName].setdefault(trialName,dict())
+
+                ddp['design'] = self.trialDesign(trialsSetsName,trialName)
+                ddp['deploy'] = self.trialDeploy(trialsSetsName, trialName)
+
+        return trialsetdict
+
+    @property
+    def allPropertiesList(self):
+
+
+        trialsetlist = []
+
+        for trialsSetsName in self.experiment.trialSet.keys():
+            for trialName in self.experiment.trialSet[trialsSetsName].keys():
+                design = self.trialDesign(trialsSetsName,trialName)
+                deploy = self.trialDeploy(trialsSetsName, trialName)
+
+                design['trialSetName']= trialsSetsName
+                design['trialName'] = trialName
+                design['state'] = 'design'
+
+                deploy['trialSetName'] = trialsSetsName
+                deploy['trialName'] = trialName
+                deploy['state'] = 'deploy'
+
+                trialsetlist.append(design)
+                trialsetlist.append(deploy)
+
+        return trialsetlist
+
+    @property
+    def allPropertiesTable(self):
+        return pandas.DataFrame(self.allPropertiesList)
+
+
+
 
     @property
     def propertiesTable(self):
@@ -841,10 +894,11 @@ class Device:
         return val
 
     def toJSON(self):
-        ret = dict(self.properties)
-        ret.update(self._metadata)
-        del ret['properties']
-
+        ret = dict()
+        ret['properties']= dict(self._properties)
+        ret['name'] = self.name
+        ret['deviceType'] = self.deviceType.name
+        ret['trialProperties'] = self.allPropertiesList
         return ret
 
     def __str__(self):
@@ -854,6 +908,51 @@ class Device:
         props = self.properties
         props['name'] = self.name
         return json.dumps(props)
+
+    @property
+    def designProperties(self):
+
+        trialsetdict = dict()
+
+        for trialsSetsName in self.experiment.trialSet.keys():
+            trialsetdict[trialsSetsName] = dict()
+            for trialName in self.experiment.trialSet[trialsSetsName].keys():
+                trialsetdict[trialsSetsName][trialName] = self.trialDesign(trialsSetsName,trialName)
+
+        return trialsetdict
+
+    @property
+    def deployProperties(self):
+        trialsetdict = dict()
+
+        for trialsSetsName in self.experiment.trialSet.keys():
+            trialsetdict[trialsSetsName] = dict()
+            for trialName in self.experiment.trialSet[trialsSetsName].keys():
+                trialsetdict[trialsSetsName][trialName] = self.trialDeploy(trialsSetsName,trialName)
+
+        return trialsetdict
+
+
+
+    def trialDesign(self,trialSet,trialName):
+        properties = self.experiment.trialSet[trialSet][trialName].designEntities
+        ret = properties.get(self.name,dict())
+
+        for fld in ['key','name','deviceType','deviceTypeKey'] :
+            if fld in ret:
+                del ret[fld]
+
+        return ret
+
+    def trialDeploy(self,trialSet,trialName):
+        properties = self.experiment.trialSet[trialSet][trialName].deployEntities
+        ret = properties.get(self.name,dict())
+
+        for fld in ['key','name','deviceType','deviceTypeKey'] :
+            if fld in ret:
+                del ret[fld]
+
+        return ret
 
     def __init__(self, deviceType: DeviceType, metadata:dict):
         """
@@ -875,93 +974,3 @@ class Device:
 
 
 
-
-
-
-    #
-    # def getThingsboardTrialLoadConf(self, experimentName: str, trialSetName: str, trialName: str, trialType: str = 'deploy'):
-    #     """
-    #     Gets the thingsboard trial loading configuration
-    #     Its usage is for the load of the relevant attributes of the devices in thingsboard.
-    #
-    #     :param experimentName: The experiment name
-    #     :param trialSetName: The trial set name
-    #     :param trialName: The trial name
-    #     :param trialType: 'design'/'deploy'
-    #     :return: dict
-    #     """
-    #     assert(trialType in ['design', 'deploy'])
-    #     experiment = self.getExperimentByName(experimentName=experimentName)
-    #     trialSet = experiment.getTrialSetByName(trialSetName=trialSetName)
-    #     trial = trialSet.getTrialByName(trialName=trialName)
-    #     if trialType == 'deploy':
-    #         devices = trial.deployedEntities
-    #     else:
-    #         devices = trial.entities
-    #     devicesList = []
-    #     for deviceKey in devices.index:
-    #         deviceDict = {}
-    #         deviceDict.update(devices[['deviceName', 'deviceTypeName']].loc[deviceKey].to_dict())
-    #         deviceDict['attributes'] = devices.drop(columns=['deviceName', 'deviceTypeName', 'deviceTypeKey']
-    #                                                 ).loc[deviceKey].dropna().to_dict()
-    #         devicesList.append(deviceDict)
-    #     return devicesList
-    #
-    # def getKafkaConsumersConf(self, experimentName: str, configFile: Union[str, dict]):
-    #     """
-    #     Gets the kafka consumers configuration.
-    #     Its usage is for the run of the kafka consumers (processes).
-    #
-    #     :param experimentName: The experiment name
-    #     :param configFile: The config json/dict for this function.
-    #     :return:
-    #     """
-    #     consumersConf = {}
-    #
-    #     if type(configFile) is str:
-    #         with open(configFile, 'r') as myFile:
-    #             configFile = json.load(myFile)
-    #
-    #     devicesList = self.getExperimentDevices(experimentName=experimentName)
-    #     for deviceDict in devicesList:
-    #         deviceName = deviceDict['deviceName']
-    #         deviceType = deviceDict['deviceTypeName']
-    #         deviceTypeConfig = configFile[deviceType]
-    #         slide = deviceTypeConfig['slide']
-    #         toParquet = deviceTypeConfig['toParquet']
-    #         consumersConf[deviceName] = dict(slideWindow=slide, processesConfig={"None":{toParquet[0]: toParquet[1]}})
-    #         processes = deviceTypeConfig['processes']
-    #         calcDeviceName = f'{deviceName}-calc'
-    #         consumersConf[calcDeviceName] = dict(processesConfig=processes)
-    #         for window in processes:
-    #             windowDeviceName = f'{deviceName}-{window}-{slide}'
-    #             consumersConf[windowDeviceName] = dict(processesConfig={"None": {"argos.kafka.processes.to_thingsboard": {}}})
-    #     return consumersConf
-    #
-    # def getFinalizeConf(self, experimentName: str):
-    #     """
-    #     Gets the finalize configuration.
-    #     Its usage is for the update of the devices attributes in the
-    #
-    #     :param experimentName:
-    #     :return:
-    #     """
-    #     experiment = self.getExperimentByName(experimentName=experimentName)
-    #     devicesDescDict = {}
-    #     for trialSetName in experiment.trialSets['name']:
-    #         trialSet = experiment.getTrialSetByName(trialSetName=trialSetName)
-    #         for trialName in trialSet.trials['name']:
-    #             deployed_df = self.getThingsboardTrialLoadConf(experimentName=experimentName,
-    #                                                            trialSetName=trialSetName,
-    #                                                            trialName=trialName
-    #                                                            )
-    #             for deviceDict in deployed_df:
-    #                 deviceName = deviceDict['deviceName']
-    #                 deviceType = deviceDict['deviceTypeName']
-    #                 attributes = deviceDict['attributes']
-    #                 currentDeviceDesc = devicesDescDict.setdefault(deviceName, {'deviceName': deviceName,
-    #                                                                             'deviceType': deviceType
-    #                                                                             }
-    #                                                                )
-    #                 currentDeviceDesc[f'{trialName}_attributes'] = attributes
-    #     return devicesDescDict
