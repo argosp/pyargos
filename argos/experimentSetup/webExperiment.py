@@ -1,7 +1,11 @@
 from gql import gql, Client
 from gql.transport.aiohttp import AIOHTTPTransport
+import requests
+from io import BytesIO
+import matplotlib.pyplot as plt
 import pandas
 import json
+import os
 
 class webExperimentHome:
     """
@@ -14,6 +18,13 @@ class webExperimentHome:
 
     """
     _client = None
+    _url = None 
+
+
+    
+    @property
+    def url(self):
+        return self._url
 
     @property
     def client(self):
@@ -27,16 +38,24 @@ class webExperimentHome:
         token: str
             The token to access the server.
         """
+
+        graphqlUrl = f"{url}/graphql"
+
+
         headers = None if token=='' else dict(authorization=token)
-        transport = AIOHTTPTransport(url=url, headers=headers)
+        transport = AIOHTTPTransport(url=graphqlUrl, headers=headers)
         self._client = Client(transport=transport, fetch_schema_from_transport=True)
 
+
+
+        self._url = url
         # experimentDict = self.listExperiments().query(f"name=='{self.experimentName}'").reset_index().iloc[0].to_dict()
         # self._experiment = Experiment(desc=experimentDict,client=self._client)
 
 
     def getExperiment(self,experimentName):
         experimentDict = self.getExperimentDescriptor(experimentName)
+        experimentDict['url'] = self.url
         return Experiment(desc=experimentDict,client=self._client)
 
     def getExperimentsDescriptionsList(self):
@@ -178,6 +197,11 @@ class Experiment:
 
     _client = None          # The client of the connection to the WEB.
 
+    _imagesMap = None
+
+    @property
+    def url(self):
+        return self._desc['url']
 
     @property
     def client(self):
@@ -239,6 +263,39 @@ class Experiment:
 
         self._initTrialSets()
         self._initDeviceTypes()
+
+        ## Initializing the images map
+        self._imagesMap = dict()
+
+        for imgs in self._desc['maps']:
+            imgName = imgs['imageName']
+            imageFullURL = f"{self.url}/{imgs['imageUrl']}"
+            imgs['imageURL'] = imageFullURL
+
+            self._imagesMap[imgName] = imgs
+
+
+    @property
+    def imageMap(self):
+        return self._imagesMap
+
+    def getImageURL(self,imageName : str):
+        return self._imagesMap[imageName]['imageURL']
+
+    def getImage(self,imageName:str):
+        imgUrl = self.getImageURL(imageName)
+        response = requests.get(imgUrl)
+
+        if response.status_code != 200:
+            raise ValueError(f"Image {imageName} not found on the server.")
+
+        imageFile = BytesIO(response.content)
+        return plt.imread(imageFile)
+
+
+    def getImageMetadata(self,imageName : str):
+        return self._imagesMap[imageName]
+
 
     def _initTrialSets(self):
         query = '''
@@ -340,7 +397,20 @@ class Experiment:
 
         None
         """
-        pass
+        os.makedirs(toDirectory,exist_ok=True)
+        imgDir = os.path.join(toDirectory, "images")
+        js = self.toJSON()
+
+        with open(os.path.join(toDirectory,"experiment.json"),"w") as metadataJson:
+            metadataJson.writelines(json.dumps(js))
+
+
+        os.makedirs(imgDir,exist_ok=True)
+
+        for imgName in self.imageMap.keys():
+            img = self.getImage(imgName)
+            plt.imsave(os.path.join(imgDir,f"{imgName}.png"),img)
+
 
     def getExperimentDevices(self):
         """
