@@ -1,4 +1,4 @@
-from .webExperiment import webExperimentHome
+from .dataObjectsFactory import fileExperimentFactory,webExperimentFactory
 
 WEB = "web"
 FILE = "json"
@@ -19,9 +19,9 @@ def getExperimentSetup(experimentType, **kwargs):
 
     if experimentType==WEB:
 
-        experiment = webExperimentHome(url=kwargs['url'],token=kwargs['token']).getExperiment(kwargs['experimentName'])
+        experiment = webExperimentFactory(url=kwargs['url'],token=kwargs['token']).getExperiment(kwargs['experimentName'])
 
     else:
-        raise NotImplementedError("not yet!")
+        experiment= fileExperimentFactory(**kwargs)
 
     return experiment
