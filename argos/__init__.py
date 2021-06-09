@@ -1,10 +1,17 @@
-__version__ = '0.3.0'
+__version__ = '0.4.0'
 from .experimentSetup import WEB,FILE
 
 from .manager import experimentManager
 
 
 """
+Version 0.4.0
+-------------
+
+- Added default assets. (windows and device groups).  
+- Loading devices properties for the requested release. 
+
+
 Version 0.2.0
 -------------
 

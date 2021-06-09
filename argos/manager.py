@@ -310,19 +310,17 @@ class experimentManager:
         except ImportError:
             print("Hera is not found. Cannot create the documents.")
 
-    def loadTrialDesignToTBF(self, trialSetName: str, trialName: str):
+    def loadTrialDesign(self, trialSetName: str, trialName: str):
         self.loadTrial(trialSetName, trialName, 'design')
 
-    def loadTrialDeployToTBF(self, trialSetName: str, trialName: str):
+    def loadTrialDeploy(self, trialSetName: str, trialName: str):
         self.loadTrial(trialSetName, trialName, 'deploy')
-
-
-
 
 
     def loadTrial(self,trialSetName: str, trialName: str,state : str):
 
         for computedDevice in self.getComputationalDeviceList():
+            print(f"Loading {computedDevice['deviceName']}")
 
             deviceType   = computedDevice['deviceType']
             deviceParent = computedDevice['parentDevice']
