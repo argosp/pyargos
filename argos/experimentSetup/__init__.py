@@ -4,7 +4,7 @@ WEB = "web"
 FILE = "json"
 
 
-def getExperimentSetup(experimentType, **kwargs):
+def getExperimentSetup(experimentType,experimentName, **kwargs):
     """
         Initializes a new experiemnt setup according to the type.
 
@@ -19,9 +19,9 @@ def getExperimentSetup(experimentType, **kwargs):
 
     if experimentType==WEB:
 
-        experiment = webExperimentFactory(url=kwargs['url'],token=kwargs['token']).getExperiment(kwargs['experimentName'])
+        experiment = webExperimentFactory(url=kwargs['url'],token=kwargs['token'])
 
     else:
         experiment= fileExperimentFactory(**kwargs)
 
-    return experiment
+    return experiment.getExperiment(experimentName)

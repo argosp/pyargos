@@ -109,6 +109,38 @@ class Experiment:
 
 
 
+    def getImageJSMappingFunction(self,imageName: str):
+        """
+            Return the javascript mapping function that maps the
+            coordindates of the image to from the coordinates to 0..1 coordinats
+
+            Used in thingsboard dashboards. Therefore the inputs to the function are
+            (origXpos,origYpos).
+
+
+        Parameters
+        ----------
+        imageName: str
+                The name of the image
+
+
+        Returns
+        -------
+            A string with the mapping function (in javascript).
+
+        """
+        metadata = self.getImageMetadata(imageName)
+
+        xdim = metadata['right'] - metadata['left']
+        ydim = metadata['upper'] - metadata['lower']
+
+        Xconvert = f"image_x = (origXPos - ({metadata['left']}))/{xdim};"
+        Yconvert = f"image_y = (({metadata['upper']})-origYPos)/{ydim};"
+
+        return_string = "return {x: image_x, y: image_y};"
+
+        return "\n".join([Xconvert,Yconvert,return_string])
+
     def getImageMetadata(self,imageName : str):
         return self._imagesMap[imageName]
 
@@ -196,8 +228,8 @@ class Experiment:
         retList = []
 
         for devicetypeName, deviceTypeObj in self._deviceTypesDict.items():
-            for deviceName in deviceTypeObj.devices():
-                retList.append(dict(deviceName=deviceName,deviceTypeName=devicetypeName))
+            for deviceName, deviceData in deviceTypeObj.items():
+                retList.append(dict(deviceName=deviceName,deviceTypeName=deviceData.deviceType.name))
 
         return retList
 
@@ -759,6 +791,27 @@ class Device:
                 del ret[fld]
 
         return ret
+
+    def trial(self, trialSet, trialName,state):
+        """
+            Gets the properties of the trial useng the state
+
+        Parameters
+        -----------
+        trialSet:  str
+            The trialset name
+        trialName: str
+            The trial name
+        state: str
+            'design' or 'deploy'
+
+        Returns
+        -------
+             dict
+        """
+
+        return getattr(self,f"trial{state.title()}")(trialSet,trialName)
+
 
     def __init__(self, deviceType: DeviceType, metadata: dict):
         """

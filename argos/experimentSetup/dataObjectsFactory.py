@@ -187,7 +187,7 @@ class webExperimentFactory:
 
     def getExperiment(self,experimentName):
         experimentDict = self.getExperimentMetadata(experimentName)
-        experimentDict['experimentWithData']['url'] = self.url
+        experimentDict['experimentsWithData']['url'] = self.url
         return webExperiment(experimentDescription=experimentDict)
 
 
