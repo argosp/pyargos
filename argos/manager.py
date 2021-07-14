@@ -337,16 +337,6 @@ class experimentManager:
             
 
 
-
-
-
-
-
-
-
-
-
-
     def dumpExperimentDevices(self,experimentName):
         """
             Writes the devices and the properties to a file.
