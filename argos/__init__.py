@@ -1,10 +1,15 @@
-__version__ = '0.4.0'
+__version__ = '1.0.0'
 from .experimentSetup import WEB,FILE
 
 from .manager import experimentManager
 
 
 """
+Version 1.0.0
+-------------
+
+- Changes devices->entities
+
 Version 0.4.0
 -------------
 
