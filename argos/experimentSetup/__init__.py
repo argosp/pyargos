@@ -18,9 +18,7 @@ def getExperimentSetup(experimentType,experimentName, **kwargs):
         raise ValueError(f"experimentType must be {FILE} or {WEB}. Got {experimentType}")
 
     if experimentType==WEB:
-
         experiment = webExperimentFactory(url=kwargs['url'],token=kwargs['token'])
-
     else:
         experiment= fileExperimentFactory(**kwargs)
 

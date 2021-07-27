@@ -245,13 +245,9 @@ class Experiment:
         return ret
 
 
-
-
 class fileExperiment(Experiment):
 
     def getImage(self,imageName:str):
-
-
         imgUrl = os.path.join(self.experimentDescription['experimentWithData']['url'],imageName)
 
 

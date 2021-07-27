@@ -3,7 +3,7 @@ import json
 from . import thingsboard as tb
 from .experimentSetup import getExperimentSetup,FILE,WEB
 
-class experimentManager:
+class experimentSetup:
     """
         Manages the experiment.
 
