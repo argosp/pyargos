@@ -73,13 +73,13 @@ class webExperimentFactory:
         """
         experimentDesc = self.getExperimentDescriptor(experimentName)
 
-        ## Get the device types
+        ## Get the entities types
         query = '''
          {
-             deviceTypes(experimentId: "%s"){
+             entitiesTypes(experimentId: "%s"){
                  key
                  name
-                 numberOfDevices
+                 numberOfEntities
                  properties{
                      key
                      type
@@ -92,17 +92,17 @@ class webExperimentFactory:
              }
          }
          ''' % experimentDesc['project']['id']
-        deviceTypes = self._client.execute(gql(query))
+        entitiesTypes = self._client.execute(gql(query))
 
 
 
-        for deviceType in deviceTypes['deviceTypes']:
+        for entityType in entitiesTypes['entitiesTypes']:
             query = '''
             {
-                devices(experimentId: "%s", deviceTypeKey: "%s"){
+                entities(experimentId: "%s", entitiesTypeKey: "%s"){
                     key
                     name
-                    deviceTypeKey
+                    entitiesTypeKey
                     state
                     properties{
                         val
@@ -110,11 +110,11 @@ class webExperimentFactory:
                     }
                 }
             }
-            ''' % (experimentDesc['project']['id'], deviceType['key'])
+            ''' % (experimentDesc['project']['id'], entityType['key'])
             result = self.client.execute(gql(query))
 
 
-            deviceType.update(result)
+            entityType.update(result)
 
         ## Get the trialsets
         query = """{
@@ -148,29 +148,31 @@ class webExperimentFactory:
                     status
                     created
                     cloneFrom
-                    numberOfDevices
+                    numberOfEntities
                     state
                     properties{
                         val
                         key
                     }
                     entities{
-                        typeKey
+                        entitiesTypeKey
                         properties{
                             val
                             key
                         }
                         key
-                        type
+                        name
+                        containsEntities                        
                     }
                     deployedEntities{
-                        typeKey
-                        properties{
+                        entitiesTypeKey
+                        properties{ 
                             val
                             key
                         }
                         key
-                        type
+                        name
+                        containsEntities
                     }
                 }
             }
@@ -182,7 +184,7 @@ class webExperimentFactory:
 
         ret = dict(experimentsWithData=experimentDesc)
         ret.update(trialsets)
-        ret.update(deviceTypes)
+        ret.update(entitiesTypes)
         return ret
 
     def getExperiment(self,experimentName):

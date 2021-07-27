@@ -14,7 +14,7 @@ class Experiment:
     _experimentDescription = None            # experiment description holds its name, descrition and ect.
 
     _trialSetsDict = None   # A dictionary of the trial sets.
-    _deviceTypesDict = None # A dictionary of the devices types.
+    _entitiesTypesDict = None # A dictionary of the devices types.
 
     _client = None          # The client of the connection to the WEB.
 
@@ -51,17 +51,17 @@ class Experiment:
         return self._trialSetsDict
 
     @property
-    def deviceType(self):
-        return self._deviceTypesDict
+    def entityType(self):
+        return self._entitiesTypesDict
 
     @property
-    def deviceTypeTable(self):
-            deviceTypeList = []
-            for deviceTypeName, deviceTypeData in self.deviceType.items():
-                for deviceName,deviceData in deviceTypeData.items():
-                    deviceTypeList.append(pandas.DataFrame(deviceData.properties,index=[0]).assign(deviceType=deviceTypeName))
+    def entityTypeTable(self):
+            entityTypeList = []
+            for entityTypeName, entityTypeData in self.entityType.items():
+                for entityTypeDataName,entityData in entityTypeData.items():
+                    entityTypeList.append(pandas.DataFrame(entityData.properties,index=[0]).assign(entityType=entityTypeName))
 
-            return pandas.concat(deviceTypeList,ignore_index=True)
+            return pandas.concat(entityTypeList,ignore_index=True)
 
 
 
@@ -81,13 +81,13 @@ class Experiment:
         """
 
         self._trialSetsDict = dict()
-        self._deviceTypesDict = dict()
+        self._entitiesTypesDict = dict()
 
         self._experimentDescription = experimentDescription
 
 
         self._initTrialSets()
-        self._initDeviceTypes()
+        self._initEntitiesTypes()
 
         ## Initializing the images map
         self._imagesMap = dict()
@@ -150,10 +150,10 @@ class Experiment:
         for trialset in self.experimentDescription['trialSets']:
             self._trialSetsDict[trialset['name']] = TrialSet(experiment=self, metadata=trialset)
 
-    def _initDeviceTypes(self):
+    def _initEntitiesTypes(self):
 
-        for deviceType in self.experimentDescription['deviceTypes']:
-            self._deviceTypesDict[deviceType['name']] = DeviceType(experiment=self,metadata = deviceType)
+        for entityType in self.experimentDescription['entitiesTypes']:
+            self._entitiesTypesDict[entityType['name']] = EntityType(experiment=self, metadata = entityType)
 
 
     def toJSON(self):
@@ -165,15 +165,15 @@ class Experiment:
         """
         ret = dict()
 
-        deviceTypeMap = dict()
-        for deviceName,deviceType in self.deviceType.items():
-            deviceTypeMap[deviceName] = deviceType.toJSON()
+        entityTypeMap = dict()
+        for entityName,entityType in self.entityType.items():
+            entityTypeMap[entityName] = entityType.toJSON()
 
         trialMap = dict()
         for trialName,trialData in self.trialSet.items():
             trialMap[trialName] = trialData.toJSON()
 
-        ret['deviceType'] = deviceTypeMap
+        ret['entityType'] = entityTypeMap
         ret['trialSet'] = trialMap
 
         expr = dict()
@@ -218,28 +218,28 @@ class Experiment:
             plt.imsave(os.path.join(imgDir,f"{imgName}.png"),img)
 
 
-    def getExperimentDevices(self):
+    def getExperimentEntities(self):
         """
-            Returns the list of all the devices
+            Returns the list of all the entities
 
         :return: dict
-            Return a list of the devices.
+            Return a list of the entities.
         """
         retList = []
 
-        for devicetypeName, deviceTypeObj in self._deviceTypesDict.items():
-            for deviceName, deviceData in deviceTypeObj.items():
-                retList.append(dict(deviceName=deviceName,deviceTypeName=deviceData.deviceType.name))
+        for entitytypeName, entityTypeObj in self._entitiesTypesDict.items():
+            for entityName, entityData in entityTypeObj.items():
+                retList.append(dict(entityName=entityName, entityTypeName=entityData.entityType.name))
 
         return retList
 
 
-    def getDeviceTypeByID(self,deviceTypeID):
+    def getEntitiesTypeByID(self, entityTypeID):
 
         ret = None
-        for deviceTypeName,deviceTypeData in self.deviceType.items():
-            if deviceTypeID == deviceTypeData.keyID:
-                ret = deviceTypeData
+        for entityTypeName,entityTypeData in self.entityType.items():
+            if entityTypeID == entityTypeData.keyID:
+                ret = entityTypeData
                 break
 
         return ret
@@ -417,8 +417,8 @@ class Trial:
         return self._metadata['cloneFrom']
 
     @property
-    def numberOfDevices(self):
-        return self._metadata['numberOfDevices']
+    def numberOfEntities(self):
+        return self._metadata['numberOfEntities']
 
     @property
     def state(self):
@@ -475,19 +475,19 @@ class Trial:
 
 
     def _composeProperties(self,entities):
-        fullData = self.experiment.deviceTypeTable.set_index("key").join(entities)
+        fullData = self.experiment.entityTypeTable.set_index("key").join(entities)
         dfList = []
-        for devicekey,devicedata in fullData.iterrows():
+        for entitykey,entitydata in fullData.iterrows():
 
-            properties = devicedata['properties']
-            deviceType = self.experiment.getDeviceTypeByID(deviceTypeID=entities.loc[devicekey]['typeKey'])
+            properties = entitydata['properties']
+            entityType = self.experiment.getEntitiesTypeByID(entityTypeID=entities.loc[entitykey]['typeKey'])
 
             data = []
             columns = []
             for property in properties:
                 propertyKey = property['key']
-                propertyLabel = deviceType.propertiesTable.loc[propertyKey]['label']
-                propertyType = deviceType.propertiesTable.loc[propertyKey]['type']
+                propertyLabel = entityType.propertiesTable.loc[propertyKey]['label']
+                propertyType = entityType.propertiesTable.loc[propertyKey]['type']
                 if propertyType == 'location':
                     try:
                         locationDict = json.loads(property['val'])
@@ -503,11 +503,11 @@ class Trial:
                     columns.append(propertyLabel)
 
 
-            device_trial_properties = pandas.DataFrame(data=[data], columns=columns, index=[0])
-            deviceProperties = deviceType[devicedata['name']].propertiesTable.copy()
-            device_total_properties = device_trial_properties.join(deviceProperties,how='left')#.assign(trialSet = self.trialSet.name,
+            entity_trial_properties = pandas.DataFrame(data=[data], columns=columns, index=[0])
+            entityProperties = entityType[entitydata['name']].propertiesTable.copy()
+            entity_total_properties = entity_trial_properties.join(entityProperties,how='left')#.assign(trialSet = self.trialSet.name,
                                                                                                #        trial = self.name)
-            dfList.append(device_total_properties)
+            dfList.append(entity_total_properties)
         new_df = pandas.concat(dfList, sort=False,ignore_index=True)
 
         return new_df
@@ -520,7 +520,7 @@ class Trial:
         if ret.empty:
             return dict()
         else:
-            return ret.set_index("deviceName").T.to_dict()
+            return ret.set_index("entityName").T.to_dict()
 
 
     @property
@@ -529,7 +529,7 @@ class Trial:
         if ret.empty:
             return dict()
         else:
-            return ret.set_index("deviceName").T.to_dict()
+            return ret.set_index("entityName").T.to_dict()
 
     @property
     def designEntitiesTable(self):
@@ -550,7 +550,7 @@ class Trial:
         return self._properties.loc[item].val
 
 
-class DeviceType(dict):
+class EntityType(dict):
     _experiment = None
     _metadata = None
 
@@ -575,8 +575,8 @@ class DeviceType(dict):
         return self._metadata['name']
 
     @property
-    def numberOfDevices(self):
-        return self._metadata['numberOfDevices']
+    def numberOfEntities(self):
+        return self._metadata['numberOfEntities']
 
     @property
     def state(self):
@@ -604,51 +604,51 @@ class DeviceType(dict):
         ret['name'] = self.name
         ret['properties'] = self.properties
 
-        devicesJSON = {}
-        for deviceName, deviceData in self.items():
-            devicesJSON[deviceName] = deviceData.toJSON()
+        entityJSON = {}
+        for entityName, entityData in self.items():
+            entityJSON[entityName] = entityData.toJSON()
 
-        ret['devices'] = devicesJSON
+        ret['entities'] = entityJSON
 
         return ret
 
     def __init__(self, experiment: Experiment, metadata: dict):
         """
-        DeviceType object contains information on a specific device type
+        EntityType object contains information on a specific entity type
 
         :param experiment: The experiment object
         :param metadata: dict
-                The metadata of the device type (the properties and ect).
+                The metadata of the entity type (the properties and ect).
         """
         self._experiment = experiment
         self._metadata = metadata
-        self._initDevices()
+        self._initEntities()
 
-    def _initDevices(self):
+    def _initEntities(self):
 
-        for device in self._metadata['devices']:
-            self[device['name']] = Device(deviceType=self, metadata=device)
+        for entity in self._metadata['entities']:
+            self[entity['name']] = Entity(entityType=self, metadata=entity)
 
     @property
-    def devices(self):
+    def entities(self):
         retList = []
-        for deviceName, deviceData in self.items():
-            trialProps = deviceData.propertiesTable.assign(deviceName=deviceName, key=deviceData.key)
+        for entityName, entityData in self.items():
+            trialProps = entityData.propertiesTable.assign(entityName=entityName, key=entityData.key)
             retList.append(trialProps)
         return pandas.concat(retList, ignore_index=True)
 
 
-class Device:
-    _deviceType = None
+class Entity:
+    _entityType = None
     _metadata = None
 
     @property
-    def deviceType(self):
-        return self._deviceType
+    def entityType(self):
+        return self._entityType
 
     @property
     def experiment(self):
-        return self.deviceType.experiment
+        return self.entityType.experiment
 
     @property
     def client(self):
@@ -667,8 +667,8 @@ class Device:
         return self._metadata['name']
 
     @property
-    def deviceTypeKey(self):
-        return self._metadata['deviceTypeKey']
+    def entityTypeKey(self):
+        return self._metadata['entitiesTypeKey']
 
     @property
     def properties(self):
@@ -676,9 +676,9 @@ class Device:
         ret = dict(self._properties)
 
         ret['key'] = self.key
-        ret['deviceTypeKey'] = self._metadata['deviceTypeKey']
+        ret['entitiesTypeKey'] = self._metadata['entitiesTypeKey']
         ret['name'] = self.name
-        ret['deviceType'] = self.deviceType.name
+        ret['entityType'] = self.entityType.name
 
         return ret
 
@@ -726,14 +726,14 @@ class Device:
     @property
     def propertiesTable(self):
         val = pandas.DataFrame(self.properties, index=[0])
-        val = val.assign(deviceName=self.name)
+        val = val.assign(entityName=self.name)
         return val
 
     def toJSON(self):
         ret = dict()
         ret['properties'] = dict(self._properties)
         ret['name'] = self.name
-        ret['deviceType'] = self.deviceType.name
+        ret['entityType'] = self.entityType.name
         ret['trialProperties'] = self.allPropertiesList
         return ret
 
@@ -772,7 +772,7 @@ class Device:
         properties = self.experiment.trialSet[trialSet][trialName].designEntities
         ret = properties.get(self.name, dict())
 
-        for fld in ['key', 'name', 'deviceType', 'deviceTypeKey']:
+        for fld in ['key', 'name', 'entityType', 'entityTypeKey']:
             if fld in ret:
                 del ret[fld]
 
@@ -782,7 +782,7 @@ class Device:
         properties = self.experiment.trialSet[trialSet][trialName].deployEntities
         ret = properties.get(self.name, dict())
 
-        for fld in ['key', 'name', 'deviceType', 'deviceTypeKey']:
+        for fld in ['key', 'name', 'entityType', 'entityTypeKey']:
             if fld in ret:
                 del ret[fld]
 
@@ -809,20 +809,20 @@ class Device:
         return getattr(self,f"trial{state.title()}")(trialSet,trialName)
 
 
-    def __init__(self, deviceType: DeviceType, metadata: dict):
+    def __init__(self, entityType: EntityType, metadata: dict):
         """
 
-        :param deviceType: DeviceType
-                The device type
+        :param entityType: EntityType
+                The entity type
 
         :param metadata : dict
                 The metadata of the
         """
-        self._deviceType = deviceType
+        self._entityType = entityType
         self._metadata = metadata
         propertiesPandas = pandas.DataFrame(metadata['properties']).set_index('key')
 
-        properties = propertiesPandas.merge(deviceType.propertiesTable.query("trialField==False"), left_index=True,
+        properties = propertiesPandas.merge(entityType.propertiesTable.query("trialField==False"), left_index=True,
                                             right_index=True)[['val', 'type', 'label', 'description']] \
             .set_index("label")
 
