@@ -5,6 +5,10 @@ from .manager import experimentSetup
 
 
 """
+
+- Fixing the dataObject with the new DB structure. 
+   ** still did not add the contains property to the library.
+
 Version 1.0.0
 -------------
 

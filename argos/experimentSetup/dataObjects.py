@@ -475,12 +475,12 @@ class Trial:
 
 
     def _composeProperties(self,entities):
-        fullData = self.experiment.entityTypeTable.set_index("key").join(entities)
+        fullData = self.experiment.entityTypeTable.set_index("key").join(entities,rsuffix="_r")
         dfList = []
         for entitykey,entitydata in fullData.iterrows():
 
             properties = entitydata['properties']
-            entityType = self.experiment.getEntitiesTypeByID(entityTypeID=entities.loc[entitykey]['typeKey'])
+            entityType = self.experiment.getEntitiesTypeByID(entityTypeID=entities.loc[entitykey]['entitiesTypeKey'])
 
             data = []
             columns = []
@@ -506,12 +506,12 @@ class Trial:
             entity_trial_properties = pandas.DataFrame(data=[data], columns=columns, index=[0])
             entityProperties = entityType[entitydata['name']].propertiesTable.copy()
             entity_total_properties = entity_trial_properties.join(entityProperties,how='left')#.assign(trialSet = self.trialSet.name,
-                                                                                               #        trial = self.name)
+
+            #        trial = self.name)
             dfList.append(entity_total_properties)
         new_df = pandas.concat(dfList, sort=False,ignore_index=True)
 
         return new_df
-
 
 
     @property
@@ -726,7 +726,7 @@ class Entity:
     @property
     def propertiesTable(self):
         val = pandas.DataFrame(self.properties, index=[0])
-        val = val.assign(entityName=self.name)
+        val = val.assign(entityName=self.name).drop("name",axis=1)
         return val
 
     def toJSON(self):
@@ -772,7 +772,7 @@ class Entity:
         properties = self.experiment.trialSet[trialSet][trialName].designEntities
         ret = properties.get(self.name, dict())
 
-        for fld in ['key', 'name', 'entityType', 'entityTypeKey']:
+        for fld in ['key', 'name', 'entityType', 'entitiesTypeKey']:
             if fld in ret:
                 del ret[fld]
 
@@ -782,7 +782,7 @@ class Entity:
         properties = self.experiment.trialSet[trialSet][trialName].deployEntities
         ret = properties.get(self.name, dict())
 
-        for fld in ['key', 'name', 'entityType', 'entityTypeKey']:
+        for fld in ['key', 'name', 'entityType', 'entitiesTypeKey']:
             if fld in ret:
                 del ret[fld]
 
