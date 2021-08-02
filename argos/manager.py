@@ -176,7 +176,7 @@ class experimentManager:
 
         pathToDeviceFile = os.path.abspath(self.experimentConfigurationPath)
 
-        devicesList = self.experiment.getExperimentDevices()
+        devicesList = self.experiment.getExperimentEntities()
         computedDevicesList = self._loadComputedDevicesThingsboard()
         self._setupDefaultAssets()
 
@@ -232,7 +232,7 @@ class experimentManager:
         :return:
             A list of dict of the computational devices.
         """
-        devices = self.experiment.getExperimentDevices()
+        devices = self.experiment.getExperimentEntities()
         computationDeviceList = []
         for deviceDict in devices:
             deviceName = deviceDict['deviceName']
@@ -285,7 +285,7 @@ class experimentManager:
             from hera.datalayer import Measurements
             from hera.datalayer import datatypes
 
-            for devicetype in self.experiment.deviceType():
+            for devicetype in self.experiment.entityType():
 
                 dataPath = os.path.join(os.path.abspath("."),"data")
 
@@ -326,7 +326,7 @@ class experimentManager:
             deviceParent = computedDevice['parentDevice']
 
             # get the device data from the data manager
-            parentDevice = self.experiment.deviceType[deviceType][deviceParent]
+            parentDevice = self.experiment.entityType[deviceType][deviceParent]
 
             deviceProxy = self.tbHome.deviceHome.createProxy(entityName=computedDevice['deviceName'],
                                                              entityType=computedDevice['deviceType'])
@@ -337,16 +337,6 @@ class experimentManager:
             
 
 
-
-
-
-
-
-
-
-
-
-
     def dumpExperimentDevices(self,experimentName):
         """
             Writes the devices and the properties to a file.
@@ -354,7 +344,7 @@ class experimentManager:
         :return:
             None
         """
-        devices = self.experiment.devices[['deviceTypeName', 'deviceName']]
+        devices = self.experiment.entities[['deviceTypeName', 'deviceName']]
         devicesJSON = [devices.loc[key].to_dict() for key in devices.index]
 
 
