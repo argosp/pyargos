@@ -186,7 +186,7 @@ class Experiment:
         return ret
 
 
-    def pack(self,toDirectory : str):
+    def packExperimentSetup(self, toDirectory : str):
         """
             Archive all the data of the experiment.
 
@@ -249,8 +249,8 @@ class Experiment:
 class fileExperiment(Experiment):
 
     def getImage(self,imageName:str):
-        imgUrl = os.path.join(self.experimentDescription['experimentWithData']['url'],imageName)
 
+        imgUrl = os.path.join(self.experimentDescription['experimentsWithData']['url'],"images",f"{imageName}.png")
 
         with open(imgUrl) as imageFile:
             img = plt.imread(imageFile)
