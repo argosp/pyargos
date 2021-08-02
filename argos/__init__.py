@@ -6,6 +6,8 @@ from .manager import experimentSetup
 
 """
 
+- Adding the argos-experiment-manager to setup, and load trials to thingsboard. 
+
 - Fixing the dataObject with the new DB structure. 
    ** still did not add the contains property to the library.
 

@@ -104,6 +104,7 @@ if __name__ == "__main__":
     parser_download = subparsers.add_parser('downloadMetadata', help='saves the metadata from the experiment')
     parser_setup = subparsers.add_parser('setupExperiment', help='load devices to Thingsboard,saves configuration files for nodered')
     parser_TBmapping = subparsers.add_parser('makeThingsboardMapping', help='Pring the JS function for mapping')
+    parser_loadTrial = subparsers.add_parser('loadTrial', help='Loads the attributes of a device to a trial (either design or deploy)')
 
 
     ##### download
