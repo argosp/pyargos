@@ -3,7 +3,11 @@ import json
 from . import thingsboard as tb
 from .experimentSetup import getExperimentSetup,FILE,WEB
 
-class experimentManager:
+DESIGN = 'design'
+DEPLOY = 'deploy'
+
+
+class experimentSetup:
     """
         Manages the experiment.
 
@@ -81,16 +85,6 @@ class experimentManager:
         return self._datalayerType
 
     @property
-    def experimentConfigurationPath(self):
-
-        directory = self._configuration['experiment'].get("directory",None)
-
-        if (directory is None) or directory =="none":
-            directory = os.getcwd()
-
-        return directory
-
-    @property
     def configuration(self):
         return self._configuration
 
@@ -100,7 +94,7 @@ class experimentManager:
 
     @property
     def experimentName(self):
-        return self._configuration['experiment']['name']
+        return self._configuration['experimentName']
     
     @property
     def tbHome(self):
@@ -164,7 +158,7 @@ class experimentManager:
         self._experiment = getExperimentSetup(self.datalayerType, experimentName=self.experimentName,
                                               **self._configuration['setupManager'][self.datalayerType])
 
-    def setupExperiment(self):
+    def setupExperiment(self, toDirectory : str =None ):
         """
             1. Create the computed devices in Thingsboard.
             2. Save the computed device files for NodeRed.
@@ -174,7 +168,10 @@ class experimentManager:
             None
         """
 
-        pathToDeviceFile = os.path.abspath(self.experimentConfigurationPath)
+        if toDirectory is None:
+            toDirectory = os.getcwd()
+
+        pathToDeviceFile = os.path.abspath(toDirectory)
 
         devicesList = self.experiment.getExperimentEntities()
         computedDevicesList = self._loadComputedDevicesThingsboard()
@@ -187,6 +184,26 @@ class experimentManager:
             outFile.write(json.dumps(computedDevicesList, indent=4, sort_keys=True))
 
 
+    def packExperimentSetup(self, toDirectory : str):
+        """
+            Archive all the data of the experiment.
+
+            Download the pictures from the
+
+
+        Parameters
+        ----------
+
+        toDirectory : str
+            The directory to pack the experiment to.
+
+
+        Returns
+        -------
+
+        None
+        """
+        self.experiment.packExperimentSetup(toDirectory)
 
     def _setupDefaultAssets(self):
         """
@@ -226,28 +243,29 @@ class experimentManager:
 
     def getComputationalDeviceList(self):
         """
-            Returns a list of the names of the computational devices out of the
-            devices in the experiment and the computational windows.
+            Returns a list of the names of the computational entites out of the
+            entites in the experiment and the computational windows.
 
         :return:
-            A list of dict of the computational devices.
+            A list of dict of the computational entites.
         """
-        devices = self.experiment.getExperimentEntities()
+        entites = self.experiment.getExperimentEntities()
         computationDeviceList = []
-        for deviceDict in devices:
-            deviceName = deviceDict['deviceName']
-            deviceType = deviceDict['deviceTypeName']
-            windows = self.deviceComputationWindow[deviceType]
+        for entityDict in entites:
+            deviceName = entityDict['entityName']
+            deviceType = entityDict['entityTypeName']
+            windows = self.deviceComputationWindow.get(deviceType,None)
 
-            for window in windows:
-                windowDeviceName = self.getComputedDeviceName(deviceName,window)
-                windowDeviceType = deviceType
+            if windows is not None:
+                for window in windows:
+                    windowDeviceName = self.getComputedDeviceName(deviceName,window)
+                    windowDeviceType = deviceType
 
-                newdevice = dict(deviceName=windowDeviceName,
-                                 window = window,
-                                 parentDevice = deviceName,
-                                 deviceType=windowDeviceType) # credentials=dvceProxy.getCredentials())
-                computationDeviceList.append(newdevice)
+                    newdevice = dict(deviceName=windowDeviceName,
+                                     window = window,
+                                     parentDevice = deviceName,
+                                     deviceType=windowDeviceType) # credentials=dvceProxy.getCredentials())
+                    computationDeviceList.append(newdevice)
 
         return computationDeviceList
 

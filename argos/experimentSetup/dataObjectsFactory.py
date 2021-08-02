@@ -10,13 +10,22 @@ class fileExperimentFactory:
         Loads the experiment data from the directory.
     """
 
+    _basePath = None
+
+    @property
+    def basePath(self):
+        return self._basePath
+
     def __init__(self,**kwargs):
+
+        self._basePath = kwargs.get("baseConfigPath",os.getcwd())
+
         pass
 
     def getExperiment(self,experimentPath):
 
 
-        experimentAbsPath = os.path.abspath(experimentPath)
+        experimentAbsPath = os.path.abspath(os.path.join(self.basePath,experimentPath))
 
         with open(os.path.join(experimentAbsPath,"experiment.json"),"r") as confFile:
             experimentDict = json.load(confFile)
@@ -161,7 +170,6 @@ class webExperimentFactory:
                             key
                         }
                         key
-                        name
                         containsEntities                        
                     }
                     deployedEntities{
@@ -171,7 +179,6 @@ class webExperimentFactory:
                             key
                         }
                         key
-                        name
                         containsEntities
                     }
                 }
