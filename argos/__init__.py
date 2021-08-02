@@ -1,4 +1,4 @@
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 from .experimentSetup import WEB,FILE
 
 from .manager import experimentManager

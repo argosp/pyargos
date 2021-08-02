@@ -51,3 +51,19 @@ class MongoBag:
             collection = mongo_client[self.db_name][self.collection_name]
             items = list(collection.find(full_qry))
         return items
+
+    def debug_read_datetime_interval_from_collection(self, args,**qry):
+
+        start_ts = args[0]
+        end_ts   = args[1]
+
+        full_qry = {self._timestamp_field: {'$gte': start_ts, '$lte': end_ts}}
+        # full_qry.update(qry)
+
+        with pymongo.MongoClient() as mongo_client:
+            collection = mongo_client[self.db_name][self.collection_name]
+            items = list(collection.find(full_qry))
+        return items
+
+
+
