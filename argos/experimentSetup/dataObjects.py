@@ -5,6 +5,7 @@ import requests
 from io import BytesIO
 import matplotlib.pyplot as plt
 
+
 class Experiment:
     """
         Interface to the WEB experiment object.
@@ -474,45 +475,54 @@ class Trial:
         return json.dumps(dict(name=self.name,status=self.status,state=self.state))
 
 
+    def _composeEntityProperties(self,entityType,properties):
+        """
+            Just resolves the properties names.
+            If it is location, split into 3 coordinates.
+        :param properties:
+        :return:
+        """
+        data = []
+        columns = []
+        for property in properties:
+            propertyKey = property['key']
+            propertyLabel = entityType.propertiesTable.loc[propertyKey]['label']
+            propertyType = entityType.propertiesTable.loc[propertyKey]['type']
+            if propertyType == 'location':
+                try:
+                    locationDict = json.loads(property['val'])
+                    locationName = locationDict['name']
+                    latitude = locationDict['coordinates'][0]
+                    longitude = locationDict['coordinates'][1]
+                    data += [locationName, latitude, longitude]
+                except KeyError:
+                    continue
+                except TypeError:
+                    data += [None] * 3
+                columns += ['locationName', 'latitude', 'longitude']
+            else:
+                data.append(property['val'])
+                columns.append(propertyLabel)
+
+        entity_trial_properties = pandas.DataFrame(data=[data], columns=columns, index=[0])
+        return entity_trial_properties
+
     def _composeProperties(self,entities):
-        fullData = self.experiment.entityTypeTable.set_index("key").join(entities,rsuffix="_r")
+        fullData = self.experiment.entityTypeTable.set_index("key").join(entities,rsuffix="_r",how="inner")
         dfList = []
-        for entitykey,entitydata in fullData.iterrows():
-
+        for indx,(entitykey,entitydata) in enumerate(fullData.iterrows()):
             properties = entitydata['properties']
-            entityType = self.experiment.getEntitiesTypeByID(entityTypeID=entities.loc[entitykey]['entitiesTypeKey'])
+            entityType = self.experiment.getEntitiesTypeByID(entityTypeID=entitydata.entitiesTypeKey)
 
-            data = []
-            columns = []
-            for property in properties:
-                propertyKey = property['key']
-                propertyLabel = entityType.propertiesTable.loc[propertyKey]['label']
-                propertyType = entityType.propertiesTable.loc[propertyKey]['type']
-                if propertyType == 'location':
-                    try:
-                        locationDict = json.loads(property['val'])
-                        locationName = locationDict['name']
-                        latitude = locationDict['coordinates'][0]
-                        longitude = locationDict['coordinates'][1]
-                        data += [locationName, latitude, longitude]
-                    except TypeError:
-                        data += [None]*3
-                    columns += ['locationName', 'latitude', 'longitude']
-                else:
-                    data.append(property['val'])
-                    columns.append(propertyLabel)
+            entity_trial_properties = self._composeEntityProperties(entityType,properties)
 
-
-            entity_trial_properties = pandas.DataFrame(data=[data], columns=columns, index=[0])
             entityProperties = entityType[entitydata['name']].propertiesTable.copy()
             entity_total_properties = entity_trial_properties.join(entityProperties,how='left')#.assign(trialSet = self.trialSet.name,
 
-            #        trial = self.name)
             dfList.append(entity_total_properties)
         new_df = pandas.concat(dfList, sort=False,ignore_index=True)
 
         return new_df
-
 
     @property
     def designEntities(self):
@@ -522,7 +532,6 @@ class Trial:
         else:
             return ret.set_index("entityName").T.to_dict()
 
-
     @property
     def deployEntities(self):
         ret = self.deployEntitiesTable
@@ -531,10 +540,46 @@ class Trial:
         else:
             return ret.set_index("entityName").T.to_dict()
 
+    def entities(self,status):
+        """
+
+        :param status: str
+                design or deploy
+        :return:
+        """
+        return getattr(self,f"{status}Entities")
+
+    def entitiesTable(self,status):
+        """
+
+        :param status: str
+                design or deploy
+        :return:
+        """
+        return getattr(self,f"{status}EntitiesTable")
+
+
+    def getDesignPropertiesTableByEntityID(self, entityID):
+        try:
+            entity = pandas.DataFrame(self._metadata['entities']).set_index('key').loc[entityID]
+            entityType = self.experiment.getEntitiesTypeByID(entityTypeID=entity.entitiesTypeKey)
+            ret = self._composeEntityProperties(entityType,entity.properties)
+        except KeyError:
+            ret = pandas.DataFrame()
+        return ret
+
+
+    def getDesignPropertiesByEntityID(self, entityID):
+        ret = self.getDesignPropertiesTableByEntityID(entityID)
+        if ret.empty:
+            return dict()
+        else:
+            return ret.loc[0].T.to_dict()
+
+
     @property
     def designEntitiesTable(self):
         entities = pandas.DataFrame(self._metadata['entities']).set_index('key')
-
         return self._composeProperties(entities)
 
     @property
@@ -544,6 +589,22 @@ class Trial:
         else:
             entities = pandas.DataFrame(self._metadata['deployedEntities']).set_index('key')
             return self._composeProperties(entities)
+
+    def getDeployPropertiesTableByEntityID(self, entityID):
+        try:
+            entity = pandas.DataFrame(self._metadata['deployedEntities']).set_index('key').loc[entityID]
+            entityType = self.experiment.getEntitiesTypeByID(entityTypeID=entity.entitiesTypeKey)
+            ret = self._composeEntityProperties(entityType,entity.properties)
+        except KeyError:
+            ret = pandas.DataFrame()
+        return ret
+
+    def getDeployPropertiesByEntityID(self, entityID):
+        ret = self.getDeployPropertiesTableByEntityID(entityID)
+        if ret.empty:
+            return dict()
+        else:
+            return ret.loc[0].T.to_dict()
 
 
     def __getitem__(self, item):
@@ -769,9 +830,7 @@ class Entity:
         return trialsetdict
 
     def trialDesign(self, trialSet, trialName):
-        properties = self.experiment.trialSet[trialSet][trialName].designEntities
-        ret = properties.get(self.name, dict())
-
+        ret = self.experiment.trialSet[trialSet][trialName].getDesignPropertiesByEntityID(self.key)
         for fld in ['key', 'name', 'entityType', 'entitiesTypeKey']:
             if fld in ret:
                 del ret[fld]

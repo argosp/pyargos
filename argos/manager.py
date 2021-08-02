@@ -3,6 +3,10 @@ import json
 from . import thingsboard as tb
 from .experimentSetup import getExperimentSetup,FILE,WEB
 
+DESIGN = 'design'
+DEPLOY = 'deploy'
+
+
 class experimentSetup:
     """
         Manages the experiment.

@@ -161,7 +161,6 @@ class webExperimentFactory:
                             key
                         }
                         key
-                        name
                         containsEntities                        
                     }
                     deployedEntities{
@@ -171,7 +170,6 @@ class webExperimentFactory:
                             key
                         }
                         key
-                        name
                         containsEntities
                     }
                 }

@@ -3,7 +3,6 @@ from .dataObjectsFactory import fileExperimentFactory,webExperimentFactory
 WEB = "web"
 FILE = "json"
 
-
 def getExperimentSetup(experimentType,experimentName, **kwargs):
     """
         Initializes a new experiemnt setup according to the type.
