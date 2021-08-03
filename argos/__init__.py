@@ -6,7 +6,12 @@ from .manager import experimentSetup
 
 
 """
-
+- Fixed the dataobject. Parses the type of the object
+        Only parses text,number and location. 
+        Should expand to datetime, bool and ect. 
+        
+- Fixed the loading trial: removes old attributes before loading.  
+     
 - Adding the argos-experiment-manager to setup, and load trials to thingsboard. 
 
 - Fixing the dataObject with the new DB structure. 

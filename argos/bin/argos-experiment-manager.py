@@ -32,8 +32,6 @@ def parser_download_handler(args):
 
 def parser_setup_handler(args):
 
-    if len(args.args) == 0:
-        raise ValueError(f"Please specify correct input format: {argos.WEB} or {argos.FILE}. ")
 
     if len(args.args) == 1:
         experimentDirectory = os.getcwd()
@@ -64,8 +62,6 @@ def parser_setup_handler(args):
 
 def parser_mapping_handler(args):
 
-    if len(args.args) == 0:
-        raise ValueError(f"Please specify correct input format: {argos.WEB} or {argos.FILE}. ")
 
     if len(args.args) == 1:
         experimentDirectory = os.getcwd()
@@ -94,7 +90,36 @@ def parser_mapping_handler(args):
         print(mng.experiment.getImageJSMappingFunction(imageName))
 
 
+def parser_loadTrial_handler(args):
 
+    if len(args.args) == 1:
+        experimentDirectory = os.getcwd()
+        inputFormat = args.args[0].lower()
+
+    elif len(args.experimentDirectory) == 2:
+        experimentDirectory = os.path.abspath(args.experimentDirectory[0])
+        inputFormat = args.args[1].tolower()
+    else:
+        raise ValueError(f"Must get . got {args.experimentDirectory}")
+
+    if inputFormat not in [argos.WEB, argos.FILE]:
+        raise ValueError(f"Please specify correct input format: {argos.WEB} or {argos.FILE}. Got {inputFormat}")
+
+
+    configurtionFileName = os.path.join(experimentDirectory, "runtimeExperimentData",
+                                        "Datasources_Configurations.json")
+
+    with open(configurtionFileName) as jsonConfFile:
+        configurationFile = json.load(jsonConfFile)
+
+    trialSetName,trialName = args.trial
+    state = args.state.lower()
+
+    if state not in ['design','deploy']:
+        raise ValueError(f"The state must be design or deploy. Got {state}")
+
+    mng = experimentSetup(configurationFile, inputFormat)
+    mng.loadTrial(trialSetName,trialName,state)
 
 
 if __name__ == "__main__":
@@ -108,16 +133,25 @@ if __name__ == "__main__":
 
 
     ##### download
-    parser_download.add_argument('experimentDirectory',nargs='*',type=str,help='Experiment directory')
+    parser_download.add_argument('experimentDirectory',nargs='+',type=str,help='Experiment directory')
     parser_download.set_defaults(func=parser_download_handler)
 
     ##### setup
-    parser_setup.add_argument('args',nargs='*',type=str,help='[Experiment directory] [web/file]')
+    parser_setup.add_argument('args',nargs='+',type=str,help='[Experiment directory] [web/file]')
     parser_setup.set_defaults(func=parser_setup_handler)
 
     ##### TB mapping
-    parser_TBmapping.add_argument('args',nargs='*',type=str,help='[Experiment directory] [web/file]')
+    parser_TBmapping.add_argument('args',nargs='+',type=str,help='[Experiment directory] [web/file]')
     parser_TBmapping.set_defaults(func=parser_mapping_handler)
+
+    ##### load Trial
+
+    parser_loadTrial.add_argument('args',nargs='+',type=str,help='[Experiment directory] [web/file]')
+    parser_loadTrial.add_argument('--state',type=str,help='design/deploy',default="deploy")
+    parser_loadTrial.add_argument('--trial',nargs='+', type=str, help='[trialSetname] [trial name]')
+
+    parser_loadTrial.set_defaults(func=parser_loadTrial_handler)
+
 
     args = parser.parse_args()
     args.func(args)
