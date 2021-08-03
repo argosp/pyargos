@@ -122,7 +122,6 @@ class webExperimentFactory:
             ''' % (experimentDesc['project']['id'], entityType['key'])
             result = self.client.execute(gql(query))
 
-
             entityType.update(result)
 
         ## Get the trialsets

@@ -475,6 +475,96 @@ class Trial:
         return json.dumps(dict(name=self.name,status=self.status,state=self.state))
 
 
+    def _parseProperty_location(self,property,propertyMetadata):
+        """
+            Parse the location property.
+
+            Returns 3 values: location name, latitude and longitude.
+            The column names are at this order.
+
+        :param property:
+                property
+        :param propertyMetadata:
+                The data that describes the property.
+
+        :return: list,list
+            Returns list of column names and list of values.
+        """
+        try:
+            locationDict = json.loads(property['val'])
+            locationName = locationDict['name']
+            latitude = float(locationDict['coordinates'][0])
+            longitude = float(locationDict['coordinates'][1])
+            data = [locationName, latitude, longitude]
+            columns = ['locationName', 'latitude', 'longitude']
+        except KeyError:
+            # data = [None] * 3
+            data = []
+            columns = []
+        except TypeError:
+            # data = [None] * 3
+            data = []
+            columns = []
+
+        return columns,data
+
+    def _parseProperty_text(self,property,propertyMetadata):
+        """
+            Parse the text property.
+
+            Returns 2 values: location name, latitude and longitude.
+        :param property:
+        :param propertyMetadata:
+
+        :return: list,list
+            Returns list of column names and list of values.
+        """
+        propertyLabel = propertyMetadata['label']
+        data = [property['val']]
+        columns = [propertyLabel]
+
+        return columns,data
+
+    def _parseProperty_number(self,property,propertyMetadata):
+        """
+            Parse the text property.
+
+            Returns 2 values: location name, latitude and longitude.
+        :param property:
+        :param propertyMetadata:
+
+        :return: list,list
+            Returns list of column names and list of values.
+        """
+        try:
+            propertyLabel = propertyMetadata['label']
+            data = [float(property['val'])]
+            columns = [propertyLabel]
+        except ValueError:
+            print(f"\tCannot convert to float property {propertyLabel}. Got value '{property['val']}'")
+            data = []
+            columns =[]
+
+        return columns,data
+
+    def _parseProperty_datetime(self,property,propertyMetadata):
+        """
+            Parse the text property.
+
+            Returns 2 values: location name, latitude and longitude.
+        :param property:
+        :param propertyMetadata:
+
+        :return: list,list
+            Returns list of column names and list of values.
+        """
+        propertyLabel = propertyMetadata['label']
+        data = [pandas.to_datetime(property['val'])]
+        columns = [propertyLabel]
+
+        return columns,data
+
+
     def _composeEntityProperties(self,entityType,properties):
         """
             Just resolves the properties names.
@@ -486,23 +576,14 @@ class Trial:
         columns = []
         for property in properties:
             propertyKey = property['key']
-            propertyLabel = entityType.propertiesTable.loc[propertyKey]['label']
-            propertyType = entityType.propertiesTable.loc[propertyKey]['type']
-            if propertyType == 'location':
-                try:
-                    locationDict = json.loads(property['val'])
-                    locationName = locationDict['name']
-                    latitude = locationDict['coordinates'][0]
-                    longitude = locationDict['coordinates'][1]
-                    data += [locationName, latitude, longitude]
-                except KeyError:
-                    continue
-                except TypeError:
-                    data += [None] * 3
-                columns += ['locationName', 'latitude', 'longitude']
-            else:
-                data.append(property['val'])
-                columns.append(propertyLabel)
+            propertyMetadata = entityType.propertiesTable.loc[propertyKey]
+            propertyType = propertyMetadata['type']
+
+            prop_type_handler = getattr(self,f"_parseProperty_{propertyType}")
+
+            pcolumns, pdata = prop_type_handler(property,propertyMetadata)
+            columns += pcolumns
+            data += pdata
 
         entity_trial_properties = pandas.DataFrame(data=[data], columns=columns, index=[0])
         return entity_trial_properties
