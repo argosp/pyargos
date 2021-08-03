@@ -3,7 +3,6 @@ from .dataObjectsFactory import fileExperimentFactory,webExperimentFactory
 WEB = "web"
 FILE = "json"
 
-
 def getExperimentSetup(experimentType,experimentName, **kwargs):
     """
         Initializes a new experiemnt setup according to the type.
@@ -18,9 +17,7 @@ def getExperimentSetup(experimentType,experimentName, **kwargs):
         raise ValueError(f"experimentType must be {FILE} or {WEB}. Got {experimentType}")
 
     if experimentType==WEB:
-
         experiment = webExperimentFactory(url=kwargs['url'],token=kwargs['token'])
-
     else:
         experiment= fileExperimentFactory(**kwargs)
 

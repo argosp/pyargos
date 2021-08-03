@@ -3,7 +3,11 @@ import json
 from . import thingsboard as tb
 from .experimentSetup import getExperimentSetup,FILE,WEB
 
-class experimentManager:
+DESIGN = 'design'
+DEPLOY = 'deploy'
+
+
+class experimentSetup:
     """
         Manages the experiment.
 
@@ -81,16 +85,6 @@ class experimentManager:
         return self._datalayerType
 
     @property
-    def experimentConfigurationPath(self):
-
-        directory = self._configuration['experiment'].get("directory",None)
-
-        if (directory is None) or directory =="none":
-            directory = os.getcwd()
-
-        return directory
-
-    @property
     def configuration(self):
         return self._configuration
 
@@ -100,7 +94,7 @@ class experimentManager:
 
     @property
     def experimentName(self):
-        return self._configuration['experiment']['name']
+        return self._configuration['experimentName']
     
     @property
     def tbHome(self):
@@ -164,7 +158,7 @@ class experimentManager:
         self._experiment = getExperimentSetup(self.datalayerType, experimentName=self.experimentName,
                                               **self._configuration['setupManager'][self.datalayerType])
 
-    def setupExperiment(self):
+    def setupExperiment(self, toDirectory : str =None ):
         """
             1. Create the computed devices in Thingsboard.
             2. Save the computed device files for NodeRed.
@@ -174,10 +168,13 @@ class experimentManager:
             None
         """
 
-        pathToDeviceFile = os.path.abspath(self.experimentConfigurationPath)
+        if toDirectory is None:
+            toDirectory = os.getcwd()
 
-        devicesList = self.experiment.getExperimentDevices()
-        computedDevicesList = self._loadComputedDevicesThingsboard()
+        pathToDeviceFile = os.path.abspath(toDirectory)
+
+        devicesList = self.experiment.getExperimentEntities()
+        computedDevicesList = self._loadThingsboardDevices()
         self._setupDefaultAssets()
 
         with open(os.path.join(pathToDeviceFile,"devices.json"),"w") as outFile:
@@ -187,6 +184,26 @@ class experimentManager:
             outFile.write(json.dumps(computedDevicesList, indent=4, sort_keys=True))
 
 
+    def packExperimentSetup(self, toDirectory : str):
+        """
+            Archive all the data of the experiment.
+
+            Download the pictures from the
+
+
+        Parameters
+        ----------
+
+        toDirectory : str
+            The directory to pack the experiment to.
+
+
+        Returns
+        -------
+
+        None
+        """
+        self.experiment.packExperimentSetup(toDirectory)
 
     def _setupDefaultAssets(self):
         """
@@ -202,7 +219,7 @@ class experimentManager:
 
         :return:
         """
-        computedDeviceList = self.getComputationalDeviceList()
+        computedDeviceList = self.buildThingsboardDevicesList()
 
         for computedDevice in computedDeviceList:
 
@@ -224,35 +241,42 @@ class experimentManager:
             deviceTypeAssetProxy.addRelation(windowAssetProxy)
 
 
-    def getComputationalDeviceList(self):
+    def buildThingsboardDevicesList(self):
         """
-            Returns a list of the names of the computational devices out of the
-            devices in the experiment and the computational windows.
+            Returns a list of the names of the computational entites out of the
+            entites in the experiment and the computational windows.
 
         :return:
-            A list of dict of the computational devices.
+            A list of dict of the computational entites.
         """
-        devices = self.experiment.getExperimentDevices()
-        computationDeviceList = []
-        for deviceDict in devices:
-            deviceName = deviceDict['deviceName']
-            deviceType = deviceDict['deviceTypeName']
-            windows = self.deviceComputationWindow[deviceType]
+        entites = self.experiment.getExperimentEntities()
+        TBentitiesList = []
+        for entityDict in entites:
+            deviceName = entityDict['entityName']
+            deviceType = entityDict['entityTypeName']
+            windows = self.deviceComputationWindow.get(deviceType,None)
 
-            for window in windows:
-                windowDeviceName = self.getComputedDeviceName(deviceName,window)
-                windowDeviceType = deviceType
+            if windows is not None:
+                for window in windows:
+                    windowDeviceName = self.getComputedDeviceName(deviceName,window)
+                    windowDeviceType = deviceType
 
-                newdevice = dict(deviceName=windowDeviceName,
-                                 window = window,
-                                 parentDevice = deviceName,
-                                 deviceType=windowDeviceType) # credentials=dvceProxy.getCredentials())
-                computationDeviceList.append(newdevice)
+                    newdevice = dict(deviceName=windowDeviceName,
+                                     window = window,
+                                     parentDevice = deviceName,
+                                     deviceType=windowDeviceType)
+                    TBentitiesList.append(newdevice)
+            else:
+                newdevice = dict(deviceName=deviceName,
+                                 window=None,
+                                 parentDevice=None,
+                                 deviceType=deviceType)
+                TBentitiesList.append(newdevice)
 
-        return computationDeviceList
+        return TBentitiesList
 
 
-    def _loadComputedDevicesThingsboard(self):
+    def _loadThingsboardDevices(self):
         """
             Create all the computed devices in the TB.
 
@@ -263,15 +287,15 @@ class experimentManager:
                list of computed devices with their credentials.
 
         """
-        computedDeviceList = self.getComputationalDeviceList()
+        TBDeviceList = self.buildThingsboardDevicesList()
 
-        for computationalDevice in computedDeviceList:
-            dvceProxy = self.tbHome.deviceHome.createProxy(computationalDevice['deviceName'],
-                                                           computationalDevice['deviceType'])
+        for TBDevice in TBDeviceList:
+            dvceProxy = self.tbHome.deviceHome.createProxy(TBDevice['deviceName'],
+                                                           TBDevice['deviceType'])
 
-            computationalDevice['credentials']=dvceProxy.getCredentials()
+            TBDevice['credentials']=dvceProxy.getCredentials()
 
-        return computedDeviceList
+        return TBDeviceList
 
     def _loadToHera(self):
         """
@@ -285,7 +309,7 @@ class experimentManager:
             from hera.datalayer import Measurements
             from hera.datalayer import datatypes
 
-            for devicetype in self.experiment.deviceType():
+            for devicetype in self.experiment.entityType():
 
                 dataPath = os.path.join(os.path.abspath("."),"data")
 
@@ -319,32 +343,32 @@ class experimentManager:
 
     def loadTrial(self,trialSetName: str, trialName: str,state : str):
 
-        for computedDevice in self.getComputationalDeviceList():
-            print(f"Loading {computedDevice['deviceName']}")
+        for TBDevice in self.buildThingsboardDevicesList():
+            print(f"Loading {TBDevice['deviceName']}, removing old property values")
 
-            deviceType   = computedDevice['deviceType']
-            deviceParent = computedDevice['parentDevice']
+            deviceType   = TBDevice['deviceType']
+            deviceParent = TBDevice.get('parentDevice',None)
 
             # get the device data from the data manager
-            parentDevice = self.experiment.deviceType[deviceType][deviceParent]
+            if deviceParent is None:
+                parentDevice = self.experiment.entityType[deviceType][TBDevice['deviceName']]
+            else:
+                parentDevice = self.experiment.entityType[deviceType][deviceParent]
 
-            deviceProxy = self.tbHome.deviceHome.createProxy(entityName=computedDevice['deviceName'],
-                                                             entityType=computedDevice['deviceType'])
+            deviceProxy = self.tbHome.deviceHome.createProxy(entityName=TBDevice['deviceName'],
+                                                             entityType=TBDevice['deviceType'])
+
+            deviceProxy.delAttributes('locationName','SHARED_SCOPE')
+            deviceProxy.delAttributes('longitude','SHARED_SCOPE')
+            deviceProxy.delAttributes('latitude','SHARED_SCOPE')
+
+            for propName in self.experiment.entityType[deviceType].properties.keys():
+                deviceProxy.delAttributes(propName, 'SHARED_SCOPE')
 
             trialAttributes = parentDevice.trial(trialSetName,trialName,state)
-
-            deviceProxy.setAttributes(trialAttributes,'SHARED_SCOPE')
+            if len(trialAttributes) > 0:
+                deviceProxy.setAttributes(trialAttributes,'SHARED_SCOPE')
             
-
-
-
-
-
-
-
-
-
-
 
 
     def dumpExperimentDevices(self,experimentName):
@@ -354,7 +378,7 @@ class experimentManager:
         :return:
             None
         """
-        devices = self.experiment.devices[['deviceTypeName', 'deviceName']]
+        devices = self.experiment.entities[['deviceTypeName', 'deviceName']]
         devicesJSON = [devices.loc[key].to_dict() for key in devices.index]
 
 

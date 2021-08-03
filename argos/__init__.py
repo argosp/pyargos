@@ -1,10 +1,26 @@
-__version__ = '0.4.0'
+__version__ = '1.0.0'
 from .experimentSetup import WEB,FILE
 
-from .manager import experimentManager
+from .manager import experimentSetup
 
 
 """
+- Fixed the dataobject. Parses the type of the object
+        Only parses text,number and location. 
+        Should expand to datetime, bool and ect. 
+        
+- Fixed the loading trial: removes old attributes before loading.  
+     
+- Adding the argos-experiment-manager to setup, and load trials to thingsboard. 
+
+- Fixing the dataObject with the new DB structure. 
+   ** still did not add the contains property to the library.
+
+Version 1.0.0
+-------------
+
+- Changes devices->entities
+
 Version 0.4.0
 -------------
 
