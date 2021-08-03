@@ -236,6 +236,7 @@ class swaggerAPI(object):
 
         self._token = token
 
+
         # set up the api-client.
         api_client_config = Configuration()
         api_client_config.host = '{ip}:{port}'.format(**connectdata['server'])
