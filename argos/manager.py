@@ -154,6 +154,7 @@ class experimentSetup:
 
         self.refresh()
 
+
     def refresh(self):
         self._experiment = getExperimentSetup(self.datalayerType, experimentName=self.experimentName,
                                               **self._configuration['setupManager'][self.datalayerType])

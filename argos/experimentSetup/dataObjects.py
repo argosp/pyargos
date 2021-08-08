@@ -249,11 +249,8 @@ class Experiment:
 class fileExperiment(Experiment):
 
     def getImage(self,imageName:str):
-
         imgUrl = os.path.join(self.experimentDescription['experimentsWithData']['url'],"images",f"{imageName}.png")
-
-        with open(imgUrl) as imageFile:
-            img = plt.imread(imageFile)
+        img = plt.imread(imgUrl)
         return img
 
 
