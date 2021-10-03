@@ -225,20 +225,31 @@ class experimentSetup:
 
             window = computedDevice['window']
 
-            # Device asset proxy
-            deviceTypeAssetProxy =  self.tbHome.assetHome.createProxy(entityName=computedDevice['deviceType'],
-                                                           entityType="computedDevices")
+            if( 'technical' in computedDevice['deviceName']):
 
-            # Get the asset proxy
-            windowAssetProxy = self.tbHome.assetHome.createProxy(entityName=f"Window {window}s",
-                                                           entityType="windowComputedDevices")
+                deviceTypeAssetProxy = self.tbHome.assetHome.createProxy(entityName='Technical',
+                                                                         entityType='technical')
 
-            # Get the device proxy.
-            deviceProxy = self.tbHome.deviceHome.createProxy(entityName=computedDevice['deviceName'],
-                                                             entityType=computedDevice['deviceType'])
+                deviceProxy = self.tbHome.deviceHome.createProxy(entityName=computedDevice['deviceName'],
+                                                                 entityType=computedDevice['deviceType'])
+                deviceTypeAssetProxy.addRelation(deviceProxy)
+            else:
+                # Device asset proxy
+                deviceTypeAssetProxy =  self.tbHome.assetHome.createProxy(entityName=computedDevice['deviceType'],
+                                                               entityType="computedDevices")
 
-            windowAssetProxy.addRelation(deviceProxy)
-            deviceTypeAssetProxy.addRelation(windowAssetProxy)
+                # Get the asset proxy
+                windowAssetProxy = self.tbHome.assetHome.createProxy(entityName=f"Window {window}s",
+                                                               entityType="windowComputedDevices")
+
+
+                # Get the device proxy.
+                deviceProxy = self.tbHome.deviceHome.createProxy(entityName=computedDevice['deviceName'],
+                                                                 entityType=computedDevice['deviceType'])
+                windowAssetProxy.addRelation(deviceProxy)
+                deviceTypeAssetProxy.addRelation(windowAssetProxy)
+
+
 
 
     def buildThingsboardDevicesList(self):
@@ -272,6 +283,14 @@ class experimentSetup:
                                  parentDevice=None,
                                  deviceType=deviceType)
                 TBentitiesList.append(newdevice)
+
+            technicalDeviceName = self.getComputedDeviceName(deviceName, 'technical_10')
+
+            newdevice = dict(deviceName=technicalDeviceName,
+                             window=10,
+                             parentDevice=deviceName,
+                             deviceType=deviceType)
+            TBentitiesList.append(newdevice)
 
         return TBentitiesList
 
