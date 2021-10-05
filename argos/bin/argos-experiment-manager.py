@@ -26,7 +26,7 @@ def parser_download_handler(args):
     experimentName = configurationFile['experimentName']
     destDir = os.path.join(experimentDirectory,"runtimeExperimentData",experimentName)
 
-    mng = experimentSetup(configurationFile,argos.WEB)
+    mng = experimentSetup(configurationFile,argos.WEB,experimentDirectory)
     print(f"Downloading experiment {experimentName} into directory {destDir}")
     mng.packExperimentSetup(destDir)
 
@@ -133,7 +133,7 @@ if __name__ == "__main__":
 
 
     ##### download
-    parser_download.add_argument('experimentDirectory',nargs='+',type=str,help='Experiment directory')
+    parser_download.add_argument('experimentDirectory',nargs='*',type=str,help='Experiment directory')
     parser_download.set_defaults(func=parser_download_handler)
 
     ##### setup

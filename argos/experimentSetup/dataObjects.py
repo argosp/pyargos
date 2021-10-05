@@ -249,11 +249,8 @@ class Experiment:
 class fileExperiment(Experiment):
 
     def getImage(self,imageName:str):
-
         imgUrl = os.path.join(self.experimentDescription['experimentsWithData']['url'],"images",f"{imageName}.png")
-
-        with open(imgUrl) as imageFile:
-            img = plt.imread(imageFile)
+        img = plt.imread(imgUrl)
         return img
 
 
@@ -340,7 +337,7 @@ class TrialSet(dict):
         return ret
 
     @property
-    def trials(self):
+    def trialsTable(self):
         retList = []
         for trialName,trialData in self.items():
             trialProps = trialData.propertiesTable.assign(trialName=trialName,key=trialData.key)
@@ -560,6 +557,23 @@ class Trial:
         """
         propertyLabel = propertyMetadata['label']
         data = [pandas.to_datetime(property['val'])]
+        columns = [propertyLabel]
+
+        return columns,data
+
+    def _parseProperty_textArea(self,property,propertyMetadata):
+        """
+            Parse the text property.
+
+            Returns 2 values: location name, latitude and longitude.
+        :param property:
+        :param propertyMetadata:
+
+        :return: list,list
+            Returns list of column names and list of values.
+        """
+        propertyLabel = propertyMetadata['label']
+        data = [property['val']]
         columns = [propertyLabel]
 
         return columns,data
@@ -891,11 +905,13 @@ class Entity:
     def designProperties(self):
 
         trialsetdict = dict()
-
-        for trialsSetsName in self.experiment.trialSet.keys():
-            trialsetdict[trialsSetsName] = dict()
-            for trialName in self.experiment.trialSet[trialsSetsName].keys():
-                trialsetdict[trialsSetsName][trialName] = self.trialDesign(trialsSetsName, trialName)
+        try:
+            for trialsSetsName in self.experiment.trialSet.keys():
+                trialsetdict[trialsSetsName] = dict()
+                for trialName in self.experiment.trialSet[trialsSetsName].keys():
+                    trialsetdict[trialsSetsName][trialName] = self.trialDesign(trialsSetsName, trialName)
+        except ValueError as e:
+            raise ValueError(f"Error in trial {trialName}. {e}")
 
         return trialsetdict
 

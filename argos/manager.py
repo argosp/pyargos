@@ -60,7 +60,7 @@ class experimentSetup:
           },
     """
 
-
+    _experimentConfigurationPath = None
     _configuration = None
     _experiment = None
     _tbh = None
@@ -104,6 +104,10 @@ class experimentSetup:
         return self._tbh
 
     @property
+    def experimentConfigurationPath(self):
+        return self._experimentConfigurationPath
+
+    @property
     def experiment(self):
         if self.autoRefresh:
             self.refresh()
@@ -116,7 +120,7 @@ class experimentSetup:
 
     getComputedDeviceName = lambda self, deviceName,window: f'{deviceName}_{window}s'  # Creates the name of the device.
 
-    def __init__(self, experimentConfiguration,datalayerType,autoRefresh = False):
+    def __init__(self, experimentConfiguration,datalayerType,experimentConfigurationPath,autoRefresh = False):
         """
             Initializes the experiment manager
 
@@ -125,6 +129,9 @@ class experimentSetup:
         experimentConfiguration : str, file or JSON
                 The configuration file.
 
+        experimentPath: str
+                The path to the home directory of the experiment.
+
         autoRefresh : bool
             If true, refresh the data every access to the experiment layer.
             Else, use the state when loaded.
@@ -132,6 +139,9 @@ class experimentSetup:
         datalayerType : str
             Either   MANAGER_FILE or MANAGER_WEB constants.
         """
+
+        self._experimentConfigurationPath = experimentConfigurationPath
+
         if datalayerType not in [FILE,WEB]:
             raise ValueError(f"datalayerType must be either FILE or WEB constant defined in ExperimentManager. Got {datalayerType}")
 
@@ -154,9 +164,11 @@ class experimentSetup:
 
         self.refresh()
 
+
     def refresh(self):
         self._experiment = getExperimentSetup(self.datalayerType, experimentName=self.experimentName,
-                                              **self._configuration['setupManager'][self.datalayerType])
+                                              **self._configuration['setupManager'][self.datalayerType],
+                                              experimentConfigurationPath=self.experimentConfigurationPath)
 
     def setupExperiment(self, toDirectory : str =None ):
         """

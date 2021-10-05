@@ -17,10 +17,7 @@ class fileExperimentFactory:
         return self._basePath
 
     def __init__(self,**kwargs):
-
-        self._basePath = kwargs.get("baseConfigPath",os.getcwd())
-
-        pass
+        self._basePath = os.path.abspath(kwargs.get("experimentConfigurationPath",os.getcwd()))
 
     def getExperiment(self,experimentPath):
 
