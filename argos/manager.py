@@ -170,7 +170,7 @@ class experimentSetup:
                                               **self._configuration['setupManager'][self.datalayerType],
                                               experimentConfigurationPath=self.experimentConfigurationPath)
 
-    def setupExperiment(self, toDirectory : str =None ):
+    def setupExperiment(self):
         """
             1. Create the computed devices in Thingsboard.
             2. Save the computed device files for NodeRed.
@@ -180,23 +180,26 @@ class experimentSetup:
             None
         """
 
-        if toDirectory is None:
-            toDirectory = os.getcwd()
+        toDirectory = self.experimentConfigurationPath
 
         pathToDeviceFile = os.path.abspath(toDirectory)
 
         devicesList = self.experiment.getExperimentEntities()
+        print("\t Loading the devices to the Thingboard")
         computedDevicesList = self._loadThingsboardDevices()
+        print("\t Loading the assets")
         self._setupDefaultAssets()
 
+        print("\t Writing devices")
         with open(os.path.join(pathToDeviceFile,"devices.json"),"w") as outFile:
             outFile.write(json.dumps(devicesList, indent=4, sort_keys=True))
 
+        print("\t Writing computatation devices")
         with open(os.path.join(pathToDeviceFile,"computationalDevices.json"),"w") as outFile:
             outFile.write(json.dumps(computedDevicesList, indent=4, sort_keys=True))
 
 
-    def packExperimentSetup(self, toDirectory : str):
+    def packExperimentSetup(self):
         """
             Archive all the data of the experiment.
 
@@ -206,16 +209,14 @@ class experimentSetup:
         Parameters
         ----------
 
-        toDirectory : str
-            The directory to pack the experiment to.
-
 
         Returns
         -------
 
         None
         """
-        self.experiment.packExperimentSetup(toDirectory)
+        destDir = os.path.join(self.experimentConfigurationPath, self.experimentName)
+        self.experiment.packExperimentSetup(destDir)
 
     def _setupDefaultAssets(self):
         """
@@ -399,8 +400,7 @@ class experimentSetup:
             trialAttributes = parentDevice.trial(trialSetName,trialName,state)
             if len(trialAttributes) > 0:
                 deviceProxy.setAttributes(trialAttributes,'SHARED_SCOPE')
-            
-
+            print("\t ... finished")
 
     def dumpExperimentDevices(self,experimentName):
         """

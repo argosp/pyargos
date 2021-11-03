@@ -15,8 +15,7 @@ def parser_download_handler(args):
         experimentDirectory = os.path.abspath(args.experimentDirectory[0])
     else:
         raise ValueError(f"must get only one directory!. got {args.experimentDirectory}")
-
-
+    destDir = os.path.join(experimentDirectory, "runtimeExperimentData")
 
     configurtionFileName = os.path.join(experimentDirectory,"runtimeExperimentData","Datasources_Configurations.json")
 
@@ -24,14 +23,12 @@ def parser_download_handler(args):
         configurationFile = json.load(jsonConfFile)
 
     experimentName = configurationFile['experimentName']
-    destDir = os.path.join(experimentDirectory,"runtimeExperimentData",experimentName)
 
-    mng = experimentSetup(configurationFile,argos.WEB,experimentDirectory)
+    mng = experimentSetup(configurationFile,argos.WEB,experimentConfigurationPath=destDir)
     print(f"Downloading experiment {experimentName} into directory {destDir}")
-    mng.packExperimentSetup(destDir)
+    mng.packExperimentSetup()
 
 def parser_setup_handler(args):
-
 
     if len(args.args) == 1:
         experimentDirectory = os.getcwd()
@@ -42,6 +39,7 @@ def parser_setup_handler(args):
         inputFormat = args.args[1].tolower()
     else:
         raise ValueError(f"must get only one directory!. got {args.experimentDirectory}")
+    destDir = os.path.join(experimentDirectory, "runtimeExperimentData")
 
     if inputFormat not in [argos.WEB,argos.FILE]:
         raise ValueError(f"Please specify correct input format: {argos.WEB} or {argos.FILE}. Got {inputFormat}")
@@ -52,13 +50,15 @@ def parser_setup_handler(args):
         configurationFile = json.load(jsonConfFile)
 
     experimentName = configurationFile['experimentName']
-    destDir = os.path.join(experimentDirectory,"runtimeExperimentData")
 
-    mng = experimentSetup(configurationFile,inputFormat)
+
+    mng = experimentSetup(configurationFile,inputFormat,experimentConfigurationPath=destDir)
     print(f"Uploading experiment {experimentName} to Thingsboard")
     print(f"Writing configuration files")
-    mng.setupExperiment(destDir)
-
+    mng.setupExperiment()
+    print("Finished setup")
+    print(f"Downloading experiment {experimentName} into directory {destDir}")
+    mng.packExperimentSetup(destDir)
 
 def parser_mapping_handler(args):
 
@@ -72,6 +72,7 @@ def parser_mapping_handler(args):
         inputFormat = args.args[1].tolower()
     else:
         raise ValueError(f"Must get . got {args.experimentDirectory}")
+    destDir = os.path.join(experimentDirectory, "runtimeExperimentData")
 
     if inputFormat not in [argos.WEB, argos.FILE]:
         raise ValueError(f"Please specify correct input format: {argos.WEB} or {argos.FILE}. Got {inputFormat}")
@@ -83,7 +84,7 @@ def parser_mapping_handler(args):
     with open(configurtionFileName) as jsonConfFile:
         configurationFile = json.load(jsonConfFile)
 
-    mng = experimentSetup(configurationFile, inputFormat)
+    mng = experimentSetup(configurationFile, inputFormat,experimentConfigurationPath=destDir)
 
     for imageName,imageData in mng.experiment.imageMap.items():
         print(f"----------------- {imageName} --------------------")
@@ -101,6 +102,7 @@ def parser_loadTrial_handler(args):
         inputFormat = args.args[1].tolower()
     else:
         raise ValueError(f"Must get . got {args.experimentDirectory}")
+    destDir = os.path.join(experimentDirectory, "runtimeExperimentData")
 
     if inputFormat not in [argos.WEB, argos.FILE]:
         raise ValueError(f"Please specify correct input format: {argos.WEB} or {argos.FILE}. Got {inputFormat}")
@@ -118,9 +120,8 @@ def parser_loadTrial_handler(args):
     if state not in ['design','deploy']:
         raise ValueError(f"The state must be design or deploy. Got {state}")
 
-    mng = experimentSetup(configurationFile, inputFormat)
+    mng = experimentSetup(configurationFile, inputFormat,experimentConfigurationPath=destDir)
     mng.loadTrial(trialSetName,trialName,state)
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
