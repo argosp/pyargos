@@ -1,4 +1,4 @@
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 
 from .experimentSetup import WEB,FILE
 
@@ -6,6 +6,13 @@ from .manager import experimentSetup
 
 
 """
+Version 1.1.0
+-------------
+
+- Fixed the experiment manager 
+
+- closing TBhome throws exception (after end of use). 
+
 - Fixed the dataobject. Parses the type of the object
         Only parses text,number and location. 
         Should expand to datetime, bool and ect. 
