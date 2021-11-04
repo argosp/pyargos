@@ -944,7 +944,7 @@ class Entity:
 
         return ret
 
-    def trial(self, trialSet, trialName,state):
+    def trial(self, trialSet, trialName, trialState):
         """
             Gets the properties of the trial useng the state
 
@@ -954,7 +954,7 @@ class Entity:
             The trialset name
         trialName: str
             The trial name
-        state: str
+        trialState: str
             'design' or 'deploy'
 
         Returns
@@ -962,7 +962,7 @@ class Entity:
              dict
         """
 
-        return getattr(self,f"trial{state.title()}")(trialSet,trialName)
+        return getattr(self, f"trial{trialState.title()}")(trialSet, trialName)
 
 
     def __init__(self, entityType: EntityType, metadata: dict):
