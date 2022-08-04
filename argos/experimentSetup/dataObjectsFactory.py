@@ -1,7 +1,7 @@
 from gql import gql, Client
 from gql.transport.aiohttp import AIOHTTPTransport
 import pandas
-from.dataObjects import webExperiment,fileExperiment
+from.dataObjects import webExperiment,Experiment
 import os
 import json
 
@@ -31,12 +31,10 @@ class fileExperimentFactory:
             experimentDict = json.load(confFile)
 
         experimentDict['experimentsWithData']['url'] = experimentAbsPath
-        return fileExperiment(experimentDescription=experimentDict)
+        return Experiment(experimentDescription=experimentDict)
 
     def __getitem__(self, item):
         return self.getExperiment(experimentPath=item)
-
-
 
 class webExperimentFactory:
     """

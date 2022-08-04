@@ -64,8 +64,6 @@ class Experiment:
 
             return pandas.concat(entityTypeList,ignore_index=True)
 
-
-
     def __init__(self, experimentDescription: dict):
         """
         Experiment object contains information on a specific experiment
@@ -107,7 +105,6 @@ class Experiment:
 
     def getImageURL(self,imageName : str):
         return self._imagesMap[imageName]['imageURL']
-
 
 
     def getImageJSMappingFunction(self,imageName: str):
@@ -155,7 +152,6 @@ class Experiment:
 
         for entityType in self.experimentDescription['entitiesTypes']:
             self._entitiesTypesDict[entityType['name']] = EntityType(experiment=self, metadata = entityType)
-
 
     def toJSON(self):
         """
@@ -245,8 +241,6 @@ class Experiment:
 
         return ret
 
-
-class fileExperiment(Experiment):
 
     def getImage(self,imageName:str):
 
@@ -357,6 +351,7 @@ class TrialSet(dict):
         """
         self._experiment = experiment
         self._metadata = metadata
+
 
         self._initTrials()
 
@@ -764,10 +759,11 @@ class EntityType(dict):
         """
         self._experiment = experiment
         self._metadata = metadata
+
+
         self._initEntities()
 
     def _initEntities(self):
-
         for entity in self._metadata['entities']:
             self[entity['name']] = Entity(entityType=self, metadata=entity)
 
