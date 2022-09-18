@@ -30,8 +30,8 @@ class fileExperimentFactory:
         with open(os.path.join(experimentAbsPath,"experiment.json"),"r") as confFile:
             experimentDict = json.load(confFile)
 
-        experimentDict['experimentsWithData']['url'] = experimentAbsPath
-        return Experiment(experimentDescription=experimentDict)
+
+        return Experiment(setupFileOrData=experimentDict)
 
     def __getitem__(self, item):
         return self.getExperiment(experimentPath=item)
@@ -194,7 +194,7 @@ class webExperimentFactory:
     def getExperiment(self,experimentName):
         experimentDict = self.getExperimentMetadata(experimentName)
         experimentDict['experimentsWithData']['url'] = self.url
-        return webExperiment(experimentDescription=experimentDict)
+        return webExperiment(setupFileOrData=experimentDict)
 
 
 
@@ -323,5 +323,4 @@ class webExperimentFactory:
             Return the list of experiment names.
         """
         return self.listExperiments()['name']
-
 
