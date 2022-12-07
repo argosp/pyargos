@@ -98,13 +98,13 @@ class Experiment:
 
         ## Initializing the images map
         self._imagesMap = dict()
+        if 'experimentsWithData' in self.setup:
+           for imgs in self.setup['experimentsWithData']['maps']:
+               imgName = imgs['imageName']
+               imageFullURL = f"{self.url}/{imgs['imageUrl']}"
+               imgs['imageURL'] = imageFullURL
 
-        for imgs in self.setup['experimentsWithData']['maps']:
-            imgName = imgs['imageName']
-            imageFullURL = f"{self.url}/{imgs['imageUrl']}"
-            imgs['imageURL'] = imageFullURL
-
-            self._imagesMap[imgName] = imgs
+               self._imagesMap[imgName] = imgs
 
     @property
     def imageMap(self):
@@ -1012,11 +1012,14 @@ class Entity:
         """
         self._entityType = entityType
         self._metadata = metadata
-        propertiesPandas = pandas.DataFrame(metadata['properties']).set_index('key')
+        if  'properties' in metadata:
+            propertiesPandas = pandas.DataFrame(metadata['properties']).set_index('key')
 
-        properties = propertiesPandas.merge(entityType.propertiesTable.query("trialField==False"), left_index=True,
+            properties = propertiesPandas.merge(entityType.propertiesTable.query("trialField==False"), left_index=True,
                                             right_index=True)[['val', 'type', 'label', 'description']] \
-            .set_index("label")
+                                           .set_index("label")
+        else:
+            properties = pandas.DataFrame()
 
         self._properties = dict([(key, data['val']) for key, data in properties.T.to_dict().items()])
 

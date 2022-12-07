@@ -58,6 +58,7 @@ def parser_setup_handler(args):
     print(f"Uploading experiment {experimentName} to Thingsboard")
     print(f"Writing configuration files")
     mng.setupExperiment(destDir)
+    print("...Done")
 
 
 def parser_mapping_handler(args):

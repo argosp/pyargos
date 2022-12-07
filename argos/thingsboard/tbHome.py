@@ -31,6 +31,11 @@ class tbHome(object):
 
     _swaggerAPI = None
 
+    def __del__(self):
+        del self._swaggerAPI
+        del self._deviceHome
+        del self._assetHome
+
     def __init__(self, connectdata=None):
         self._swaggerAPI = swaggerAPI(connectdata=connectdata)
         self._deviceHome = tbEntityHome(self._swaggerAPI, "device")
