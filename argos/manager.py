@@ -116,6 +116,7 @@ class experimentSetup:
 
     getComputedDeviceName = lambda self, deviceName,window: f'{deviceName}_{window}s'  # Creates the name of the device.
 
+
     def __init__(self, experimentConfiguration,datalayerType,autoRefresh = False):
         """
             Initializes the experiment manager
