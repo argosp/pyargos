@@ -1,5 +1,6 @@
 __version__ = '1.0.0'
 from .experimentSetup import WEB,FILE
+from .manager import DESIGN,DEPLOY
 
 from .manager import experimentSetup
 
