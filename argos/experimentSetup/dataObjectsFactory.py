@@ -1,13 +1,31 @@
+import glob
 from gql import gql, Client
 from gql.transport.aiohttp import AIOHTTPTransport
 import pandas
-from.dataObjects import webExperiment,Experiment
+from.dataObjects import webExperiment,Experiment,ExperimentZipFile
 import os
-import json
+import zipfile
+from ..utils.jsonutils import loadJSON
 
 class fileExperimentFactory:
     """
         Loads the experiment data from the directory.
+
+        There are 2 options:
+
+        - the directory includes the .json file and the img subdirectory
+        - the directory includes a zip file that includes both.
+
+        If it is extracted directory:
+            - Load the json file:
+                    - Fix structure to the standard format.
+            - Initialize the Experiment object
+
+        If it is a .zip file.
+            - Load the json file from the zip
+            - fix structure to the standard format.
+            - Initialize the zipExperiment object.
+
     """
 
     _basePath = None
@@ -17,24 +35,53 @@ class fileExperimentFactory:
         return self._basePath
 
     def __init__(self,**kwargs):
-
         self._basePath = kwargs.get("baseConfigPath",os.getcwd())
 
         pass
 
-    def getExperiment(self,experimentPath):
+    def getExperiment(self,experimentPath=None):
+        """
+            Loading the json file that creates the
+        Parameters
+        ----------
+        experimentPath
 
+        Returns
+        -------
+
+        """
+
+        experimentPath = "" if experimentPath is None else experimentPath
 
         experimentAbsPath = os.path.abspath(os.path.join(self.basePath,experimentPath))
 
-        with open(os.path.join(experimentAbsPath,"experiment.json"),"r") as confFile:
-            experimentDict = json.load(confFile)
+        # Scan the directory to check if there is a .zip file.
+        zipped = False
+        zipfileList = [fle for fle in glob.glob(os.path.join(experimentAbsPath,"*.zip"))]
+        if len(zipfileList) == 0:
+            print(f"Cannot find zip files in the {experimentAbsPath}, trying to load the experiment.json file")
+            datafile = os.path.join(experimentAbsPath, "experiment.json")
+            if not os.path.isfile(datafile):
+                experimentDict = loadJSON(datafile)
+            else:
+                raise ValueError(f"cannot find experiment.json in the directory")
+        else:
+            zipped = True
+            print(f"Found zip files: {zipfileList}. Taking the first: {zipfileList[0]}")
+            experimentDict = zipfileList[0]
 
-
-        return Experiment(setupFileOrData=experimentDict)
+        if zipped:
+            return ExperimentZipFile(setupFileOrData=experimentDict)
+        else:
+            return Experiment(setupFileOrData=experimentDict)
 
     def __getitem__(self, item):
         return self.getExperiment(experimentPath=item)
+
+
+
+
+
 
 class webExperimentFactory:
     """
