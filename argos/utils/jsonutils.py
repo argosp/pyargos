@@ -133,6 +133,21 @@ def processJSONToPandas(jsonData, nameColumn="parameterName", valueColumn="value
             The name of the value
 
     """
+<<<<<<< HEAD
+
+    pnds = pandas.json_normalize(jsonData).T.reset_index().rename(columns={'index': nameColumn, 0: valueColumn})\
+        .explode(valueColumn)\
+        .reset_index()
+
+    listParameters = pnds.groupby(nameColumn).count().query(f"{valueColumn}>1").index
+
+    for pname in listParameters:
+        counter = 0
+        for I, dta in pnds.iterrows():
+            if dta.loc[nameColumn] == pname:
+                pnds.loc[I, nameColumn] = f"{pname}_{counter}"
+                counter += 1
+=======
     pnds = pandas.json_normalize(jsonData).T.reset_index().rename(columns={'index': nameColumn, 0: valueColumn})\
         .explode(valueColumn,ignore_index=True)\
         .reset_index()
@@ -162,6 +177,7 @@ def processJSONToPandas(jsonData, nameColumn="parameterName", valueColumn="value
             pnds = tmp
 
 
+>>>>>>> b1261804dd6998d789e9f3ea6d698f5ffb7c3061
 
     return pnds[[nameColumn,valueColumn]]
 
@@ -217,6 +233,12 @@ def convertJSONtoPandas(jsonData, nameColumn="parameterName", valueColumn="value
             newdata = newdata.assign(parameterName=newdata.parameterName.apply(lambda x: f"{pname}.{x}"))
             base.append(newdata)
 
+<<<<<<< HEAD
+        param1 = pandas.concat(base,ignore_index=True)
+        dictIndex = param1.apply(lambda x: isinstance(x.value, dict), axis=1)
+
+    return param1
+=======
         pnds1 = pandas.concat(base,ignore_index=True)
         dictIndex = pnds1.apply(lambda x: isinstance(x.value, dict), axis=1)
 
@@ -224,3 +246,4 @@ def convertJSONtoPandas(jsonData, nameColumn="parameterName", valueColumn="value
 
 
 
+>>>>>>> b1261804dd6998d789e9f3ea6d698f5ffb7c3061

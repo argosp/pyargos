@@ -1,4 +1,4 @@
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 from .experimentSetup import WEB,FILE
 from .manager import DESIGN,DEPLOY
 
@@ -16,6 +16,11 @@ from .manager import experimentSetup
 
 - Fixing the dataObject with the new DB structure. 
    ** still did not add the contains property to the library.
+
+Version 1.1.0
+-------------
+
+- Added factory to handle with JSON version 2.0.0 and all experiment data in zip file. 
 
 Version 1.0.0
 -------------

@@ -1,3 +1,5 @@
+import pdb
+import zipfile
 import os
 import json
 import pandas
@@ -23,7 +25,7 @@ class Experiment:
 
     _imagesMap = None
 
-    def refreshSetup(self):
+    def refresh(self):
         """
             Loads the experiment setup and rebuilds all the trial sets and entity types.
         """
@@ -94,8 +96,11 @@ class Experiment:
         self._entitiesTypesDict = dict()
 
         self._setupFileNameOrData = setupFileOrData
-        self.refreshSetup()
+        self.refresh()
 
+        self._init_ImageMaps()
+
+    def _init_ImageMaps(self):
         ## Initializing the images map
         self._imagesMap = dict()
         if 'experimentsWithData' in self.setup:
@@ -105,6 +110,7 @@ class Experiment:
                imgs['imageURL'] = imageFullURL
 
                self._imagesMap[imgName] = imgs
+
 
     @property
     def imageMap(self):
@@ -155,7 +161,7 @@ class Experiment:
 
     def _initEntitiesTypes(self):
 
-        for entityType in self.setup['entitiesTypes']:
+        for entityType in self.setup['entityTypes']:
             self._entitiesTypesDict[entityType['name']] = EntityType(experiment=self, metadata=entityType)
 
     def toJSON(self):
@@ -259,6 +265,78 @@ class Experiment:
         except UnicodeDecodeError:
             img = plt.imread(imgUrl)
         return img
+
+class ExperimentZipFile(Experiment):
+
+    def __init__(self, setupFileOrData):
+        super().__init__(setupFileOrData=setupFileOrData)
+
+    def getImage(self, imageName: str):
+
+        with zipfile.ZipFile(self._setupFileNameOrData) as archive:
+            imageFile = archive.open(os.path.join("images",imageName))
+
+        return plt.imread(imageFile)
+
+
+    def refresh(self):
+        """
+            Loads the experiment setup and rebuilds all the trial sets and entity types.
+        """
+        with zipfile.ZipFile(self._setupFileNameOrData) as archive:
+            experimentDict =loadJSON(archive.open("data.json").readline().decode())
+
+        fileVersion = experimentDict.get("version","1.0.0.").replace(".","_")
+
+        experimentDict = getattr(self,f"_fix_json_version_{fileVersion}")(experimentDict)
+
+        self._experimentSetup = experimentDict
+        self._initTrialSets()
+        self._initEntitiesTypes()
+
+    def _init_ImageMaps(self):
+        ## Initializing the images map
+        with zipfile.ZipFile(self._setupFileNameOrData) as archive:
+            experimentDict =loadJSON(archive.open("data.json").readline().decode())
+
+        self._imagesMap = dict()
+        if 'experiment' in experimentDict:
+           for imgs in experimentDict['experiment']['maps']:
+               imgName = imgs['imageName']
+               self._imagesMap[imgName] = imgs
+
+    def _fix_json_version_1_0_0_(self,jsonFile):
+        return jsonFile
+
+    def _fix_json_version_2_0_0_(self,jsonFile):
+
+        oldFormat = dict(experiment=jsonFile['experiment'],
+                         entityTypes=jsonFile['entityTypes'],
+                         trialSets=jsonFile['trialSets'])
+
+
+        for trialSet in oldFormat['trialSets']:
+            trialSet['trials'] = []
+            currentKey = trialSet['key']
+            for trial in jsonFile['trials']:
+                if trial['trialSetKey'] == currentKey:
+                    trialSet['trials'].append(trial)
+
+
+        for entityType in oldFormat['entityTypes']:
+            entityType['entities'] = []
+            currentKey = entityType['key']
+            for entity in jsonFile['entities']:
+                if entity['entitiesTypeKey'] == currentKey:
+                    entityType['entities'].append(entity)
+
+        return oldFormat
+
+
+
+
+
+
 
 
 class webExperiment(Experiment):
