@@ -10,8 +10,6 @@ Welcome to pyArgos's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   howTo/howtos
-
 Indices and tables
 ==================
 

@@ -1,19 +1,59 @@
 import os
 import json
 from .manager import experimentSetup
-import argos
 import logging
 
 
-def parser_download_handler(args):
+def experiment_createDirectory(arguments):
+    logger = logging.getLogger("argos.bin.experiment_createDirectory")
+    logger.info("--------- Start ---------")
 
-    if len(args.experimentDirectory) == 0:
+    experimentDirectory = os.path.abspath(arguments.directory)
+    logger.info(f"Creating the experiment {arguments.experimentName} in directory {experimentDirectory}")
+
+    fullDirectory = os.path.join(experimentDirectory,arguments.experimentName)
+
+    logger.execution("Creating experiment directories")
+    os.makedirs(os.path.join(fullDirectory,"code"),exist_ok=True)
+    os.makedirs(os.path.join(fullDirectory, "data"), exist_ok=True)
+    os.makedirs(os.path.join(fullDirectory, "runtimeExperimentData"), exist_ok=True)
+
+    logger.execution("Creating basic Datasources_Configurations.json")
+    expDict = dict(experimentName=arguments.experimentName)
+    with open(os.path.join(fullDirectory, "runtimeExperimentData","Datasources_Configurations.json"),'w') as confFile:
+        json.dump(expDict,confFile,indent=4)
+
+    logger.execution("Creating basic inclusion code file in code")
+    argos_basic = f"""
+from hera.utils.unum import *
+import sys 
+import os 
+from argos.experimentSetup.dataObjectsFactory import fileExperimentFactory
+
+print("importing pandas")
+import pandas 
+print("importing numpy")
+import pandas 
+print("importing matplotlib as plt")
+import matplotlib.pyplot as plt  
+
+
+{arguments.experimentName} = fileExperimentFactory("{fullDirectory}").getExperiment()
+print("Experiment loaded into variable {arguments.experimentName} ")  
+"""
+    with open(os.path.join(fullDirectory, "code", "argos_basic.py"),'w') as codeFile:
+        codeFile.write(argos_basic)
+
+
+def parser_download_handler(arguments):
+
+    if len(arguments.experimentDirectory) == 0:
         experimentDirectory = os.getcwd()
 
-    elif len(args.experimentDirectory) == 1:
-        experimentDirectory = os.path.abspath(args.experimentDirectory[0])
+    elif len(arguments.experimentDirectory) == 1:
+        experimentDirectory = os.path.abspath(arguments.experimentDirectory[0])
     else:
-        raise ValueError(f"must get only one directory!. got {args.experimentDirectory}")
+        raise ValueError(f"must get only one directory!. got {arguments.experimentDirectory}")
 
 
 

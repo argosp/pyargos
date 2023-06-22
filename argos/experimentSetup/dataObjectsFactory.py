@@ -6,6 +6,7 @@ from.dataObjects import webExperiment,Experiment,ExperimentZipFile
 import os
 import zipfile
 from ..utils.jsonutils import loadJSON
+from ..utils.logging import get_logger as argos_get_logger
 
 class fileExperimentFactory:
     """
@@ -28,52 +29,54 @@ class fileExperimentFactory:
 
     """
 
-    _basePath = None
+    basePath = None
 
-    @property
-    def basePath(self):
-        return self._basePath
+    def __init__(self, experimentPath=None):
+        self.basePath = os.getcwd() if experimentPath is None else experimentPath
+        self.logger = argos_get_logger(self)
 
-    def __init__(self,**kwargs):
-        self._basePath = kwargs.get("baseConfigPath",os.getcwd())
-
-        pass
-
-    def getExperiment(self,experimentPath=None):
+    def getExperiment(self):
         """
-            Loading the json file that creates the
+            Loading the experimen.
+            Searches the path [experimentPath]/runtimeExperimentData
+
+            If founds a zip file, loads it and return it.
+
         Parameters
         ----------
-        experimentPath
 
         Returns
         -------
-
+            Experiment
         """
-
-        experimentPath = "" if experimentPath is None else experimentPath
-
-        experimentAbsPath = os.path.abspath(os.path.join(self.basePath,experimentPath))
+        experimentAbsPath = os.path.abspath(os.path.join(self.basePath,"runtimeExperimentData"))
 
         # Scan the directory to check if there is a .zip file.
         zipped = False
         zipfileList = [fle for fle in glob.glob(os.path.join(experimentAbsPath,"*.zip"))]
         if len(zipfileList) == 0:
-            print(f"Cannot find zip files in the {experimentAbsPath}, trying to load the experiment.json file")
+            self.logger.info(f"Cannot find zip files in the {experimentAbsPath}, trying to load the experiment.json file")
             datafile = os.path.join(experimentAbsPath, "experiment.json")
             if not os.path.isfile(datafile):
                 experimentDict = loadJSON(datafile)
             else:
-                raise ValueError(f"cannot find experiment.json in the directory")
+                err = f"cannot find experiment.json in the directory {os.path.join(experimentAbsPath)}"
+                self.logger.error(err)
+                raise ValueError(err)
         else:
             zipped = True
-            print(f"Found zip files: {zipfileList}. Taking the first: {zipfileList[0]}")
+            self.logger.info(f"Found zip files: {zipfileList}. Taking the first: {zipfileList[0]}")
             experimentDict = zipfileList[0]
 
+
+
         if zipped:
-            return ExperimentZipFile(setupFileOrData=experimentDict)
+            ret =  ExperimentZipFile(setupFileOrData=experimentDict)
         else:
-            return Experiment(setupFileOrData=experimentDict)
+            ret =  Experiment(setupFileOrData=experimentDict)
+
+        self.logger.info("------------- End ----------")
+        return ret
 
     def __getitem__(self, item):
         return self.getExperiment(experimentPath=item)
