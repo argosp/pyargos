@@ -133,21 +133,6 @@ def processJSONToPandas(jsonData, nameColumn="parameterName", valueColumn="value
             The name of the value
 
     """
-<<<<<<< HEAD
-
-    pnds = pandas.json_normalize(jsonData).T.reset_index().rename(columns={'index': nameColumn, 0: valueColumn})\
-        .explode(valueColumn)\
-        .reset_index()
-
-    listParameters = pnds.groupby(nameColumn).count().query(f"{valueColumn}>1").index
-
-    for pname in listParameters:
-        counter = 0
-        for I, dta in pnds.iterrows():
-            if dta.loc[nameColumn] == pname:
-                pnds.loc[I, nameColumn] = f"{pname}_{counter}"
-                counter += 1
-=======
     pnds = pandas.json_normalize(jsonData).T.reset_index().rename(columns={'index': nameColumn, 0: valueColumn})\
         .explode(valueColumn,ignore_index=True)\
         .reset_index()
@@ -177,12 +162,11 @@ def processJSONToPandas(jsonData, nameColumn="parameterName", valueColumn="value
             pnds = tmp
 
 
->>>>>>> b1261804dd6998d789e9f3ea6d698f5ffb7c3061
 
     return pnds[[nameColumn,valueColumn]]
 
 
-def convertJSONtoPandas(jsonData, nameColumn="parameterName", valueColumn="value"):
+def convertJSONtoPandas(jsonData, nameColumn="parameterNameFullPath", valueColumn="value"):
     """
         converts a JSON (either in file or loaded, or json str) to pandas.
         The pandas flattens the JSON using the json path convection.
@@ -230,15 +214,9 @@ def convertJSONtoPandas(jsonData, nameColumn="parameterName", valueColumn="value
         toProcessList = pnds1[dictIndex].set_index("parameterName")[['value']]
         for pname,data in toProcessList.iterrows():
             newdata = processJSONToPandas(data.value,nameColumn=nameColumn,valueColumn=valueColumn)
-            newdata = newdata.assign(parameterName=newdata.parameterName.apply(lambda x: f"{pname}.{x}"))
+            newdata = newdata.assign(parameterNameFullPath=newdata.parameterName.apply(lambda x: f"{pname}.{x}"))
             base.append(newdata)
 
-<<<<<<< HEAD
-        param1 = pandas.concat(base,ignore_index=True)
-        dictIndex = param1.apply(lambda x: isinstance(x.value, dict), axis=1)
-
-    return param1
-=======
         pnds1 = pandas.concat(base,ignore_index=True)
         dictIndex = pnds1.apply(lambda x: isinstance(x.value, dict), axis=1)
 
@@ -246,4 +224,3 @@ def convertJSONtoPandas(jsonData, nameColumn="parameterName", valueColumn="value
 
 
 
->>>>>>> b1261804dd6998d789e9f3ea6d698f5ffb7c3061

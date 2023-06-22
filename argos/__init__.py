@@ -4,8 +4,21 @@ from .manager import DESIGN,DEPLOY
 
 from .manager import experimentSetup
 
+# Have some initial default logging configuration in case the user hasn't set any
+from .utils.logging.helpers import initialize_logging
+initialize_logging(disable_existing_loggers=False)
+
 
 """
+
+- refactoring ths argos-experiment-manager to : 
+    1. Build new experiment. 
+    2. have kafaToParquet python utility. 
+       the can either work independently by command or by message from a different topic. 
+
+- adding logging utility. 
+
+
 - Fixed the dataobject. Parses the type of the object
         Only parses text,number and location. 
         Should expand to datetime, bool and ect. 
