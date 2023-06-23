@@ -11,6 +11,7 @@ initialize_logging(disable_existing_loggers=False)
 
 """
 
+- Added a write to parquet and  append to parquet
 - refactoring ths argos-experiment-manager to : 
     1. Build new experiment. 
     2. have kafaToParquet python utility. 

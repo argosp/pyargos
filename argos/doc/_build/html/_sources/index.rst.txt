@@ -10,6 +10,9 @@ Welcome to pyArgos's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   kafka
+   TestingSystem
+
 Indices and tables
 ==================
 

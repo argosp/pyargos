@@ -39,10 +39,14 @@ def appendToParquet(toBeAppended,additionalData,datetimeColumn='datetime'):
 
     if isinstance(additionalData,pandas.DataFrame):
         newData = additionalData
-    elif isinstance(additionalData,dask.dataframe):
+    elif isinstance(additionalData,dask.dataframe.DataFrame):
         newData = additionalData.compute()
+    else:
+        newData = pandas.DataFrame(additionalData)
 
-    newData = newData.reset_index()
+    if datetimeColumn not in newData:
+        newData = newData.reset_index()
+
     newData = newData.assign(datetimeString=newData[datetimeColumn].apply(lambda x: x.strftime("%d_%m_%Y"))).set_index(datetimeColumn)
     dsk = dd.from_pandas(newData, npartitions=1).repartition(freq="1D")
     dsk.to_parquet(toBeAppended, append=True, partition_on="datetimeString")
@@ -78,10 +82,14 @@ def writeToParquet(parquetFile,data,datetimeColumn='datetime'):
 
     if isinstance(data,pandas.DataFrame):
         newData = data
-    elif isinstance(data,dask.dataframe):
+    elif isinstance(data,dask.dataframe.DataFrame):
         newData = data.compute()
+    else:
+        newData = pandas.DataFrame(data)
 
-    newData = newData.reset_index()
+    if datetimeColumn not in newData:
+        newData = newData.reset_index()
+
     newData = newData.assign(datetimeString=newData[datetimeColumn].apply(lambda x: x.strftime("%d_%m_%Y"))).set_index(datetimeColumn)
     dsk = dd.from_pandas(newData,npartitions=1).repartition(freq="1D")
 

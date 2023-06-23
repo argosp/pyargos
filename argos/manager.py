@@ -185,62 +185,6 @@ class experimentSetup:
             outFile.write(json.dumps(computedDevicesList, indent=4, sort_keys=True))
 
 
-    def packExperimentSetup(self, toDirectory : str):
-        """
-            Archive all the data of the experiment.
-
-            Download the pictures from the
-
-
-        Parameters
-        ----------
-
-        toDirectory : str
-            The directory to pack the experiment to.
-
-
-        Returns
-        -------
-
-        None
-        """
-        self.experiment.packExperimentSetup(toDirectory)
-
-    def _setupDefaultAssets(self):
-        """
-            Loads default assets to TB:
-
-            * Asset [Device type]_[window size]
-                    contains all the devices of that window size.
-
-            * Assets [Device type] that contains all the   [Device type]_[window size].
-
-            * Assets
-
-
-        :return:
-        """
-        computedDeviceList = self.buildThingsboardDevicesList()
-
-        for computedDevice in computedDeviceList:
-
-            window = computedDevice['window']
-
-            # Device asset proxy
-            deviceTypeAssetProxy =  self.tbHome.assetHome.createProxy(entityName=computedDevice['deviceType'],
-                                                           entityType="computedDevices")
-
-            # Get the asset proxy
-            windowAssetProxy = self.tbHome.assetHome.createProxy(entityName=f"Window {window}s",
-                                                           entityType="windowComputedDevices")
-
-            # Get the device proxy.
-            deviceProxy = self.tbHome.deviceHome.createProxy(entityName=computedDevice['deviceName'],
-                                                             entityType=computedDevice['deviceType'])
-
-            windowAssetProxy.addRelation(deviceProxy)
-            deviceTypeAssetProxy.addRelation(windowAssetProxy)
-
 
     def buildThingsboardDevicesList(self):
         """

@@ -18,7 +18,6 @@ if __name__ == "__main__":
     parser_download.add_argument('directory', type=str,default=None,  help='Create the experiment directory')
     parser_download.set_defaults(func=managerCLI.experiment_createDirectory)
 
-
     #################
     ##          thingsboard
     #################
