@@ -1,0 +1,34 @@
+#! /usr/bin/env python
+import logging
+
+import pandas
+from argos.tests.demoDevice import deviceSonic
+from kafka import KafkaProducer
+import time
+
+import argparse
+
+if __name__ == "__main__":
+    logger = logging.getLogger("argos.tests.sendToKafka")
+    logger.info("--------- Start ")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("deviceName", help="The device name")
+    parser.add_argument("frequency", help="The frequency in Hz")
+    parser.add_argument("duration", help="Time delta string")
+    parser.add_argument("topic", help="The topic to transmit to")
+    args = parser.parse_args()
+
+    producer = KafkaProducer(bootstrap_servers="127.0.0.1:9092")
+
+    logger.execution("Creating messages")
+    device = deviceSonic(deviceName=args.deviceName,frequency=args.frequency,duration=args.duration)
+    logger.execution("Sending messaged")
+    for msg in device.messages:
+        sndmsg = str(msg).replace("'", '"')
+        logger.execution(f"msg {pandas.to_datetime(msg['datetime'])}: {sndmsg}")
+        producer.send(args.topic, sndmsg.encode())
+        time.sleep(device.delay_s)
+    producer.close()
+
+
+

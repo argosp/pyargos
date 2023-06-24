@@ -7,7 +7,7 @@ import requests
 from io import BytesIO
 import matplotlib.pyplot as plt
 from ..utils.jsonutils import loadJSON
-
+from ..utils.logging import get_logger as argos_get_logger
 
 class Experiment:
     """
@@ -70,6 +70,14 @@ class Experiment:
     def entityTypeTable(self):
         entityTypeList = []
         for entityTypeName, entityTypeData in self.entityType.items():
+            entityTypeList.append(entityTypeData.propertiesTable.assign(entityType=entityTypeName))
+
+        return pandas.concat(entityTypeList, ignore_index=True)
+
+    @property
+    def entitiesTable(self):
+        entityTypeList = []
+        for entityTypeName, entityTypeData in self.entityType.items():
             for entityTypeDataName, entityData in entityTypeData.items():
                 entityTypeList.append(
                     pandas.DataFrame(entityData.properties, index=[0]).assign(entityType=entityTypeName))
@@ -91,13 +99,14 @@ class Experiment:
 
 
         """
-
+        self.logger = argos_get_logger(self)
         self._trialSetsDict = dict()
         self._entitiesTypesDict = dict()
 
         self._setupFileNameOrData = setupFileOrData
         self.refresh()
 
+        self.logger.execution("Loading images")
         self._init_ImageMaps()
 
     def _init_ImageMaps(self):
@@ -192,43 +201,6 @@ class Experiment:
         ret['experiment'] = expr
         return ret
 
-    def packExperimentSetup(self, toDirectory: str):
-        """
-            Archive all the data of the experiment.
-
-            Download the pictures from the web (or get them) and store them.
-
-            We replace the url of the experiment to the file url here.
-            So, loading this json from the directory will know where the images are.
-
-
-        Parameters
-        ----------
-
-        toDirectory : str
-            The directory to pack the experiment to.
-
-
-        Returns
-        -------
-
-        None
-        """
-        os.makedirs(toDirectory, exist_ok=True)
-        imgDir = os.path.join(toDirectory, "images")
-        js = self.setup
-
-        js['experimentsWithData']['url'] = toDirectory
-
-        with open(os.path.join(toDirectory, "experiment.json"), "w") as metadataJson:
-            metadataJson.writelines(json.dumps(js))
-
-        os.makedirs(imgDir, exist_ok=True)
-
-        for imgName in self.imageMap.keys():
-            img = self.getImage(imgName)
-            plt.imsave(os.path.join(imgDir, f"{imgName}.png"), img)
-
     def getExperimentEntities(self):
         """
             Returns the list of all the entities
@@ -283,15 +255,25 @@ class ExperimentZipFile(Experiment):
         """
             Loads the experiment setup and rebuilds all the trial sets and entity types.
         """
+        self.logger.execution("------- Start ----")
+        self.logger.debug(f"Loading file {self._setupFileNameOrData}")
         with zipfile.ZipFile(self._setupFileNameOrData) as archive:
             experimentDict =loadJSON(archive.open("data.json").readline().decode())
 
+
         fileVersion = experimentDict.get("version","1.0.0.").replace(".","_")
+        self.logger.debug(f"Got file version {fileVersion}")
+
 
         experimentDict = getattr(self,f"_fix_json_version_{fileVersion}")(experimentDict)
 
+        self.logger.execution("Experiemnt dict")
         self._experimentSetup = experimentDict
+
+        self.logger.execution("Init trial sets")
         self._initTrialSets()
+
+        self.logger.execution("Init entity type")
         self._initEntitiesTypes()
 
     def _init_ImageMaps(self):
@@ -331,11 +313,6 @@ class ExperimentZipFile(Experiment):
                     entityType['entities'].append(entity)
 
         return oldFormat
-
-
-
-
-
 
 
 
