@@ -1,4 +1,4 @@
-__version__ = '1.1.0'
+__version__ = '1.2.0'
 from .experimentSetup import WEB,FILE
 from .manager import DESIGN,DEPLOY
 
@@ -10,6 +10,9 @@ initialize_logging(disable_existing_loggers=False)
 
 
 """
+
+Version 1.2.0
+-------------
 
 - Added a write to parquet and  append to parquet
 - refactoring ths argos-experiment-manager to : 

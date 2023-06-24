@@ -4,8 +4,6 @@ import numpy
 import json
 from argos.utils.parquetUtils import writeToParquet,appendToParquet
 
-import threading
-
 import pandas
 
 from kafka import KafkaConsumer
@@ -39,8 +37,8 @@ def consume_topic(topic,dataDirectory):
 
     # Consume messages from the topic
     L = []
-    logger.execution(f"Listening to {topic}")
-    message = consumer.poll(timeout_ms=1000)
+    logger.execution(f"Listening to topic {topic}")
+    message = consumer.poll(timeout_ms=12000)
     logger.info(f"{topic} - Got {numpy.sum([len(x) for x in message.values()])}  messages.  ")
     for partitionObj,recordList in message.items():
         frstRcrdTime = recordList[0].value['datetime']
@@ -60,6 +58,7 @@ def consume_topic(topic,dataDirectory):
 
         data = pandas.DataFrame(L)
         data = data.assign(datetime = data['datetime'].apply(lambda x: pandas.to_datetime(x).tz_localize('Israel')))
+        data = data.sort_values('datetime')
 
         logger.info(f"Updating the {fileName} file")
         if os.path.exists(fileName):
@@ -71,13 +70,13 @@ def consume_topic(topic,dataDirectory):
     #
     # for msg in L:
     #     print(f"Received message: {msg}")
-
-thread1 = threading.Thread(target=consume_topic, args=('Sonic',"data"))
-#thread2 = threading.Thread(target=consume_topic, args=('GC',))
-
-thread1.start()
+#
+#thread1 = threading.Thread(target=consume_topic, args=('Sonic',"data"))
+#thread2 = threading.Thread(target=consume_topic, args=('TTT',"data"))
+#
+#thread1.start()
 #thread2.start()
-
-# Wait for the threads to finish
-thread1.join()
+#
+# # Wait for the threads to finish
+#thread1.join()
 #thread2.join()

@@ -58,6 +58,27 @@ if __name__ == "__main__":
     nodered_parser = subparsers.add_parser('nodered', help='Handles nodered')
     nodered_subparser = nodered_parser.add_subparsers(help='Handles nodered')
 
+
+    #################
+    ##          Kafka
+    #################
+    experiment_parser = subparsers.add_parser('kafka', help='manages Kafka')
+    experiment_subparser = experiment_parser.add_subparsers(help='Manages Kafka')
+
+    # ---- create
+    parser_download = experiment_subparser.add_parser('createTopics', help='Creates the topics of the devices')
+    parser_download.set_defaults(func=managerCLI.kafka_createTopics)
+
+    # ---- create
+    parser_download = experiment_subparser.add_parser('runConsumers', help='runs the consumers that convert to python')
+    parser_download.set_defaults(func=managerCLI.kafka_runConsumers)
+
+    parser_download = experiment_subparser.add_parser('runConsumersServer', help='runs the consumers that convert to python')
+    parser_download.add_argument("delay",help="The delay between updates, a timedalt string")
+    parser_download.set_defaults(func=managerCLI.kafka_runConsumersServer)
+
+
+
     # ##### setup
     # parser_setup = nodered_subparser.add_parser('create', help='Create the device name->device type for nodered')
     # parser_setup.add_argument('args',nargs='+',type=str,help='[Experiment directory] [web/file]')
