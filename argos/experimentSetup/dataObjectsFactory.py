@@ -53,6 +53,7 @@ class fileExperimentFactory:
 
         # Scan the directory to check if there is a .zip file.
         zipped = False
+
         zipfileList = [fle for fle in glob.glob(os.path.join(experimentAbsPath,"*.zip"))]
         if len(zipfileList) == 0:
             self.logger.info(f"Cannot find zip files in the {experimentAbsPath}, trying to load the experiment.json file")

@@ -370,7 +370,7 @@ class TrialSet(dict):
     @property
     def propertiesTable(self):
         if 'properties' in self._metadata:
-            ret = pandas.DataFrame(self._metadata['properties']).set_index('key')
+            ret = pandas.DataFrame(self._metadata['properties']) .set_index('key')
         else:
             ret = pandas.DataFrame()
 
@@ -700,9 +700,11 @@ class Trial:
         return entity_trial_properties
 
     def _composeProperties(self, entities):
-        fullData = self.experiment.entityTypeTable.set_index("key").join(entities, rsuffix="_r", how="inner")
+
+        fullData = self.experiment.entitiesTable.set_index("entitiesTypeKey").join(entities.set_index("entitiesTypeKey"), rsuffix="_r", how="inner").reset_index()
         dfList = []
         for indx, (entitykey, entitydata) in enumerate(fullData.iterrows()):
+
             properties = entitydata['properties']
             entityType = self.experiment.getEntitiesTypeByID(entityTypeID=entitydata.entitiesTypeKey)
 
@@ -767,9 +769,21 @@ class Trial:
         else:
             return ret.loc[0].T.to_dict()
 
+    def _prepareEntitiesMetadata(self,metadata):
+
+        retList = []
+        for entityData in metadata:
+            for propData in entityData['properties']:
+                properties = pandas.DataFrame(propData,index=[0])
+                itm = pandas.DataFrame(properties).assign(entitiesTypeKey=entityData['entitiesTypeKey'],containsEntities=entityData['containsEntities'])
+                retList.append(itm)
+
+
+        return pandas.concat(retList,ignore_index=True)
+
     @property
     def designEntitiesTable(self):
-        entities = pandas.DataFrame(self._metadata['entities']).set_index('key')
+        entities = pandas.DataFrame(self._metadata['entities']) #.set_index('key')
         return self._composeProperties(entities)
 
     @property
