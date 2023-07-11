@@ -1,4 +1,4 @@
-__version__ = '1.2.0'
+__version__ = '1.2.1'
 from .experimentSetup import WEB,FILE
 from .manager import DESIGN,DEPLOY
 
@@ -10,6 +10,11 @@ initialize_logging(disable_existing_loggers=False)
 
 
 """
+
+Version 1.2.1
+-------------
+    Fixed a bug reading the zipFile. However, this might break the old version. 
+    We have to check it with one of the old experiments. 
 
 Version 1.2.0
 -------------
