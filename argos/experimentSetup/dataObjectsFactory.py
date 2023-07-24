@@ -1,37 +1,89 @@
+import glob
 from gql import gql, Client
 from gql.transport.aiohttp import AIOHTTPTransport
 import pandas
-from.dataObjects import webExperiment,fileExperiment
+from.dataObjects import webExperiment,Experiment,ExperimentZipFile
 import os
-import json
+import zipfile
+from ..utils.jsonutils import loadJSON
+from ..utils.logging import get_logger as argos_get_logger
 
 class fileExperimentFactory:
     """
         Loads the experiment data from the directory.
+
+        There are 2 options:
+
+        - the directory includes the .json file and the img subdirectory
+        - the directory includes a zip file that includes both.
+
+        If it is extracted directory:
+            - Load the json file:
+                    - Fix structure to the standard format.
+            - Initialize the Experiment object
+
+        If it is a .zip file.
+            - Load the json file from the zip
+            - fix structure to the standard format.
+            - Initialize the zipExperiment object.
+
     """
 
-    _basePath = None
+    basePath = None
 
-    @property
-    def basePath(self):
-        return self._basePath
+    def __init__(self, experimentPath=None):
+        self.basePath = os.getcwd() if experimentPath is None else experimentPath
+        self.logger = argos_get_logger(self)
 
-    def __init__(self,**kwargs):
-        self._basePath = os.path.abspath(kwargs.get("experimentConfigurationPath",os.getcwd()))
+    def getExperiment(self):
+        """
+            Loading the experimen.
+            Searches the path [experimentPath]/runtimeExperimentData
 
-    def getExperiment(self,experimentPath):
+            If founds a zip file, loads it and return it.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+            Experiment
+        """
+        experimentAbsPath = os.path.abspath(os.path.join(self.basePath,"runtimeExperimentData"))
+
+        # Scan the directory to check if there is a .zip file.
+        zipped = False
+
+        zipfileList = [fle for fle in glob.glob(os.path.join(experimentAbsPath,"*.zip"))]
+        if len(zipfileList) == 0:
+            self.logger.info(f"Cannot find zip files in the {experimentAbsPath}, trying to load the experiment.json file")
+            datafile = os.path.join(experimentAbsPath, "experiment.json")
+            if not os.path.isfile(datafile):
+                experimentDict = loadJSON(datafile)
+            else:
+                err = f"cannot find experiment.json in the directory {os.path.join(experimentAbsPath)}"
+                self.logger.error(err)
+                raise ValueError(err)
+        else:
+            zipped = True
+            self.logger.info(f"Found zip files: {zipfileList}. Taking the first: {zipfileList[0]}")
+            experimentDict = zipfileList[0]
 
 
-        experimentAbsPath = os.path.abspath(os.path.join(self.basePath,experimentPath))
 
-        with open(os.path.join(experimentAbsPath,"experiment.json"),"r") as confFile:
-            experimentDict = json.load(confFile)
+        if zipped:
+            ret =  ExperimentZipFile(setupFileOrData=experimentDict)
+        else:
+            ret =  Experiment(setupFileOrData=experimentDict)
 
-        experimentDict['experimentsWithData']['url'] = experimentAbsPath
-        return fileExperiment(experimentDescription=experimentDict)
+        self.logger.info("------------- End ----------")
+        return ret
 
     def __getitem__(self, item):
         return self.getExperiment(experimentPath=item)
+
+
+
 
 
 
@@ -64,7 +116,7 @@ class webExperimentFactory:
         graphqlUrl = f"{url}/graphql"
 
         headers = None if token == '' else dict(authorization=token)
-        transport = AIOHTTPTransport(url=graphqlUrl, headers=headers,ssl=False)
+        transport = AIOHTTPTransport(url=graphqlUrl, headers=headers)
         self._client = Client(transport=transport, fetch_schema_from_transport=True)
 
         self._url = url
@@ -193,7 +245,7 @@ class webExperimentFactory:
     def getExperiment(self,experimentName):
         experimentDict = self.getExperimentMetadata(experimentName)
         experimentDict['experimentsWithData']['url'] = self.url
-        return webExperiment(experimentDescription=experimentDict)
+        return webExperiment(setupFileOrData=experimentDict)
 
 
 
@@ -300,6 +352,7 @@ class webExperimentFactory:
 
         """
         descs = self.getExperimentsDescriptionsList()
+
         return [x for x in descs if x['name']==experimentName][0]
 
 
@@ -321,5 +374,4 @@ class webExperimentFactory:
             Return the list of experiment names.
         """
         return self.listExperiments()['name']
-
 

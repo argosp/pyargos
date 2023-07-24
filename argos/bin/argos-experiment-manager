@@ -1,0 +1,96 @@
+#! /usr/bin/env python
+import argparse
+from argos import managerCLI
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(help='sub-command help')
+
+    #################
+    ##          Experiment
+    #################
+    experiment_parser = subparsers.add_parser('experiment', help='Handles listing of the items')
+    experiment_subparser = experiment_parser.add_subparsers(help='Handles simulation group')
+
+    #---- create
+    parser_download = experiment_subparser.add_parser('create', help='Creates an empty experiment directory')
+    parser_download.add_argument('experimentName', type=str, help='Create the experiment directory')
+    parser_download.add_argument('directory', type=str,default=None,  help='Create the experiment directory')
+    parser_download.set_defaults(func=managerCLI.experiment_createDirectory)
+
+    #################
+    ##          thingsboard
+    #################
+    thingsboard_parser = subparsers.add_parser('thingsboard', help='Handles thingsboard')
+    thingsboard_subparser = thingsboard_parser.add_subparsers(help='Handles thingsboard')
+
+    # thingsboard_load_parser = thingsboard_subparser.add_parser('load', help='Handles listing of the items')
+    # thingsboard_load_subparser = thingsboard_load_parser.add_subparsers(help='Handles simulation group')
+    #
+    # #--- TB mapping
+    # thingsboard_load_devices = thingsboard_load_subparser.add_parser('devices', help='Pring the JS function for mapping')
+    # thingsboard_load_devices.add_argument('inputType', type=str, choices=['web','file'], help='Get the data for mapping from web/file')
+    # thingsboard_load_devices.add_argument('--directory', type=str, default=None, help='The expeirment directory, ')
+    #
+    # #---- Load to Thingsboard.
+    # ##### load Trial
+    # thingsboard_load_trial = thingsboard_load_subparser.add_parser('trial', help='Loads the attributes of a device to a trial (either design or deploy)')
+    # thingsboard_load_trial.add_argument('trialName', type=str, help='The name of the trial')
+    # thingsboard_load_trial.add_argument('inputType', type=str, choices=['web','file'], help='Get the data for mapping from web/file')
+    # thingsboard_load_trial.add_argument('--directory', type=str, default=None, help='The expeirment directory, ')
+    # thingsboard_load_trial.add_argument('--state',type=str,choices=["design","deploy"],help='design/deploy',default="deploy")
+    # #parser_loadTrial.set_defaults(func=managerCLI.parser_loadTrial_handler)
+    #
+    # #--- TB mapping
+    # parser_TBmapping = thingsboard_subparser.add_parser('getMapping', help='Pring the JS function for mapping')
+    # parser_download.add_argument('inputType', type=str, choices=['web','file'], help='Get the data for mapping from web/file')
+    # parser_download.add_argument('--directory', type=str, default=None, help='The expeirment directory, ')
+    # #parser_download.set_defaults(func=managerCLI.thingsboard_createMapping) # managerCLI.parser_mapping_handler
+    #
+    # ## Obsolete, use the pyargos GUI instead
+    # # parser_download = subparsers.add_parser('downloadMetadata', help='saves the metadata from the experiment')
+    # # parser_download.add_argument('experimentDirectory',nargs='+',type=str,help='Experiment directory')
+    # # parser_download.set_defaults(func=managerCLI.parser_download_handler)
+    #
+    # #################
+    # ##          nodered
+    # #################
+    nodered_parser = subparsers.add_parser('nodered', help='Handles nodered')
+    nodered_subparser = nodered_parser.add_subparsers(help='Handles nodered')
+
+
+    #################
+    ##          Kafka
+    #################
+    experiment_parser = subparsers.add_parser('kafka', help='manages Kafka')
+    experiment_subparser = experiment_parser.add_subparsers(help='Manages Kafka')
+
+    # ---- create
+    parser_download = experiment_subparser.add_parser('createTopics', help='Creates the topics of the devices')
+    parser_download.set_defaults(func=managerCLI.kafka_createTopics)
+
+    # ---- create
+    parser_download = experiment_subparser.add_parser('runConsumers', help='runs the consumers that convert to python')
+    parser_download.set_defaults(func=managerCLI.kafka_runConsumers)
+
+    parser_download = experiment_subparser.add_parser('runConsumersServer', help='runs the consumers that convert to python')
+    parser_download.add_argument("delay",help="The delay between updates, a timedalt string")
+    parser_download.set_defaults(func=managerCLI.kafka_runConsumersServer)
+
+
+
+    # ##### setup
+    # parser_setup = nodered_subparser.add_parser('create', help='Create the device name->device type for nodered')
+    # parser_setup.add_argument('args',nargs='+',type=str,help='[Experiment directory] [web/file]')
+    # #parser_setup.set_defaults(func=managerCLI.parser_setup_handler)
+    #
+    # ##### setup
+    # parser_setup = nodered_subparser.add_parser('downloadFlows', help='download the flows from the server')
+    # # parser_setup.add_argument('args',nargs='+',type=str,help='[Experiment directory] [web/file]')
+    # # parser_setup.set_defaults(func=managerCLI.parser_setup_handler)
+    #
+    args = parser.parse_args()
+    if not 'func' in args:
+        parser.print_help()
+    else:
+        args.func(args)

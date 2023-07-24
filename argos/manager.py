@@ -60,7 +60,7 @@ class experimentSetup:
           },
     """
 
-    _experimentConfigurationPath = None
+
     _configuration = None
     _experiment = None
     _tbh = None
@@ -104,10 +104,6 @@ class experimentSetup:
         return self._tbh
 
     @property
-    def experimentConfigurationPath(self):
-        return self._experimentConfigurationPath
-
-    @property
     def experiment(self):
         if self.autoRefresh:
             self.refresh()
@@ -120,7 +116,8 @@ class experimentSetup:
 
     getComputedDeviceName = lambda self, deviceName,window: f'{deviceName}_{window}s'  # Creates the name of the device.
 
-    def __init__(self, experimentConfiguration,datalayerType,experimentConfigurationPath,autoRefresh = False):
+
+    def __init__(self, experimentConfiguration,datalayerType,autoRefresh = False):
         """
             Initializes the experiment manager
 
@@ -129,9 +126,6 @@ class experimentSetup:
         experimentConfiguration : str, file or JSON
                 The configuration file.
 
-        experimentPath: str
-                The path to the home directory of the experiment.
-
         autoRefresh : bool
             If true, refresh the data every access to the experiment layer.
             Else, use the state when loaded.
@@ -139,9 +133,6 @@ class experimentSetup:
         datalayerType : str
             Either   MANAGER_FILE or MANAGER_WEB constants.
         """
-
-        self._experimentConfigurationPath = experimentConfigurationPath
-
         if datalayerType not in [FILE,WEB]:
             raise ValueError(f"datalayerType must be either FILE or WEB constant defined in ExperimentManager. Got {datalayerType}")
 
@@ -164,13 +155,11 @@ class experimentSetup:
 
         self.refresh()
 
-
     def refresh(self):
         self._experiment = getExperimentSetup(self.datalayerType, experimentName=self.experimentName,
-                                              **self._configuration['setupManager'][self.datalayerType],
-                                              experimentConfigurationPath=self.experimentConfigurationPath)
+                                              **self._configuration['setupManager'][self.datalayerType])
 
-    def setupExperiment(self):
+    def setupExperiment(self, toDirectory : str =None ):
         """
             1. Create the computed devices in Thingsboard.
             2. Save the computed device files for NodeRed.
@@ -180,88 +169,20 @@ class experimentSetup:
             None
         """
 
-        toDirectory = self.experimentConfigurationPath
+        if toDirectory is None:
+            toDirectory = os.getcwd()
 
         pathToDeviceFile = os.path.abspath(toDirectory)
 
         devicesList = self.experiment.getExperimentEntities()
-        print("\t Loading the devices to the Thingboard")
         computedDevicesList = self._loadThingsboardDevices()
-        print("\t Loading the assets")
         self._setupDefaultAssets()
 
-        print("\t Writing devices")
         with open(os.path.join(pathToDeviceFile,"devices.json"),"w") as outFile:
             outFile.write(json.dumps(devicesList, indent=4, sort_keys=True))
 
-        print("\t Writing computatation devices")
         with open(os.path.join(pathToDeviceFile,"computationalDevices.json"),"w") as outFile:
             outFile.write(json.dumps(computedDevicesList, indent=4, sort_keys=True))
-
-
-    def packExperimentSetup(self):
-        """
-            Archive all the data of the experiment.
-
-            Download the pictures from the
-
-
-        Parameters
-        ----------
-
-
-        Returns
-        -------
-
-        None
-        """
-        destDir = os.path.join(self.experimentConfigurationPath, self.experimentName)
-        self.experiment.packExperimentSetup(destDir)
-
-    def _setupDefaultAssets(self):
-        """
-            Loads default assets to TB:
-
-            * Asset [Device type]_[window size]
-                    contains all the devices of that window size.
-
-            * Assets [Device type] that contains all the   [Device type]_[window size].
-
-            * Assets
-
-
-        :return:
-        """
-        computedDeviceList = self.buildThingsboardDevicesList()
-
-        for computedDevice in computedDeviceList:
-
-            window = computedDevice['window']
-
-            if( 'technical' in computedDevice['deviceName']):
-
-                deviceTypeAssetProxy = self.tbHome.assetHome.createProxy(entityName='Technical',
-                                                                         entityType='technical')
-
-                deviceProxy = self.tbHome.deviceHome.createProxy(entityName=computedDevice['deviceName'],
-                                                                 entityType=computedDevice['deviceType'])
-                deviceTypeAssetProxy.addRelation(deviceProxy)
-            else:
-                # Device asset proxy
-                deviceTypeAssetProxy =  self.tbHome.assetHome.createProxy(entityName=computedDevice['deviceType'],
-                                                               entityType="computedDevices")
-
-                # Get the asset proxy
-                windowAssetProxy = self.tbHome.assetHome.createProxy(entityName=f"Window {window}s",
-                                                               entityType="windowComputedDevices")
-
-
-                # Get the device proxy.
-                deviceProxy = self.tbHome.deviceHome.createProxy(entityName=computedDevice['deviceName'],
-                                                                 entityType=computedDevice['deviceType'])
-                windowAssetProxy.addRelation(deviceProxy)
-                deviceTypeAssetProxy.addRelation(windowAssetProxy)
-
 
 
 
@@ -296,14 +217,6 @@ class experimentSetup:
                                  parentDevice=None,
                                  deviceType=deviceType)
                 TBentitiesList.append(newdevice)
-
-            technicalDeviceName = self.getComputedDeviceName(deviceName, 'technical_10')
-
-            newdevice = dict(deviceName=technicalDeviceName,
-                             window=10,
-                             parentDevice=deviceName,
-                             deviceType=deviceType)
-            TBentitiesList.append(newdevice)
 
         return TBentitiesList
 
@@ -400,7 +313,8 @@ class experimentSetup:
             trialAttributes = parentDevice.trial(trialSetName,trialName,state)
             if len(trialAttributes) > 0:
                 deviceProxy.setAttributes(trialAttributes,'SHARED_SCOPE')
-            print("\t ... finished")
+            
+
 
     def dumpExperimentDevices(self,experimentName):
         """

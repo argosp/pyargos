@@ -1,17 +1,32 @@
-__version__ = '1.1.0'
-
+__version__ = '1.2.1'
 from .experimentSetup import WEB,FILE
+from .manager import DESIGN,DEPLOY
 
 from .manager import experimentSetup
 
+# Have some initial default logging configuration in case the user hasn't set any
+from .utils.logging.helpers import initialize_logging
+initialize_logging(disable_existing_loggers=False)
+
 
 """
-Version 1.1.0
+
+Version 1.2.1
+-------------
+    Fixed a bug reading the zipFile. However, this might break the old version. 
+    We have to check it with one of the old experiments. 
+
+Version 1.2.0
 -------------
 
-- Fixed the experiment manager 
+- Added a write to parquet and  append to parquet
+- refactoring ths argos-experiment-manager to : 
+    1. Build new experiment. 
+    2. have kafaToParquet python utility. 
+       the can either work independently by command or by message from a different topic. 
 
-- closing TBhome throws exception (after end of use). 
+- adding logging utility. 
+
 
 - Fixed the dataobject. Parses the type of the object
         Only parses text,number and location. 
@@ -23,6 +38,11 @@ Version 1.1.0
 
 - Fixing the dataObject with the new DB structure. 
    ** still did not add the contains property to the library.
+
+Version 1.1.0
+-------------
+
+- Added factory to handle with JSON version 2.0.0 and all experiment data in zip file. 
 
 Version 1.0.0
 -------------
