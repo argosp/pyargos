@@ -64,7 +64,7 @@ class webExperimentFactory:
         graphqlUrl = f"{url}/graphql"
 
         headers = None if token == '' else dict(authorization=token)
-        transport = AIOHTTPTransport(url=graphqlUrl, headers=headers)
+        transport = AIOHTTPTransport(url=graphqlUrl, headers=headers,ssl=False)
         self._client = Client(transport=transport, fetch_schema_from_transport=True)
 
         self._url = url
@@ -300,7 +300,6 @@ class webExperimentFactory:
 
         """
         descs = self.getExperimentsDescriptionsList()
-
         return [x for x in descs if x['name']==experimentName][0]
 
 
