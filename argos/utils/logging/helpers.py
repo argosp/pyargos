@@ -37,6 +37,7 @@ def get_default_logging_config(*, disable_existing_loggers: bool = False) -> dic
 
     with open(defaultLocalConfig,'r') as localConfig:
         config_text = "\n".join(localConfig.readlines())
+
     config_text = config_text.replace("{argos_log}", str(ARGOS_DEFAULT_LOG_DIR))
     config = json.loads(config_text)
     assert isinstance(config, dict)
