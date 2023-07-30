@@ -514,11 +514,20 @@ class Trial:
                 ['val', 'type', 'label', 'description']]
             getParser = lambda x: getattr(self, f"_parseProperty_{x.replace('-', '_')}")
 
+
             #       this wont work well for location property in the trial because it has 2 fields.
             #       we have to get the list, and the change all the lists with size 1 to the object itself (like we do now)
             #       and leave all the lists with size 2 as is.
-            self._properties = dict([(data['label'], getParser(data['type'])(data, data)[1][0]) for key, data in
-                                     properties.T.to_dict().items()])
+            parsedValuesList = []
+            for key, data in properties.T.to_dict().items():
+                parsed_data = getParser(data['type'])(data, data)
+                if len(parsed_data[1]) > 0:
+                    val = parsed_data[1][0]
+                else:
+                    val = None
+                parsedValuesList.append((data['label'], val))
+
+            self._properties = dict(parsedValuesList)
         else:
 
             self._properties = metadata['properties']
@@ -552,7 +561,6 @@ class Trial:
             Returns list of column names and list of values.
         """
         try:
-
             locationDict = json.loads(property['val'])
             locationName = locationDict['name']
             latitude = float(locationDict['coordinates'][0])
