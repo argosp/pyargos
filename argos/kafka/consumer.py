@@ -41,8 +41,8 @@ def consume_topic(topic,dataDirectory):
     message = consumer.poll(timeout_ms=12000)
     logger.info(f"{topic} - Got {numpy.sum([len(x) for x in message.values()])}  messages.  ")
     for partitionObj,recordList in message.items():
-        frstRcrdTime = recordList[0].value['datetime']
-        lastRcrdTime = recordList[-1].value['datetime']
+        frstRcrdTime = recordList[0].value['timestamp']
+        lastRcrdTime = recordList[-1].value['timestamp']
 
         logger.info(f"partition {partitionObj.partition}: From time {pandas.to_datetime(frstRcrdTime)} ({frstRcrdTime}) "
                     f"to {pandas.to_datetime(lastRcrdTime)} ({lastRcrdTime})")
@@ -57,8 +57,8 @@ def consume_topic(topic,dataDirectory):
         fileName = os.path.join(os.path.abspath(dataDirectory),f"{topic}.parquet")
 
         data = pandas.DataFrame(L)
-        data = data.assign(datetime = data['datetime'].apply(lambda x: pandas.to_datetime(x).tz_localize('Israel')))
-        data = data.sort_values('datetime')
+        data = data.assign(datetime = data['timestamp'].apply(lambda x: pandas.to_datetime(x).tz_localize('Israel')))
+        data = data.sort_values('timestamp')
 
         logger.info(f"Updating the {fileName} file")
         if os.path.exists(fileName):
