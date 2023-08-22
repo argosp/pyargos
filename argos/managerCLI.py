@@ -53,6 +53,25 @@ print("Experiment loaded into variable {arguments.experimentName} ")
         codeFile.write(argos_basic)
 
 
+
+def nodered_createDeviceMap(arguments):
+    logger = logging.getLogger("argos.bin.nodered_createDeviceList")
+    logger.info("--------- Start ---------")
+
+    expr = fileExperimentFactory().getExperiment()
+
+    print(expr.entitiesTable)
+    entDict = []
+    logger.debug("Iterating over devices: ")
+    for endID,ent in expr.entitiesTable.iterrows():
+        logger.debug(f"\t{ent['name']} -> {ent['entityType']} ")
+        entDict.append( (ent['name'],ent['entityType'] ) )
+
+    deviceMapFileName = os.path.join(os.getcwd(),"runtimeExperimentData","deviceMap.json")
+    logger.info(f"Writing file {deviceMapFileName}")
+    with open(deviceMapFileName,"w") as deviceMap:
+        json.dump(dict(entDict),deviceMap,indent=4)
+
 # def parser_download_handler(arguments):
 #
 #     if len(arguments.experimentDirectory) == 0:

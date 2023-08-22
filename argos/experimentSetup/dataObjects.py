@@ -82,7 +82,7 @@ class Experiment:
                 entityTypeList.append(
                     pandas.DataFrame(entityData.properties, index=[0]).assign(entityType=entityTypeName))
 
-        return pandas.concat(entityTypeList, ignore_index=True)
+        return pandas.concat(entityTypeList, ignore_index=True).drop(columns=["key","entitiesTypeKey"])
 
     def __init__(self, setupFileOrData):
         """
