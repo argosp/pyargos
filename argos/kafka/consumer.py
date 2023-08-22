@@ -85,7 +85,7 @@ def consume_topic_server(topic, dataDirectory,delayInSeconds):
 
     """
     logger = logging.getLogger("argos.kafka.kafkaToParquet")
-    mxRcrd = 12000
+    mxRcrd = 5000
     consumer = KafkaConsumer(
         topic,
         bootstrap_servers='127.0.0.1:9092',
@@ -107,8 +107,8 @@ def consume_topic_server(topic, dataDirectory,delayInSeconds):
             lastRcrdTime = recordList[-1].value['timestamp']
 
             logger.info(
-                f"partition {partitionObj.partition}: From time {pandas.to_datetime(frstRcrdTime,unit='ms')} ({frstRcrdTime}) "
-                f"to {pandas.to_datetime(lastRcrdTime,unit='ms')} ({lastRcrdTime})")
+                f"partition {partitionObj.partition}: From time {pandas.to_datetime(frstRcrdTime,unit='ms').tz_localize('Israel')} ({frstRcrdTime}) "
+                f"to {pandas.to_datetime(lastRcrdTime,unit='ms').tz_localize('Israel')} ({lastRcrdTime})")
             for record in recordList:
                 L.append(record.value)
                 logger.debug(f"{topic} - Got message {record.value}")
@@ -132,7 +132,7 @@ def consume_topic_server(topic, dataDirectory,delayInSeconds):
                 writeToParquet(fileName, data)
             logger.info(f"Done. Updated {fileName} for topic {topic}. Last message is at {data.iloc[-1]['datetime']}")
 
-        if len(L) > mxRcrd:
+        if len(L) >= mxRcrd:
             logger.execution(f"Got more than the maximum ({mxRcrd}). Polling again")
             continue
         else:
