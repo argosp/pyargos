@@ -73,12 +73,17 @@ if __name__ == "__main__":
     parser_download.set_defaults(func=managerCLI.kafka_createTopics)
 
     # ---- create
-    parser_download = experiment_subparser.add_parser('runConsumers', help='runs the consumers that convert to python')
+    parser_download = experiment_subparser.add_parser('runAllConsumers', help='runs the consumers that convert to python')
     parser_download.set_defaults(func=managerCLI.kafka_runConsumers)
 
-    parser_download = experiment_subparser.add_parser('runConsumersServer', help='runs the consumers that convert to python')
-    parser_download.add_argument("delay",help="The delay between updates, a timedalt string")
-    parser_download.set_defaults(func=managerCLI.kafka_runConsumersServer)
+    parser_download_consumer = experiment_subparser.add_parser('runConsumer', help='runs the consumers that convert to python')
+    parser_download_consumer.add_argument("topic", help="the topic of the consumer")
+    parser_download_consumer.set_defaults(func=managerCLI.kafka_runConsumerTopic)
+
+
+    parser_download_server = experiment_subparser.add_parser('runConsumersServer', help='runs the consumers that convert to python')
+    parser_download_server.add_argument("delay",help="The delay between updates, a timedalt string")
+    parser_download_server.set_defaults(func=managerCLI.kafka_runConsumersServer)
 
 
 

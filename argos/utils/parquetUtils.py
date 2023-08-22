@@ -49,7 +49,7 @@ def appendToParquet(toBeAppended,additionalData,datetimeColumn='datetime'):
 
     newData = newData.assign(datetimeString=newData[datetimeColumn].apply(lambda x: x.strftime("%d_%m_%Y"))).set_index(datetimeColumn)
     dsk = dd.from_pandas(newData, npartitions=1).repartition(freq="1D")
-    dsk.to_parquet(toBeAppended, append=True, partition_on="datetimeString")
+    dsk.to_parquet(toBeAppended, append=True, partition_on="datetimeString",ignore_divisions=True)
     return True
 
 def writeToParquet(parquetFile,data,datetimeColumn='datetime'):
