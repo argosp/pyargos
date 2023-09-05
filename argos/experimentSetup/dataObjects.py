@@ -245,8 +245,10 @@ class ExperimentZipFile(Experiment):
 
     def getImage(self, imageName: str):
 
+        imageurl = self._imagesMap[imageName]['imageURL']
+
         with zipfile.ZipFile(self._setupFileNameOrData) as archive:
-            imageFile = archive.open(os.path.join("images",imageName))
+            imageFile = archive.open(os.path.join("images",imageurl))
 
         return plt.imread(imageFile)
 
@@ -258,7 +260,7 @@ class ExperimentZipFile(Experiment):
         self.logger.execution("------- Start ----")
         self.logger.debug(f"Loading file {self._setupFileNameOrData}")
         with zipfile.ZipFile(self._setupFileNameOrData) as archive:
-            experimentDict =loadJSON(archive.open("data.json").readline().decode())
+            experimentDict =loadJSON("\n".join([x.decode() for x in archive.open("data.json").readlines()]))
 
 
         fileVersion = experimentDict.get("version","1.0.0.").replace(".","_")
@@ -279,11 +281,14 @@ class ExperimentZipFile(Experiment):
     def _init_ImageMaps(self):
         ## Initializing the images map
         with zipfile.ZipFile(self._setupFileNameOrData) as archive:
-            experimentDict =loadJSON(archive.open("data.json").readline().decode())
+            experimentDict =loadJSON("\n".join([x.decode() for x in archive.open("data.json").readlines()]))
 
         self._imagesMap = dict()
+
+        experimentDatakey = 'experiment' if 'experiment' in experimentDict else 'experimentWithData'
+
         if 'experiment' in experimentDict:
-           for imgs in experimentDict['experiment']['maps']:
+           for imgs in experimentDict[experimentDatakey]['maps']:
                imgName = imgs['imageName']
                self._imagesMap[imgName] = imgs
 
@@ -552,11 +557,18 @@ class Trial:
             Returns list of column names and list of values.
         """
         try:
+            if isinstance(property['val'],dict):
+                locationDict = property['val']
+            else:
+                locationDict = json.loads(property['val'])
 
-            locationDict = json.loads(property['val'])
             locationName = locationDict['name']
-            latitude = float(locationDict['coordinates'][0])
-            longitude = float(locationDict['coordinates'][1])
+            coords = locationDict['coordinates']
+            if isinstance(coords,str):
+                coords = eval(coords)
+
+            latitude = float(coords[0])
+            longitude = float(coords[1])
             data = [locationName, latitude, longitude]
             columns = ['locationName', 'latitude', 'longitude']
         except KeyError:
@@ -642,7 +654,7 @@ class Trial:
                 data = [float(property['val'])]
             columns = [propertyLabel]
         except ValueError:
-            print(f"\tCannot convert to float property {propertyLabel}. Got value '{property['val']}'")
+            #print(f"\tCannot convert to float property {propertyLabel}. Got value '{property['val']}'")
             data = []
             columns = []
 
@@ -701,7 +713,7 @@ class Trial:
 
     def _composeProperties(self, entities):
 
-        fullData = self.experiment.entitiesTable.set_index("entitiesTypeKey").join(entities.set_index("entitiesTypeKey"), rsuffix="_r", how="inner").reset_index()
+        fullData = self.experiment.entitiesTable.set_index("key").join(entities, rsuffix="_r", how="inner").reset_index()
         dfList = []
         for indx, (entitykey, entitydata) in enumerate(fullData.iterrows()):
 
@@ -715,7 +727,7 @@ class Trial:
                                                                    how='left')  # .assign(trialSet = self.trialSet.name,
 
             dfList.append(entity_total_properties)
-        new_df = pandas.concat(dfList, sort=False, ignore_index=True)
+        new_df = pandas.concat(dfList, sort=False, ignore_index=True).drop(columns=["key","entitiesTypeKey"])
 
         return new_df
 
@@ -899,7 +911,7 @@ class EntityType(dict):
         for entityName, entityData in self.items():
             trialProps = entityData.propertiesTable.assign(entityName=entityName, key=entityData.key)
             retList.append(trialProps)
-        return pandas.concat(retList, ignore_index=True)
+        return pandas.concat(retList, ignore_index=True).drop(columns=["key","entitiesTypeKey"])
 
 
 class Entity:
