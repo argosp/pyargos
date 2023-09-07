@@ -1,3 +1,5 @@
+import shutil
+
 import dask
 import dask.dataframe as dd
 import numpy
@@ -47,9 +49,27 @@ def appendToParquet(toBeAppended,additionalData,datetimeColumn='datetime'):
     if datetimeColumn not in newData:
         newData = newData.reset_index()
 
-    newData = newData.assign(datetimeString=newData[datetimeColumn].apply(lambda x: x.strftime("%d_%m_%Y"))).set_index(datetimeColumn)
-    dsk = dd.from_pandas(newData, npartitions=1).repartition(freq="1D")
-    dsk.to_parquet(toBeAppended, append=True, partition_on="datetimeString",ignore_divisions=True)
+
+
+    logger.debug(f"Loading old data file {toBeAppended}.")
+    dsk = dd.read_parquet(toBeAppended,engine="fastparquet")
+    united = dd.concat([dsk, newData.set_index(datetimeColumn)])
+    logger.debug(f"Check if the last partition is too large. ")
+    if united.partitions[-1].memory_usage().sum().compute()/1e6 > 100 or united.npartitions > 10:
+        logger.debug(f"Repartition file")
+        united = united.repartition(partition_size="100MB")
+
+    logger.debug(f"Saving temporary file")
+    united.to_parquet(f"{toBeAppended}.tmp")
+
+    logger.debug(f"Removing old file")
+    shutil.rmtree(toBeAppended)
+    logger.debug(f"Changing name of the new file. ")
+    shutil.move(f"{toBeAppended}.tmp",toBeAppended)
+
+    #newData = newData.assign(datetimeString=newData[datetimeColumn].apply(lambda x: x.strftime("%d_%m_%Y"))).set_index(datetimeColumn)
+    #dsk = dd.from_pandas(newData, npartitions=1).repartition(freq="1D")
+    #dsk.to_parquet(toBeAppended, append=True, partition_on="datetimeString",ignore_divisions=True)
     return True
 
 def writeToParquet(parquetFile,data,datetimeColumn='datetime'):
@@ -90,8 +110,7 @@ def writeToParquet(parquetFile,data,datetimeColumn='datetime'):
     if datetimeColumn not in newData:
         newData = newData.reset_index()
 
-    newData = newData.assign(datetimeString=newData[datetimeColumn].apply(lambda x: x.strftime("%d_%m_%Y"))).set_index(datetimeColumn)
-    dsk = dd.from_pandas(newData,npartitions=1).repartition(freq="1D")
-
-    dsk.to_parquet(parquetFile, partition_on="datetimeString")
+    #newData = newData.assign(datetimeString=newData[datetimeColumn].apply(lambda x: x.strftime("%d_%m_%Y"))).set_index(datetimeColumn)
+    dsk = dd.from_pandas(newData,npartitions=1).set_index(datetimeColumn)#.repartition(freq="1D")
+    dsk.to_parquet(parquetFile,engine="fastparquet")
     return True
