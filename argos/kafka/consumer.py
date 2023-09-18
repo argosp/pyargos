@@ -30,7 +30,7 @@ def consume_topic(topic,dataDirectory):
         bootstrap_servers='127.0.0.1:9092',
         group_id='1',
         auto_offset_reset='earliest',
-        max_poll_records=10000,
+        max_poll_records=5000,
         value_deserializer=lambda m: json.loads(m.decode('ascii'))
         # Add more consumer configuration options as needed
     )
@@ -45,8 +45,9 @@ def consume_topic(topic,dataDirectory):
         lastRcrdTime = recordList[-1].value['timestamp']
 
         logger.info(
-            f"partition {partitionObj.partition}: From time {pandas.to_datetime(frstRcrdTime, unit='ms')} ({frstRcrdTime}) "
-            f"to {pandas.to_datetime(lastRcrdTime, unit='ms')} ({lastRcrdTime})")
+                f"partition {partitionObj.partition}: From time {pandas.to_datetime(frstRcrdTime, unit='ms')} ({frstRcrdTime}) "
+                f"to {pandas.to_datetime(lastRcrdTime, unit='ms')} ({lastRcrdTime})")
+
         for record in recordList:
             L.append(record.value)
             logger.debug(f"{topic} - Got message {record.value}")
@@ -59,8 +60,9 @@ def consume_topic(topic,dataDirectory):
         fileName = os.path.join(os.path.abspath(dataDirectory),f"{topic}.parquet")
 
         data = pandas.DataFrame(L)
-        data = data.assign(datetime = data['timestamp'].apply(lambda x: pandas.to_datetime(x,unit="ms").tz_localize('Israel')))
-        data = data.sort_values('timestamp')
+        if 'timestamp' in data:
+            data = data.assign(datetime = data['timestamp'].apply(lambda x: pandas.to_datetime(x,unit="ms").tz_localize('Israel')))
+            data = data.sort_values('timestamp')
 
         logger.info(f"Updating the {fileName} file")
         if os.path.exists(fileName):
@@ -113,7 +115,7 @@ def consume_topic_server(topic, dataDirectory,delayInSeconds):
                 L.append(record.value)
                 logger.debug(f"{topic} - Got message {record.value}")
 
-        logger.execution(f"Commiting consumer")
+        logger.execution(f"Commiting consumer {topic}")
         consumer.commit()
 
 
