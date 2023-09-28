@@ -62,7 +62,7 @@ def consume_topic(topic,dataDirectory):
         data = pandas.DataFrame(L)
         if 'timestamp' in data:
             data = data.assign(datetime = data['timestamp'].apply(lambda x: pandas.to_datetime(x,unit="ms").tz_localize('Israel')))
-            data = data.sort_values('timestamp')
+            data = data.sort_values('timestamp').drop_duplicates()
 
         logger.info(f"Updating the {fileName} file")
         if os.path.exists(fileName):

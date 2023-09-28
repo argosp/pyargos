@@ -1,5 +1,7 @@
 import os
 import json
+import pdb
+
 import numpy
 import pandas
 import time
@@ -59,8 +61,6 @@ def nodered_createDeviceMap(arguments):
     logger.info("--------- Start ---------")
 
     expr = fileExperimentFactory().getExperiment()
-
-    print(expr.entitiesTable)
     entDict = []
     logger.debug("Iterating over devices: ")
     for endID,ent in expr.entitiesTable.iterrows():

@@ -1,4 +1,3 @@
-import pdb
 import zipfile
 import os
 import json
@@ -76,13 +75,17 @@ class Experiment:
 
     @property
     def entitiesTable(self):
+        return entitiesTableFull.drop(columns=["key","entitiesTypeKey"])
+
+    @property
+    def entitiesTableFull(self):
         entityTypeList = []
         for entityTypeName, entityTypeData in self.entityType.items():
             for entityTypeDataName, entityData in entityTypeData.items():
                 entityTypeList.append(
                     pandas.DataFrame(entityData.properties, index=[0]).assign(entityType=entityTypeName))
 
-        return pandas.concat(entityTypeList, ignore_index=True).drop(columns=["key","entitiesTypeKey"])
+        return pandas.concat(entityTypeList, ignore_index=True)
 
     def __init__(self, setupFileOrData):
         """
@@ -722,7 +725,7 @@ class Trial:
 
     def _composeProperties(self, entities):
 
-        fullData = self.experiment.entitiesTable.set_index("key").join(entities, rsuffix="_r", how="inner").reset_index()
+        fullData = self.experiment.entitiesTableFull.set_index("key").join(entities, rsuffix="_r", how="inner").reset_index()
         dfList = []
         for indx, (entitykey, entitydata) in enumerate(fullData.iterrows()):
 
@@ -804,7 +807,7 @@ class Trial:
 
     @property
     def designEntitiesTable(self):
-        entities = pandas.DataFrame(self._metadata['entities']) #.set_index('key')
+        entities = pandas.DataFrame(self._metadata['entities']).set_index('key')
         return self._composeProperties(entities)
 
     @property
