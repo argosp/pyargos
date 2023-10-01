@@ -77,6 +77,9 @@ class Experiment:
     def entitiesTable(self):
         return entitiesTableFull.drop(columns=["key","entitiesTypeKey"])
 
+    def trialsTable(self,trialsetName):
+        return self.trialSet[trialsetName].trialsTable
+
     @property
     def entitiesTableFull(self):
         entityTypeList = []
@@ -411,7 +414,12 @@ class TrialSet(dict):
         for trialName, trialData in self.items():
             trialProps = trialData.propertiesTable.assign(trialName=trialName, key=trialData.key)
             retList.append(trialProps)
-        return pandas.concat(retList, ignore_index=True)
+
+        return retList
+
+    @property
+    def trialsTable(self):
+        return pandas.DataFrame(self.toJSON()['trials']).T
 
     def __init__(self, experiment: Experiment, metadata: dict):
         """
