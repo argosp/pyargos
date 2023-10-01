@@ -736,7 +736,7 @@ class Trial:
 
             entityProperties = entityType[entitydata['name']].propertiesTable.copy()
             entity_total_properties = entity_trial_properties.join(entityProperties,
-                                                                   how='left')  # .assign(trialSet = self.trialSet.name,
+                                                                       how='left',rsuffix='_prop')  # .assign(trialSet = self.trialSet.name,
 
             dfList.append(entity_total_properties)
         new_df = pandas.concat(dfList, sort=False, ignore_index=True).drop(columns=["key","entitiesTypeKey"])

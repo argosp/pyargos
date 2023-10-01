@@ -24,33 +24,43 @@ def consume_topic(topic,dataDirectory):
     -------
 
     """
+    max_poll_records = 5000
     logger = logging.getLogger("argos.kafka.kafkaToParquet")
     consumer = KafkaConsumer(
         topic,
         bootstrap_servers='127.0.0.1:9092',
         group_id='1',
         auto_offset_reset='earliest',
-        max_poll_records=5000,
+        max_poll_records=max_poll_records,
         value_deserializer=lambda m: json.loads(m.decode('ascii'))
         # Add more consumer configuration options as needed
     )
 
     # Consume messages from the topic
     L = []
+    keeploop = True
     logger.execution(f"Listening to topic {topic}")
-    message = consumer.poll(timeout_ms=12000)
-    logger.info(f"{topic} - Got {numpy.sum([len(x) for x in message.values()])}  messages.  ")
-    for partitionObj,recordList in message.items():
-        frstRcrdTime = recordList[0].value['timestamp']
-        lastRcrdTime = recordList[-1].value['timestamp']
+    while keeploop:
+        message = consumer.poll(timeout_ms=12000)
+        logger.info(f"{topic} - Got {numpy.sum([len(x) for x in message.values()])}  messages.  ")
+        totalRecords = 0
+        for partitionObj,recordList in message.items():
+            frstRcrdTime = recordList[0].value['timestamp']
+            lastRcrdTime = recordList[-1].value['timestamp']
 
-        logger.info(
-                f"partition {partitionObj.partition}: From time {pandas.to_datetime(frstRcrdTime, unit='ms')} ({frstRcrdTime}) "
-                f"to {pandas.to_datetime(lastRcrdTime, unit='ms')} ({lastRcrdTime})")
+            logger.info(
+                    f"partition {partitionObj.partition}: From time {pandas.to_datetime(frstRcrdTime, unit='ms')} ({frstRcrdTime}) "
+                    f"to {pandas.to_datetime(lastRcrdTime, unit='ms')} ({lastRcrdTime})")
 
-        for record in recordList:
-            L.append(record.value)
-            logger.debug(f"{topic} - Got message {record.value}")
+            for record in recordList:
+                L.append(record.value)
+                logger.debug(f"{topic} - Got message {record.value}")
+
+            totalRecords += len(recordList)
+
+        if totalRecords == 0:
+            keeploop = False
+
 
     logger.execution(f"Closing consumer")
     consumer.close()
@@ -63,6 +73,10 @@ def consume_topic(topic,dataDirectory):
         if 'timestamp' in data:
             data = data.assign(datetime = data['timestamp'].apply(lambda x: pandas.to_datetime(x,unit="ms").tz_localize('Israel')))
             data = data.sort_values('timestamp').drop_duplicates()
+
+        for field in ['Temperature','RH']:
+            if field in data:
+                data[field] = data[field].astype(numpy.float64)
 
         logger.info(f"Updating the {fileName} file")
         if os.path.exists(fileName):
@@ -102,18 +116,32 @@ def consume_topic_server(topic, dataDirectory,delayInSeconds):
         # Consume messages from the topic
         L = []
         logger.execution(f"Listening to topic {topic}")
-        message = consumer.poll(timeout_ms=12000)
-        logger.info(f"{topic} - Got {numpy.sum([len(x) for x in message.values()])}  messages.  ")
-        for partitionObj, recordList in message.items():
-            frstRcrdTime = recordList[0].value['timestamp']
-            lastRcrdTime = recordList[-1].value['timestamp']
+        keeploop = True
+        totalRecords = 0
+        while keeploop:
+            message = consumer.poll(timeout_ms=12000)
+            logger.info(f"{topic} - Got {numpy.sum([len(x) for x in message.values()])}  messages. ")
+            currentMessages = 0
+            for partitionObj, recordList in message.items():
+                frstRcrdTime = recordList[0].value['timestamp']
+                lastRcrdTime = recordList[-1].value['timestamp']
 
-            logger.info(
-                f"partition {partitionObj.partition}: From time {pandas.to_datetime(frstRcrdTime,unit='ms').tz_localize('Israel')} ({frstRcrdTime}) "
-                f"to {pandas.to_datetime(lastRcrdTime,unit='ms').tz_localize('Israel')} ({lastRcrdTime})")
-            for record in recordList:
-                L.append(record.value)
-                logger.debug(f"{topic} - Got message {record.value}")
+                logger.info(
+                    f"partition {partitionObj.partition}: From time {pandas.to_datetime(frstRcrdTime,unit='ms').tz_localize('Israel')} ({frstRcrdTime}) "
+                    f"to {pandas.to_datetime(lastRcrdTime,unit='ms').tz_localize('Israel')} ({lastRcrdTime})")
+                for record in recordList:
+                    L.append(record.value)
+                    logger.debug(f"{topic} - Got message {record.value}")
+
+                totalRecords += len(recordList)
+                currentMessages = len(recordList)
+
+            if currentMessages == 0 or totalRecords > 10000:
+                logger.info(f"{topic} - breaking")
+                keeploop = False
+            else:
+                logger.info(f"{topic} - total records so far: {totalRecords}")
+
 
         logger.execution(f"Commiting consumer {topic}")
         consumer.commit()
