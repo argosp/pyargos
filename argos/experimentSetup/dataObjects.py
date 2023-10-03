@@ -75,7 +75,7 @@ class Experiment:
 
     @property
     def entitiesTable(self):
-        return entitiesTableFull.drop(columns=["key","entitiesTypeKey"])
+        return self.entitiesTableFull.drop(columns=["key","entitiesTypeKey"])
 
     def trialsTable(self,trialsetName):
         return self.trialSet[trialsetName].trialsTable
