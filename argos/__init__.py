@@ -1,4 +1,4 @@
-__version__ = '1.2.1'
+__version__ = '1.2.2'
 from .experimentSetup import WEB,FILE
 from .manager import DESIGN,DEPLOY
 
@@ -10,6 +10,10 @@ initialize_logging(disable_existing_loggers=False)
 
 
 """
+Version 1.2.2
+-------------
+
+    Minor changes to support the old version of the configuration file. 
 
 Version 1.2.1
 -------------
