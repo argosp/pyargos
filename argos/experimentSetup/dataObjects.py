@@ -75,8 +75,10 @@ class Experiment:
 
     @property
     def entitiesTable(self):
-        return self.entitiesTableFull.drop(columns=["key","entitiesTypeKey"])
-
+        if 'key' in self.entitiesTableFull.columns:
+            return self.entitiesTableFull.drop(columns=["key","entitiesTypeKey"])
+        else:
+            return self.entitiesTableFull
     def trialsTable(self,trialsetName):
         return self.trialSet[trialsetName].trialsTable
 
@@ -175,7 +177,6 @@ class Experiment:
             self._trialSetsDict[trialset['name']] = TrialSet(experiment=self, metadata=trialset)
 
     def _initEntitiesTypes(self):
-
         for entityType in self.setup['entityTypes']:
             self._entitiesTypesDict[entityType['name']] = EntityType(experiment=self, metadata=entityType)
 
@@ -283,6 +284,7 @@ class ExperimentZipFile(Experiment):
         self.logger.execution("Init entity type")
         self._initEntitiesTypes()
 
+
     def _init_ImageMaps(self):
         ## Initializing the images map
         with zipfile.ZipFile(self._setupFileNameOrData) as archive:
@@ -325,7 +327,11 @@ class ExperimentZipFile(Experiment):
         return oldFormat
 
     def _fix_json_version_3_0_0(self, jsonFile):
-        oldFormat = dict(experiment={'name': jsonFile['name']},
+        oldFormat = dict(experiment={'name': jsonFile['name'],
+                                     'description':jsonFile['description'],
+                                     'version':jsonFile['version'],
+                                     'startDate':jsonFile['startDate'],
+                                     'endDate':jsonFile['endDate']},
                          entityTypes=jsonFile['deviceTypes'],
                          trialSets=jsonFile['trialTypes']
                          )
@@ -338,9 +344,13 @@ class ExperimentZipFile(Experiment):
 
         for trialSet in oldFormat['trialSets']:
             for trial in trialSet['trials']:
-                trial['properties'] = []
+                if 'properties' not in trial.keys():
+                    trial['properties'] = []
+
                 trial['status'] = 'design'
-                trial['state'] = None
+
+                if 'state' not in trial.keys():
+                    trial['state'] = None
                 if 'devicesOnTrial' in trial.keys():
                     trial['entities'] = trial['devicesOnTrial']
                 else:
@@ -755,7 +765,7 @@ class Trial:
     def _composeProperties(self, entities):
         if 'entitiesTypeKey' in entities.columns:
             fullData = self.experiment.entitiesTableFull.set_index("key").join(entities, rsuffix="_r", how="inner").reset_index()
-            print(fullData)
+
             dfList = []
             for indx, (entitykey, entitydata) in enumerate(fullData.iterrows()):
 
@@ -771,7 +781,7 @@ class Trial:
                 dfList.append(entity_total_properties)
             new_df = pandas.concat(dfList, sort=False, ignore_index=True).drop(columns=["key","entitiesTypeKey"])
         else:
-            pass
+            new_df = pandas.DataFrame(entities)
 
         return new_df
 
@@ -839,7 +849,9 @@ class Trial:
 
     @property
     def designEntitiesTable(self):
-        if 'key' in self._metadata['entities'][0].keys():
+        if len(self._metadata['entities']) == 0:
+            entities = pandas.DataFrame()
+        elif 'key' in self._metadata['entities'][0].keys():
             entities = pandas.DataFrame(self._metadata['entities']).set_index('key')
         else:
             entities = pandas.DataFrame(self._metadata['entities'])
@@ -997,9 +1009,11 @@ class Entity:
     def properties(self):
 
         ret = dict(self._properties)
+        if 'key'  in self._metadata.keys():
+            ret['key'] = self.key
+        if 'entitiesTypeKey' in self._metadata.keys():
+            ret['entitiesTypeKey'] = self._metadata['entitiesTypeKey']
 
-        ret['key'] = self.key
-        ret['entitiesTypeKey'] = self._metadata['entitiesTypeKey']
         ret['name'] = self.name
         ret['entityType'] = self.entityType.name
 
@@ -1140,6 +1154,7 @@ class Entity:
         """
         self._entityType = entityType
         self._metadata = metadata
+
         if  'properties' in metadata:
             propertiesPandas = pandas.DataFrame(metadata['properties']).set_index('key')
 
