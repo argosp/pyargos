@@ -23,8 +23,8 @@ def get_logger(instance, name=None):
     return getClassLogger(instance.__class__) if name is None else logging.getLogger(name)
 
 def get_classMethod_logger(instance, name=None):
-    lgname = instance.__class__ if name is None else instance.__class__ / "." / name
-    return getClassLogger(lgname) if name is None else logging.getLogger(name)
+    lgname = instance.__class__ if name is None else instance.__class__.__module__ + "." + instance.__class__.__qualname__ + "." + name
+    return logging.getLogger(lgname)
 
 
 
@@ -37,6 +37,7 @@ def get_default_logging_config(*, disable_existing_loggers: bool = False) -> dic
 
     with open(defaultLocalConfig,'r') as localConfig:
         config_text = "\n".join(localConfig.readlines())
+
     config_text = config_text.replace("{argos_log}", str(ARGOS_DEFAULT_LOG_DIR))
     config = json.loads(config_text)
     assert isinstance(config, dict)

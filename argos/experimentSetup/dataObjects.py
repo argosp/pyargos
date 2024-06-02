@@ -1,4 +1,3 @@
-import pdb
 import zipfile
 import os
 import json
@@ -76,6 +75,13 @@ class Experiment:
 
     @property
     def entitiesTable(self):
+        return self.entitiesTableFull.drop(columns=["key","entitiesTypeKey"])
+
+    def trialsTable(self,trialsetName):
+        return self.trialSet[trialsetName].trialsTable
+
+    @property
+    def entitiesTableFull(self):
         entityTypeList = []
         for entityTypeName, entityTypeData in self.entityType.items():
             for entityTypeDataName, entityData in entityTypeData.items():
@@ -245,8 +251,10 @@ class ExperimentZipFile(Experiment):
 
     def getImage(self, imageName: str):
 
+        imageurl = self._imagesMap[imageName]['imageURL']
+
         with zipfile.ZipFile(self._setupFileNameOrData) as archive:
-            imageFile = archive.open(os.path.join("images",imageName))
+            imageFile = archive.open(os.path.join("images",imageurl))
 
         return plt.imread(imageFile)
 
@@ -258,7 +266,7 @@ class ExperimentZipFile(Experiment):
         self.logger.execution("------- Start ----")
         self.logger.debug(f"Loading file {self._setupFileNameOrData}")
         with zipfile.ZipFile(self._setupFileNameOrData) as archive:
-            experimentDict =loadJSON(archive.open("data.json").readline().decode())
+            experimentDict =loadJSON("\n".join([x.decode() for x in archive.open("data.json").readlines()]))
 
 
         fileVersion = experimentDict.get("version","1.0.0.").replace(".","_")
@@ -279,11 +287,14 @@ class ExperimentZipFile(Experiment):
     def _init_ImageMaps(self):
         ## Initializing the images map
         with zipfile.ZipFile(self._setupFileNameOrData) as archive:
-            experimentDict =loadJSON(archive.open("data.json").readline().decode())
+            experimentDict =loadJSON("\n".join([x.decode() for x in archive.open("data.json").readlines()]))
 
         self._imagesMap = dict()
+
+        experimentDatakey = 'experiment' if 'experiment' in experimentDict else 'experimentWithData'
+
         if 'experiment' in experimentDict:
-           for imgs in experimentDict['experiment']['maps']:
+           for imgs in experimentDict[experimentDatakey]['maps']:
                imgName = imgs['imageName']
                self._imagesMap[imgName] = imgs
 
@@ -403,7 +414,12 @@ class TrialSet(dict):
         for trialName, trialData in self.items():
             trialProps = trialData.propertiesTable.assign(trialName=trialName, key=trialData.key)
             retList.append(trialProps)
-        return pandas.concat(retList, ignore_index=True)
+
+        return retList
+
+    @property
+    def trialsTable(self):
+        return pandas.DataFrame(self.toJSON()['trials']).T
 
     def __init__(self, experiment: Experiment, metadata: dict):
         """
@@ -514,11 +530,20 @@ class Trial:
                 ['val', 'type', 'label', 'description']]
             getParser = lambda x: getattr(self, f"_parseProperty_{x.replace('-', '_')}")
 
+
             #       this wont work well for location property in the trial because it has 2 fields.
             #       we have to get the list, and the change all the lists with size 1 to the object itself (like we do now)
             #       and leave all the lists with size 2 as is.
-            self._properties = dict([(data['label'], getParser(data['type'])(data, data)[1][0]) for key, data in
-                                     properties.T.to_dict().items()])
+            parsedValuesList = []
+            for key, data in properties.T.to_dict().items():
+                parsed_data = getParser(data['type'])(data, data)
+                if len(parsed_data[1]) > 0:
+                    val = parsed_data[1][0]
+                else:
+                    val = None
+                parsedValuesList.append((data['label'], val))
+
+            self._properties = dict(parsedValuesList)
         else:
 
             self._properties = metadata['properties']
@@ -552,11 +577,18 @@ class Trial:
             Returns list of column names and list of values.
         """
         try:
+            if isinstance(property['val'],dict):
+                locationDict = property['val']
+            else:
+                locationDict = json.loads(property['val'])
 
-            locationDict = json.loads(property['val'])
             locationName = locationDict['name']
-            latitude = float(locationDict['coordinates'][0])
-            longitude = float(locationDict['coordinates'][1])
+            coords = locationDict['coordinates']
+            if isinstance(coords,str):
+                coords = eval(coords)
+
+            latitude = float(coords[0])
+            longitude = float(coords[1])
             data = [locationName, latitude, longitude]
             columns = ['locationName', 'latitude', 'longitude']
         except KeyError:
@@ -642,7 +674,7 @@ class Trial:
                 data = [float(property['val'])]
             columns = [propertyLabel]
         except ValueError:
-            print(f"\tCannot convert to float property {propertyLabel}. Got value '{property['val']}'")
+            #print(f"\tCannot convert to float property {propertyLabel}. Got value '{property['val']}'")
             data = []
             columns = []
 
@@ -701,7 +733,7 @@ class Trial:
 
     def _composeProperties(self, entities):
 
-        fullData = self.experiment.entitiesTable.set_index("entitiesTypeKey").join(entities.set_index("entitiesTypeKey"), rsuffix="_r", how="inner").reset_index()
+        fullData = self.experiment.entitiesTableFull.set_index("key").join(entities, rsuffix="_r", how="inner").reset_index()
         dfList = []
         for indx, (entitykey, entitydata) in enumerate(fullData.iterrows()):
 
@@ -712,10 +744,10 @@ class Trial:
 
             entityProperties = entityType[entitydata['name']].propertiesTable.copy()
             entity_total_properties = entity_trial_properties.join(entityProperties,
-                                                                   how='left')  # .assign(trialSet = self.trialSet.name,
+                                                                       how='left',rsuffix='_prop')  # .assign(trialSet = self.trialSet.name,
 
             dfList.append(entity_total_properties)
-        new_df = pandas.concat(dfList, sort=False, ignore_index=True)
+        new_df = pandas.concat(dfList, sort=False, ignore_index=True).drop(columns=["key","entitiesTypeKey"])
 
         return new_df
 
@@ -783,7 +815,7 @@ class Trial:
 
     @property
     def designEntitiesTable(self):
-        entities = pandas.DataFrame(self._metadata['entities']) #.set_index('key')
+        entities = pandas.DataFrame(self._metadata['entities']).set_index('key')
         return self._composeProperties(entities)
 
     @property
@@ -899,7 +931,7 @@ class EntityType(dict):
         for entityName, entityData in self.items():
             trialProps = entityData.propertiesTable.assign(entityName=entityName, key=entityData.key)
             retList.append(trialProps)
-        return pandas.concat(retList, ignore_index=True)
+        return pandas.concat(retList, ignore_index=True).drop(columns=["key","entitiesTypeKey"])
 
 
 class Entity:
