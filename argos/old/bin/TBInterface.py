@@ -48,7 +48,7 @@ with open(args.conf,"r") as conffile:
 
 #connection = {"login": {"username":"tenant@thingsboard.org","password":"tenant"},"server" : {"ip" : "192.168.11.203","port":"8080"}}
 
-home = tb.tbHome(connectdata=connection)
+home = tb.restClient(connectdata=connection)
 
 for actionJSON in actions["actions"]:
     home.executeAction(actionJSON)

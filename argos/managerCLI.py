@@ -1,13 +1,7 @@
 import os
 import json
-import pdb
-
-import numpy
 import pandas
-import time
-from .manager import experimentSetup
 from .utils.jsonutils import loadJSON
-from .experimentSetup.dataObjectsFactory import fileExperimentFactory
 import logging
 from kafka.admin import KafkaAdminClient, NewTopic
 from kafka import KafkaConsumer,KafkaProducer
@@ -251,35 +245,36 @@ def kafka_runConsumersServer(args):
 #     print(f"Downloading experiment {experimentName} into directory {destDir}")
 #     mng.packExperimentSetup(destDir)
 
-# def parser_setup_handler(args):
-#
-#
-#     if len(args.args) == 1:
-#         experimentDirectory = os.getcwd()
-#         inputFormat = args.args[0].lower()
-#
-#     elif len(args.experimentDirectory) == 2:
-#         experimentDirectory = os.path.abspath(args.experimentDirectory[0])
-#         inputFormat = args.args[1].tolower()
-#     else:
-#         raise ValueError(f"must get only one directory!. got {args.experimentDirectory}")
-#
-#     if inputFormat not in [argos.WEB,argos.FILE]:
-#         raise ValueError(f"Please specify correct input format: {argos.WEB} or {argos.FILE}. Got {inputFormat}")
-#
-#     configurtionFileName = os.path.join(experimentDirectory,"runtimeExperimentData","Datasources_Configurations.json")
-#
-#     with open(configurtionFileName) as jsonConfFile:
-#         configurationFile = json.load(jsonConfFile)
-#
-#     experimentName = configurationFile['experimentName']
-#     destDir = os.path.join(experimentDirectory,"runtimeExperimentData")
-#
-#     mng = experimentSetup(configurationFile,inputFormat)
-#     print(f"Uploading experiment {experimentName} to Thingsboard")
-#     print(f"Writing configuration files")
-#     mng.setupExperiment(destDir)
-#     print("...Done")
+
+def Thingsboard_register(argumets):
+    """
+        Gets the rest toke and saves it in the Datasources_Configuration.json
+
+    Parameters
+    ----------
+    argumets :
+        The directory of the experiment.
+
+    Returns
+    -------
+
+    """
+
+def Thingsboard_setupExperiment(arguments):
+
+    experimentDirectory = arguments.directory
+
+    configurtionFileName = os.path.join(experimentDirectory,"runtimeExperimentData","Datasources_Configurations.json")
+    configurationFile = loadJSON(configurtionFileName)
+
+    experimentName = configurationFile['experimentName']
+    destDir = os.path.join(experimentDirectory,"runtimeExperimentData")
+
+    mng = fileExperimentFactory(os.getcwd()).getExperiment()
+    print(f"Uploading experiment {experimentName} to Thingsboard")
+    print(f"Writing configuration files")
+    mng.setupExperiment(destDir)
+    print("...Done")
 
 #
 # def parser_mapping_handler(args):

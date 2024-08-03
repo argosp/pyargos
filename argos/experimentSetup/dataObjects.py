@@ -7,6 +7,14 @@ from io import BytesIO
 import matplotlib.pyplot as plt
 from ..utils.jsonutils import loadJSON
 from ..utils.logging import get_logger as argos_get_logger
+import numpy
+
+def testNan(x):
+    try:
+        return numpy.isnan(x)
+    except Exception:
+
+        return False
 
 class Experiment:
     """
@@ -791,7 +799,11 @@ class Trial:
         if ret.empty:
             return dict()
         else:
-            return ret.set_index("entityName").T.to_dict()
+            datadict =  ret.set_index("entityName").T.to_dict()
+            resultProperties = dict()
+            for entityName, entityData in datadict.items():
+                resultProperties[entityName] =  dict([(propName, propData) for propName, propData in entityData.items() if not testNan(propData)])
+            return resultProperties
 
     @property
     def deployEntities(self):
@@ -799,7 +811,11 @@ class Trial:
         if ret.empty:
             return dict()
         else:
-            return ret.set_index("entityName").T.to_dict()
+            datadict =  ret.set_index("entityName").T.to_dict()
+            resultProperties = dict()
+            for entityName, entityData in datadict.items():
+                resultProperties[entityName] =  dict([(propName, propData) for propName, propData in entityData.items() if not testNan(propData)])
+            return resultProperties
 
     def entities(self, status):
         """

@@ -4,7 +4,6 @@ from gql.transport.aiohttp import AIOHTTPTransport
 import pandas
 from.dataObjects import webExperiment,Experiment,ExperimentZipFile
 import os
-import zipfile
 from ..utils.jsonutils import loadJSON
 from ..utils.logging import get_logger as argos_get_logger
 

@@ -2,7 +2,7 @@ __version__ = '1.2.2'
 from .experimentSetup import WEB,FILE
 from .manager import DESIGN,DEPLOY
 
-from .manager import experimentSetup
+from .manager import experimentManager
 
 # Have some initial default logging configuration in case the user hasn't set any
 from .utils.logging.helpers import initialize_logging

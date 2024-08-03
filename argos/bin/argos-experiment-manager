@@ -27,34 +27,34 @@ if __name__ == "__main__":
     nodered_devices = nodered_subparser.add_parser('createDeviceMap', help='Creates the device name -> device type mapping')
     nodered_devices.set_defaults(func=managerCLI.nodered_createDeviceMap)
 
-    #################
-    ##          thingsboard
-    #################
-    # thingsboard_parser = subparsers.add_parser('thingsboard', help='Handles thingsboard')
-    # thingsboard_subparser = thingsboard_parser.add_subparsers(help='Handles thingsboard')
+    ################
+    #          thingsboard
+    ################
+    thingsboard_parser = subparsers.add_parser('thingsboard', help='Handles thingsboard')
+    thingsboard_subparser = thingsboard_parser.add_subparsers(help='Handles thingsboard')
 
-    # thingsboard_load_parser = thingsboard_subparser.add_parser('load', help='Handles listing of the items')
-    # thingsboard_load_subparser = thingsboard_load_parser.add_subparsers(help='Handles simulation group')
-    #
-    # #--- TB mapping
-    # thingsboard_load_devices = thingsboard_load_subparser.add_parser('devices', help='Pring the JS function for mapping')
-    # thingsboard_load_devices.add_argument('inputType', type=str, choices=['web','file'], help='Get the data for mapping from web/file')
-    # thingsboard_load_devices.add_argument('--directory', type=str, default=None, help='The expeirment directory, ')
-    #
-    # #---- Load to Thingsboard.
-    # ##### load Trial
-    # thingsboard_load_trial = thingsboard_load_subparser.add_parser('trial', help='Loads the attributes of a device to a trial (either design or deploy)')
-    # thingsboard_load_trial.add_argument('trialName', type=str, help='The name of the trial')
-    # thingsboard_load_trial.add_argument('inputType', type=str, choices=['web','file'], help='Get the data for mapping from web/file')
-    # thingsboard_load_trial.add_argument('--directory', type=str, default=None, help='The expeirment directory, ')
-    # thingsboard_load_trial.add_argument('--state',type=str,choices=["design","deploy"],help='design/deploy',default="deploy")
-    # #parser_loadTrial.set_defaults(func=managerCLI.parser_loadTrial_handler)
-    #
-    # #--- TB mapping
-    # parser_TBmapping = thingsboard_subparser.add_parser('getMapping', help='Pring the JS function for mapping')
-    # parser_download.add_argument('inputType', type=str, choices=['web','file'], help='Get the data for mapping from web/file')
-    # parser_download.add_argument('--directory', type=str, default=None, help='The expeirment directory, ')
-    # #parser_download.set_defaults(func=managerCLI.thingsboard_createMapping) # managerCLI.parser_mapping_handler
+    thingsboard_load_parser = thingsboard_subparser.add_parser('load', help='Handles listing of the items')
+    thingsboard_load_subparser = thingsboard_load_parser.add_subparsers(help='Handles simulation group')
+
+    #--- TB mapping
+    thingsboard_load_devices = thingsboard_load_subparser.add_parser('devices', help='Pring the JS function for mapping')
+    thingsboard_load_devices.add_argument('inputType', type=str, choices=['web','file'], help='Get the data for mapping from web/file')
+    thingsboard_load_devices.add_argument('--directory', type=str, default=None, help='The expeirment directory, ')
+
+    #---- Load to Thingsboard.
+    ##### load Trial
+    thingsboard_load_trial = thingsboard_load_subparser.add_parser('trial', help='Loads the attributes of a device to a trial (either design or deploy)')
+    thingsboard_load_trial.add_argument('trialName', type=str, help='The name of the trial')
+    thingsboard_load_trial.add_argument('inputType', type=str, choices=['web','file'], help='Get the data for mapping from web/file')
+    thingsboard_load_trial.add_argument('--directory', type=str, default=None, help='The expeirment directory, ')
+    thingsboard_load_trial.add_argument('--state',type=str,choices=["design","deploy"],help='design/deploy',default="deploy")
+    parser_loadTrial.set_defaults(func=managerCLI.parser_loadTrial_handler)
+
+    #--- TB mapping
+    parser_TBmapping = thingsboard_subparser.add_parser('getMapping', help='Pring the JS function for mapping')
+    parser_download.add_argument('inputType', type=str, choices=['web','file'], help='Get the data for mapping from web/file')
+    parser_download.add_argument('--directory', type=str, default=None, help='The expeirment directory, ')
+    #parser_download.set_defaults(func=managerCLI.thingsboard_createMapping) # managerCLI.parser_mapping_handler
     #
     # ## Obsolete, use the pyargos GUI instead
     # # parser_download = subparsers.add_parser('downloadMetadata', help='saves the metadata from the experiment')

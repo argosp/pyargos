@@ -45,7 +45,7 @@ with open(args.conf,"r") as conffile:
 
 #connection = {"login": {"username":"tenant@thingsboard.org","password":"tenant"},"server" : {"ip" : "192.168.11.203","port":"8080"}}
 
-home = tb.tbHome(connectdata=connection)
+home = tb.restClient(connectdata=connection)
 
 print(home.swaggerAPI.token['token'])
 os.environ['JWT_TOKEN'] = home.swaggerAPI.token['token']
