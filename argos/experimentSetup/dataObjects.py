@@ -812,10 +812,7 @@ class Trial:
             return dict()
         else:
             datadict =  ret.set_index("entityName").T.to_dict()
-            resultProperties = dict()
-            for entityName, entityData in datadict.items():
-                resultProperties[entityName] =  dict([(propName, propData) for propName, propData in entityData.items() if not testNan(propData)])
-            return resultProperties
+            return dict([(propName, propData) for propName, propData in datadict.items() if not testNan(propData)])
 
     def entities(self, status):
         """
