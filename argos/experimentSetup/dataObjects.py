@@ -9,12 +9,14 @@ from ..utils.jsonutils import loadJSON
 from ..utils.logging import get_logger as argos_get_logger
 import numpy
 
+
 def testNan(x):
     try:
         return numpy.isnan(x)
     except Exception:
 
         return False
+
 
 class Experiment:
     """
@@ -36,6 +38,7 @@ class Experiment:
         """
             Loads the experiment setup and rebuilds all the trial sets and entity types.
         """
+
         self._experimentSetup = loadJSON(self._setupFileNameOrData)
         self._initTrialSets()
         self._initEntitiesTypes()
@@ -84,10 +87,11 @@ class Experiment:
     @property
     def entitiesTable(self):
         if 'key' in self.entitiesTableFull.columns:
-            return self.entitiesTableFull.drop(columns=["key","entitiesTypeKey"])
+            return self.entitiesTableFull.drop(columns=["key", "entitiesTypeKey"])
         else:
             return self.entitiesTableFull
-    def trialsTable(self,trialsetName):
+
+    def trialsTable(self, trialsetName):
         return self.trialSet[trialsetName].trialsTable
 
     @property
@@ -129,13 +133,12 @@ class Experiment:
         ## Initializing the images map
         self._imagesMap = dict()
         if 'experimentsWithData' in self.setup:
-           for imgs in self.setup['experimentsWithData']['maps']:
-               imgName = imgs['imageName']
-               imageFullURL = f"{self.url}/{imgs['imageUrl']}"
-               imgs['imageURL'] = imageFullURL
+            for imgs in self.setup['experimentsWithData']['maps']:
+                imgName = imgs['imageName']
+                imageFullURL = f"{self.url}/{imgs['imageUrl']}"
+                imgs['imageURL'] = imageFullURL
 
-               self._imagesMap[imgName] = imgs
-
+                self._imagesMap[imgName] = imgs
 
     @property
     def imageMap(self):
@@ -253,6 +256,7 @@ class Experiment:
             img = plt.imread(imgUrl)
         return img
 
+
 class ExperimentZipFile(Experiment):
 
     def __init__(self, setupFileOrData):
@@ -263,10 +267,9 @@ class ExperimentZipFile(Experiment):
         imageurl = self._imagesMap[imageName]['imageURL']
 
         with zipfile.ZipFile(self._setupFileNameOrData) as archive:
-            imageFile = archive.open(os.path.join("images",imageurl))
+            imageFile = archive.open(os.path.join("images", imageurl))
 
         return plt.imread(imageFile)
-
 
     def refresh(self):
         """
@@ -276,12 +279,12 @@ class ExperimentZipFile(Experiment):
         self.logger.debug(f"Loading file {self._setupFileNameOrData}")
 
         with zipfile.ZipFile(self._setupFileNameOrData) as archive:
-            experimentDict =loadJSON("\n".join([x.decode() for x in archive.open("data.json").readlines()]))
+            experimentDict = loadJSON("\n".join([x.decode() for x in archive.open("data.json").readlines()]))
 
-        fileVersion = experimentDict.get("version","1.0.0.").replace(".","_")
+        fileVersion = experimentDict.get("version", "1.0.0.").replace(".", "_")
         self.logger.debug(f"Got file version {fileVersion}")
 
-        experimentDict = getattr(self,f"_fix_json_version_{fileVersion}")(experimentDict)
+        experimentDict = getattr(self, f"_fix_json_version_{fileVersion}")(experimentDict)
 
         self.logger.execution("Experiemnt dict")
         self._experimentSetup = experimentDict
@@ -292,30 +295,28 @@ class ExperimentZipFile(Experiment):
         self.logger.execution("Init entity type")
         self._initEntitiesTypes()
 
-
     def _init_ImageMaps(self):
         ## Initializing the images map
-        with zipfile.ZipFile(self._setupFileNameOrData) as archive:
-            experimentDict =loadJSON("\n".join([x.decode() for x in archive.open("data.json").readlines()]))
+        #with zipfile.ZipFile(self._setupFileNameOrData) as archive:
+        #    experimentDict = loadJSON("\n".join([x.decode() for x in archive.open("data.json").readlines()]))
+        experimentDict = self.setup
 
         self._imagesMap = dict()
 
-        experimentDatakey = 'experiment' if 'experiment' in experimentDict else 'experimentWithData'
+        experimentDatakey = 'experiment' if 'experiment' in experimentDict else 'experimentsWithData'
 
-        if 'experiment' in experimentDict:
-           for imgs in experimentDict[experimentDatakey]['maps']:
-               imgName = imgs['imageName']
-               self._imagesMap[imgName] = imgs
+        for imgs in experimentDict[experimentDatakey]['maps']:
+            imgName = imgs['imageName']
+            self._imagesMap[imgName] = imgs
 
-    def _fix_json_version_1_0_0_(self,jsonFile):
+    def _fix_json_version_1_0_0_(self, jsonFile):
         return jsonFile
 
-    def _fix_json_version_2_0_0_(self,jsonFile):
+    def _fix_json_version_2_0_0_(self, jsonFile):
 
         oldFormat = dict(experiment=jsonFile['experiment'],
                          entityTypes=jsonFile['entityTypes'],
                          trialSets=jsonFile['trialSets'])
-
 
         for trialSet in oldFormat['trialSets']:
             trialSet['trials'] = []
@@ -323,7 +324,6 @@ class ExperimentZipFile(Experiment):
             for trial in jsonFile['trials']:
                 if trial['trialSetKey'] == currentKey:
                     trialSet['trials'].append(trial)
-
 
         for entityType in oldFormat['entityTypes']:
             entityType['entities'] = []
@@ -336,10 +336,10 @@ class ExperimentZipFile(Experiment):
 
     def _fix_json_version_3_0_0(self, jsonFile):
         oldFormat = dict(experiment={'name': jsonFile['name'],
-                                     'description':jsonFile['description'],
-                                     'version':jsonFile['version'],
-                                     'startDate':jsonFile['startDate'],
-                                     'endDate':jsonFile['endDate']},
+                                     'description': jsonFile['description'],
+                                     'version': jsonFile['version'],
+                                     'startDate': jsonFile['startDate'],
+                                     'endDate': jsonFile['endDate']},
                          entityTypes=jsonFile['deviceTypes'],
                          trialSets=jsonFile['trialTypes']
                          )
@@ -421,7 +421,7 @@ class TrialSet(dict):
     @property
     def propertiesTable(self):
         if 'properties' in self._metadata:
-            ret = pandas.DataFrame(self._metadata['properties']) .set_index('key')
+            ret = pandas.DataFrame(self._metadata['properties']).set_index('key')
         else:
             ret = pandas.DataFrame()
 
@@ -569,10 +569,10 @@ class Trial:
                 ['val', 'type', 'label', 'description']]
             getParser = lambda x: getattr(self, f"_parseProperty_{x.replace('-', '_')}")
 
-
             #       this wont work well for location property in the trial because it has 2 fields.
             #       we have to get the list, and the change all the lists with size 1 to the object itself (like we do now)
             #       and leave all the lists with size 2 as is.
+
             parsedValuesList = []
             for key, data in properties.T.to_dict().items():
                 parsed_data = getParser(data['type'])(data, data)
@@ -616,14 +616,14 @@ class Trial:
             Returns list of column names and list of values.
         """
         try:
-            if isinstance(property['val'],dict):
+            if isinstance(property['val'], dict):
                 locationDict = property['val']
             else:
                 locationDict = json.loads(property['val'])
 
             locationName = locationDict['name']
             coords = locationDict['coordinates']
-            if isinstance(coords,str):
+            if isinstance(coords, str):
                 coords = eval(coords)
 
             latitude = float(coords[0])
@@ -688,7 +688,7 @@ class Trial:
             Returns list of column names and list of values.
         """
         propertyLabel = propertyMetadata['label']
-        data = [bool(property['val'])]
+        data = [property['val'].lower() in ['true','yes','1']]
         columns = [propertyLabel]
 
         return columns, data
@@ -713,7 +713,7 @@ class Trial:
                 data = [float(property['val'])]
             columns = [propertyLabel]
         except ValueError:
-            #print(f"\tCannot convert to float property {propertyLabel}. Got value '{property['val']}'")
+            # print(f"\tCannot convert to float property {propertyLabel}. Got value '{property['val']}'")
             data = []
             columns = []
 
@@ -772,11 +772,11 @@ class Trial:
 
     def _composeProperties(self, entities):
         if 'entitiesTypeKey' in entities.columns:
-            fullData = self.experiment.entitiesTableFull.set_index("key").join(entities, rsuffix="_r", how="inner").reset_index()
+            fullData = self.experiment.entitiesTableFull.set_index("key").join(entities, rsuffix="_r",
+                                                                               how="inner").reset_index()
 
             dfList = []
             for indx, (entitykey, entitydata) in enumerate(fullData.iterrows()):
-
                 properties = entitydata['properties']
                 entityType = self.experiment.getEntitiesTypeByID(entityTypeID=entitydata.entitiesTypeKey)
 
@@ -784,10 +784,11 @@ class Trial:
 
                 entityProperties = entityType[entitydata['name']].propertiesTable.copy()
                 entity_total_properties = entity_trial_properties.join(entityProperties,
-                                                                           how='left',rsuffix='_prop')  # .assign(trialSet = self.trialSet.name,
+                                                                       how='left',
+                                                                       rsuffix='_prop')  # .assign(trialSet = self.trialSet.name,
 
                 dfList.append(entity_total_properties)
-            new_df = pandas.concat(dfList, sort=False, ignore_index=True).drop(columns=["key","entitiesTypeKey"])
+            new_df = pandas.concat(dfList, sort=False, ignore_index=True).drop(columns=["key", "entitiesTypeKey"])
         else:
             new_df = pandas.DataFrame(entities)
 
@@ -799,10 +800,11 @@ class Trial:
         if ret.empty:
             return dict()
         else:
-            datadict =  ret.set_index("entityName").T.to_dict()
+            datadict = ret.set_index("entityName").T.to_dict()
             resultProperties = dict()
             for entityName, entityData in datadict.items():
-                resultProperties[entityName] =  dict([(propName, propData) for propName, propData in entityData.items() if not testNan(propData)])
+                resultProperties[entityName] = dict(
+                    [(propName, propData) for propName, propData in entityData.items() if not testNan(propData)])
             return resultProperties
 
     @property
@@ -811,10 +813,11 @@ class Trial:
         if ret.empty:
             return dict()
         else:
-            datadict =  ret.set_index("entityName").T.to_dict()
+            datadict = ret.set_index("entityName").T.to_dict()
             resultProperties = dict()
             for entityName, entityData in datadict.items():
-                resultProperties[entityName] =  dict([(propName, propData) for propName, propData in entityData.items() if not testNan(propData)])
+                resultProperties[entityName] = dict(
+                    [(propName, propData) for propName, propData in entityData.items() if not testNan(propData)])
             return resultProperties
 
     def entities(self, status):
@@ -851,17 +854,17 @@ class Trial:
         else:
             return ret.loc[0].T.to_dict()
 
-    def _prepareEntitiesMetadata(self,metadata):
+    def _prepareEntitiesMetadata(self, metadata):
 
         retList = []
         for entityData in metadata:
             for propData in entityData['properties']:
-                properties = pandas.DataFrame(propData,index=[0])
-                itm = pandas.DataFrame(properties).assign(entitiesTypeKey=entityData['entitiesTypeKey'],containsEntities=entityData['containsEntities'])
+                properties = pandas.DataFrame(propData, index=[0])
+                itm = pandas.DataFrame(properties).assign(entitiesTypeKey=entityData['entitiesTypeKey'],
+                                                          containsEntities=entityData['containsEntities'])
                 retList.append(itm)
 
-
-        return pandas.concat(retList,ignore_index=True)
+        return pandas.concat(retList, ignore_index=True)
 
     @property
     def designEntitiesTable(self):
@@ -986,7 +989,7 @@ class EntityType(dict):
         for entityName, entityData in self.items():
             trialProps = entityData.propertiesTable.assign(entityName=entityName, key=entityData.key)
             retList.append(trialProps)
-        return pandas.concat(retList, ignore_index=True).drop(columns=["key","entitiesTypeKey"])
+        return pandas.concat(retList, ignore_index=True).drop(columns=["key", "entitiesTypeKey"])
 
 
 class Entity:
@@ -1025,7 +1028,7 @@ class Entity:
     def properties(self):
 
         ret = dict(self._properties)
-        if 'key'  in self._metadata.keys():
+        if 'key' in self._metadata.keys():
             ret['key'] = self.key
         if 'entitiesTypeKey' in self._metadata.keys():
             ret['entitiesTypeKey'] = self._metadata['entitiesTypeKey']
@@ -1171,14 +1174,13 @@ class Entity:
         self._entityType = entityType
         self._metadata = metadata
 
-        if  'properties' in metadata:
+        if 'properties' in metadata:
             propertiesPandas = pandas.DataFrame(metadata['properties']).set_index('key')
 
             properties = propertiesPandas.merge(entityType.propertiesTable.query("trialField==False"), left_index=True,
-                                            right_index=True)[['val', 'type', 'label', 'description']] \
-                                           .set_index("label")
+                                                right_index=True)[['val', 'type', 'label', 'description']] \
+                .set_index("label")
         else:
             properties = pandas.DataFrame()
 
         self._properties = dict([(key, data['val']) for key, data in properties.T.to_dict().items()])
-
