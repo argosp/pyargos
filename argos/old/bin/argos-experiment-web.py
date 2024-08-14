@@ -25,7 +25,7 @@ print(args.action[0])
 if args.action[0] =="setup":
     ExperimentGQL(expConf=expConf).setup()
 elif args.action[0] =="load":
-    ExperimentGQL(expConf=expConf).loadTrial(args.load[0], args.load[1])
+    ExperimentGQL(expConf=expConf).loadTrialToThingsboard(args.load[0], args.load[1])
 elif args.action[0]=="runConsumers":
     graphqlConf = expConf['graphql']
     gqlDL = GQLDataLayerFactory(graphqlConf['url'], graphqlConf['token'])

@@ -1,0 +1,11 @@
+#! /usr/bin/env python
+import argparse
+from argos import manager
+from argos.thingsboard import NDIR
+
+if __name__ == "__main__":
+
+    manager = manager.experimentManager(".")
+
+    devicesNDIR = NDIR.devicesNDIR(manager)
+    devicesNDIR.publishMockDataMeasurements()
