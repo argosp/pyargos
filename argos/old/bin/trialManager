@@ -16,7 +16,7 @@ if args.setupFlag:
     exp.setup()
 
 if args.loadName is not None:
-    exp.loadTrial(args.loadName)
+    exp.loadTrialToThingsboard(args.loadName)
 
 if args.attrJSON is not None:
     with open(args.attrJSON, 'r') as jsonFile:

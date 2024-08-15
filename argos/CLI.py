@@ -7,6 +7,7 @@ from kafka.admin import KafkaAdminClient, NewTopic
 from kafka import KafkaConsumer,KafkaProducer
 import threading
 from .kafka.consumer import consume_topic,consume_topic_server
+from .manager import experimentManager
 
 def experiment_createDirectory(arguments):
     logger = logging.getLogger("argos.bin.experiment_createDirectory")
@@ -47,8 +48,6 @@ print("Experiment loaded into variable {arguments.experimentName} ")
 """
     with open(os.path.join(fullDirectory, "code", "argos_basic.py"),'w') as codeFile:
         codeFile.write(argos_basic)
-
-
 
 def nodered_createDeviceMap(arguments):
     logger = logging.getLogger("argos.bin.nodered_createDeviceList")
@@ -221,6 +220,21 @@ def kafka_runConsumersServer(args):
     #         time.sleep(5)
 
 
+def Thingsboard_loadTrial(args):
+    directory = os.getcwd() if args.directory is None else args.directory
+
+    manager = experimentManager(directory)
+    manager.loadTrialDesignToThingsboard(args.trialName,"design")
+
+def Thingsboard_clean_devices(args):
+
+    directory = os.getcwd() if args.directory is None else args.directory
+
+    manager = experimentManager(directory)
+    manager.clearDevicesFromThingsboard()
+
+
+
 # def parser_download_handler(arguments):
 #
 #     if len(arguments.experimentDirectory) == 0:
@@ -276,8 +290,8 @@ def Thingsboard_setupExperiment(arguments):
     mng.setupExperiment(destDir)
     print("...Done")
 
-#
-# def parser_mapping_handler(args):
+# #
+# def Thingsboard_GetImageMapping(args):
 #
 #
 #     if len(args.args) == 1:
@@ -305,7 +319,7 @@ def Thingsboard_setupExperiment(arguments):
 #     for imageName,imageData in mng.experiment.imageMap.items():
 #         print(f"----------------- {imageName} --------------------")
 #         print(mng.experiment.getImageJSMappingFunction(imageName))
-#
+
 #
 # def parser_loadTrial_handler(args):
 #

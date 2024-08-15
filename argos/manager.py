@@ -30,23 +30,7 @@ class experimentManager:
     """
     experimentDirectory = None
 
-    @property
-    def restClient(self):
-        """
-            Returns the rest client.
-             Reads the configuration from the
-
-        Returns
-        -------
-
-        """
-        confFile = os.path.join(self.experimentDirectory, "runtimeExperimentData", "Datasources_Configurations.json")
-        configuration = loadJSON(confFile)
-        tbConfiguration = configuration['Thingsboard']
-
-        rest_client = RestClientCE(base_url=tbConfiguration['url'])
-        rest_client.login(username=tbConfiguration['username'], password=tbConfiguration['password'])
-        return rest_client
+    configuration = None
 
     def __init__(self, experimentDirectory):
         """
@@ -64,6 +48,32 @@ class experimentManager:
 
         """
         self.experimentDirectory = experimentDirectory
+        self.loadConfigutation()
+
+    def loadConfigutation(self):
+        confFile = os.path.join(self.experimentDirectory, "runtimeExperimentData", "Datasources_Configurations.json")
+        self.configuration = loadJSON(confFile)
+
+
+    @property
+    def TBConfiguration(self):
+        return self.configuration['Thingsboard']
+
+    @property
+    def restClient(self):
+        """
+            Returns the rest client.
+             Reads the configuration from the
+
+        Returns
+        -------
+
+        """
+        tbConfiguration = self.TBConfiguration
+
+        rest_client = RestClientCE(base_url=tbConfiguration['restURL'])
+        rest_client.login(username=tbConfiguration['username'], password=tbConfiguration['password'])
+        return rest_client
 
     @property
     def experiment(self):
@@ -75,7 +85,51 @@ class experimentManager:
         """
         return fileExperimentFactory(self.experimentDirectory).getExperiment()
 
-    def loadThingsboardDevices(self):
+    def clearDevicesFromThingsboard(self):
+        """
+            Removes all the devices from Thingsboard.
+        Returns
+        -------
+
+        """
+        logger = get_classMethod_logger(self,"loadThingsboardDevices")
+
+        restClient = self.restClient
+        logger.info(f"Getting the devices from the Thingsboard server")
+        deviceList = restClient.get_tenant_device_infos(page_size=1000, page=0)
+
+        for device in deviceList.data:
+            logger.info(f"Remove {device.name}")
+            restClient.delete_device(device.id)
+
+    def getDeviceMap(self,deviceType=None):
+        """
+            Returns a map of deviceName -> { 'credential' : .. , 'type' : ... }
+        Parameters
+        ----------
+        deviceType : str
+            Query one device type. Return all if None.
+
+        Returns
+        -------
+
+        """
+        logger = get_classMethod_logger(self, "loadThingsboardDevices")
+        restClient = self.restClient
+        deviceList = restClient.get_tenant_device_infos(page_size=1000, page=0)
+
+        ret = dict()
+        for device in deviceList.data:
+            logger.debug(f"Getting info for device {device.name} of type {device.type}")
+            if device.type != deviceType:
+                logger.debug(f"... it is {device.type}, filtering out")
+                continue
+            credential = restClient.get_device_credentials_by_device_id(device.id).credentials_id
+            ret[device.name] = dict(credential=credential,type=device.type)
+
+        return ret
+
+    def loadDevicesToThingsboard(self):
         """
             Create all the computed devices in the TB.
 
@@ -110,21 +164,21 @@ class experimentManager:
 
             for deviceID,deviceData in deviceList.iterrows():
                 logger.debug(f"Device name: {deviceData['name']}")
-                if len(restClient.get_tenant_device_infos(page_size=100, page=0, text_search=deviceData['name']).data) == 0:
+                if len(restClient.get_tenant_device_infos(page_size=1000, page=0, text_search=deviceData['name']).data) == 0:
                     device = Device(name=deviceData['name'], device_profile_id=device_profile.id)
                     device = restClient.save_device(device)
                     logger.info(" Device was created:\n%r\n", device)
                 else:
                     logger.debug(f"Device {deviceData['name']} exists... skipping")
 
-    def loadTrialDesign(self, trialSetName: str, trialName: str):
-        self.loadTrial(trialSetName, trialName, 'design')
+    def loadTrialDesignToThingsboard(self, trialSetName: str, trialName: str):
+        self.loadTrialToThingsboard(trialSetName, trialName, 'design')
 
-    def loadTrialDeploy(self, trialSetName: str, trialName: str):
-        self.loadTrial(trialSetName, trialName, 'deploy')
+    def loadTrialDeployToThingsboard(self, trialSetName: str, trialName: str):
+        self.loadTrialToThingsboard(trialSetName, trialName, 'deploy')
 
 
-    def loadTrial(self,trialSetName: str, trialName: str,state : str):
+    def loadTrialToThingsboard(self, trialSetName: str, trialName: str, state : str):
         """
             Loading the data of the trial to things board.
         Parameters
