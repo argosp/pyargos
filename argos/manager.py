@@ -1,6 +1,9 @@
 import os
 import json
-from tb_rest_client.rest_client_ce import *
+try:
+    from tb_rest_client.rest_client_ce import *
+except ImportError:
+    print("Thingsboard interface not installed. Use pip install tb_rest_client.")
 from .experimentSetup.dataObjectsFactory import fileExperimentFactory
 from .utils.jsonutils import loadJSON
 from .utils.logging import get_classMethod_logger

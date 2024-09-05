@@ -305,7 +305,7 @@ class ExperimentZipFile(Experiment):
 
         experimentDatakey = 'experiment' if 'experiment' in experimentDict else 'experimentsWithData'
 
-        for imgs in experimentDict[experimentDatakey]['maps']:
+        for imgs in experimentDict[experimentDatakey].get('maps',[]):
             imgName = imgs['imageName']
             self._imagesMap[imgName] = imgs
 
