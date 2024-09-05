@@ -1,4 +1,4 @@
-__version__ = '1.2.2'
+__version__ = '1.2.3'
 from .experimentSetup import WEB,FILE
 from .manager import DESIGN,DEPLOY
 
@@ -10,6 +10,13 @@ initialize_logging(disable_existing_loggers=False)
 
 
 """
+Version 1.2.3
+-------------
+
+    * Added the thingsboard interface. 
+    * Remove depdnecey on the thingsboard interface library 
+    * fixed the case when maps does not appear.  
+
 Version 1.2.2
 -------------
 
