@@ -7,7 +7,12 @@ from io import BytesIO
 import matplotlib.pyplot as plt
 from ..utils.jsonutils import loadJSON
 from ..utils.logging import get_logger as argos_get_logger
+
 import numpy
+
+
+DESIGN = 'design'
+DEPLOY = 'deploy'
 
 
 def testNan(x):
@@ -258,6 +263,9 @@ class Experiment:
 
 
 class ExperimentZipFile(Experiment):
+
+    DESIGN = DESIGN
+    DEPLOY = DEPLOY
 
     def __init__(self, setupFileOrData):
         super().__init__(setupFileOrData=setupFileOrData)
@@ -820,7 +828,7 @@ class Trial:
                     [(propName, propData) for propName, propData in entityData.items() if not testNan(propData)])
             return resultProperties
 
-    def entities(self, status):
+    def entities(self, status=DESIGN):
         """
 
         :param status: str
@@ -829,7 +837,7 @@ class Trial:
         """
         return getattr(self, f"{status}Entities")
 
-    def entitiesTable(self, status):
+    def entitiesTable(self, status=DESIGN):
         """
 
         :param status: str

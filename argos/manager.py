@@ -5,11 +5,10 @@ try:
 except ImportError:
     print("Thingsboard interface not installed. Use pip install tb_rest_client.")
 from .experimentSetup.dataObjectsFactory import fileExperimentFactory
+from .experimentSetup.dataObjects import DESIGN,DEPLOY
 from .utils.jsonutils import loadJSON
 from .utils.logging import get_classMethod_logger
 
-DESIGN = 'design'
-DEPLOY = 'deploy'
 
 
 SERVER_SCOPE = "SERVER_SCOPE"
