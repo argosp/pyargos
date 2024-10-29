@@ -3,4 +3,3 @@
 doc/_build
 __pycache__
 .venv
-argos/experimentSetup/exp/
