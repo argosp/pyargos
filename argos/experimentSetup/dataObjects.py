@@ -355,11 +355,11 @@ class ExperimentZipFile(Experiment):
         for entityType in oldFormat['entityTypes']:
             entityType['entities'] = []
             for entity in jsonFile['deviceTypes']:
-                for device in entity['devices']:
+                for device in getattr(entity, 'devices', []):
                     entityType['entities'].append(device)
 
         for trialSet in oldFormat['trialSets']:
-            for trial in trialSet['trials']:
+            for trial in getattr(trialSet, 'trials', []):
                 if 'properties' not in trial.keys():
                     trial['properties'] = []
 

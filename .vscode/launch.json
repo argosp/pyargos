@@ -5,10 +5,10 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "dataObjects",
+      "name": "dataObjects runner",
       "type": "debugpy",
       "request": "launch",
-      "module": "argos.experimentSetup.dataObjects",
+      "module": "argos.experimentSetup.runner",
       "cwd": "${workspaceFolder}",
       "env": {
         "PYTHONPATH": "${workspaceFolder}"
