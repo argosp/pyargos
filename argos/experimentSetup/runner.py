@@ -1,8 +1,12 @@
+import json
 import logging
 from argos.experimentSetup.dataObjectsFactory import fileExperimentFactory
 
 experimentDirectory = 'argos/experimentSetup/example_exp/'
 fact = fileExperimentFactory(experimentDirectory)
-fact.logger.setLevel('INFO')
+fact.logger.setLevel('DEBUG')
 fact.logger.addHandler(logging.StreamHandler())
-fact.getExperiment()
+exp = fact.getExperiment()
+for e in exp.__dict__:
+    print(e, exp.__dict__[e])
+    print()

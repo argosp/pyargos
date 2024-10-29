@@ -483,7 +483,7 @@ class TrialSet(dict):
 
     def _initTrials(self):
 
-        for trial in self._metadata['trials']:
+        for trial in getattr(self._metadata, 'trials', []):
             self[trial['name']] = Trial(trialSet=self, metadata=trial)
 
 
@@ -570,7 +570,7 @@ class Trial:
         """
         self._trialSet = trialSet
         self._metadata = metadata
-        if metadata['properties']:
+        if hasattr(metadata, 'properties'):
             propertiesPandas = pandas.DataFrame(metadata['properties']).set_index('key')
 
             properties = propertiesPandas.merge(trialSet.propertiesTable, left_index=True, right_index=True)[
@@ -593,7 +593,7 @@ class Trial:
             self._properties = dict(parsedValuesList)
         else:
 
-            self._properties = metadata['properties']
+            self._properties = dict()
 
     def toJSON(self):
         val = self.properties
