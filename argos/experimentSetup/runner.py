@@ -19,9 +19,13 @@ fact = fileExperimentFactory(experimentDirectory)
 exp = fact.getExperiment()
 
 # printing
-for e in exp.__dict__:
-    try:
-        s = json.dumps(exp.__dict__[e], indent=2)     
-    except:
-        s = str(exp.__dict__[e])
-    print(e, ':\t', s, '\n')
+# for e in exp.__dict__:
+#     try:
+#         s = json.dumps(exp.__dict__[e], indent=2)     
+#     except:
+#         s = str(exp.__dict__[e])
+#     print(e, ':\t', s, '\n')
+
+devOnTrial = exp.trialSet['New Trial Type']['New Trial'].designEntitiesTable
+js = devOnTrial.to_json(orient='records')
+print(json.dumps(json.loads(js), indent=2))
