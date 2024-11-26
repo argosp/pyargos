@@ -344,22 +344,21 @@ class ExperimentZipFile(Experiment):
 
     def _fix_json_version_3_0_0(self, jsonFile):
         oldFormat = dict(experiment={'name': jsonFile['name'],
-                                     'description': jsonFile['description'],
+                                     'description': jsonFile.get('description', ''),
                                      'version': jsonFile['version'],
                                      'startDate': jsonFile['startDate'],
                                      'endDate': jsonFile['endDate']},
-                         entityTypes=jsonFile['deviceTypes'],
-                         trialSets=jsonFile['trialTypes']
+                         entityTypes=jsonFile.get('deviceTypes', []),
+                         trialSets=jsonFile.get('trialTypes', []),
                          )
 
         for entityType in oldFormat['entityTypes']:
             entityType['entities'] = []
-            for entity in jsonFile['deviceTypes']:
-                for device in getattr(entity, 'devices', []):
-                    entityType['entities'].append(device)
+            for device in entityType.get('devices', []):
+                entityType['entities'].append(device)
 
         for trialSet in oldFormat['trialSets']:
-            for trial in getattr(trialSet, 'trials', []):
+            for trial in trialSet.get('trials', []):
                 if 'properties' not in trial.keys():
                     trial['properties'] = []
 
@@ -367,10 +366,8 @@ class ExperimentZipFile(Experiment):
 
                 if 'state' not in trial.keys():
                     trial['state'] = None
-                if 'devicesOnTrial' in trial.keys():
-                    trial['entities'] = trial['devicesOnTrial']
-                else:
-                    trial['entities'] = []
+
+                trial['entities'] = trial.get('devicesOnTrial', [])
 
         return oldFormat
 
@@ -483,7 +480,7 @@ class TrialSet(dict):
 
     def _initTrials(self):
 
-        for trial in getattr(self._metadata, 'trials', []):
+        for trial in self._metadata.get('trials', []):
             self[trial['name']] = Trial(trialSet=self, metadata=trial)
 
 
@@ -570,7 +567,7 @@ class Trial:
         """
         self._trialSet = trialSet
         self._metadata = metadata
-        if hasattr(metadata, 'properties'):
+        if len(metadata.get('properties', [])):
             propertiesPandas = pandas.DataFrame(metadata['properties']).set_index('key')
 
             properties = propertiesPandas.merge(trialSet.propertiesTable, left_index=True, right_index=True)[
