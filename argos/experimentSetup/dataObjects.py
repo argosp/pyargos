@@ -985,7 +985,7 @@ class EntityType(dict):
         self._initEntities()
 
     def _initEntities(self):
-        for entity in self._metadata['entities']:
+        for entity in self._metadata.get('entities', []):
             self[entity['name']] = Entity(entityType=self, metadata=entity)
 
     @property
