@@ -875,7 +875,7 @@ class Trial:
 
     @property
     def designEntitiesTable(self):
-        fill_properties_by_contained(self._metadata['entities'])
+        fill_properties_by_contained(self._trialSet.experiment._entitiesTypesDict, self._metadata['entities'])
         if len(self._metadata['entities']) == 0:
             entities = pandas.DataFrame()
         elif 'key' in self._metadata['entities'][0].keys():
