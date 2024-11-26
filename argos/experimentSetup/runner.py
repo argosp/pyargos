@@ -26,6 +26,10 @@ exp = fact.getExperiment()
 #         s = str(exp.__dict__[e])
 #     print(e, ':\t', s, '\n')
 
+# print(json.dumps(
+#     exp.trialSet['New Trial Type']['New Trial']._metadata['entities']
+# , indent=2))
+
 devOnTrial = exp.trialSet['New Trial Type']['New Trial'].designEntitiesTable
 js = devOnTrial.to_json(orient='records')
 print(json.dumps(json.loads(js), indent=2))

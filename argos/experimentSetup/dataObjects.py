@@ -5,6 +5,8 @@ import pandas
 import requests
 from io import BytesIO
 import matplotlib.pyplot as plt
+
+from argos.experimentSetup.fillContained import fill_properties_by_contained
 from ..utils.jsonutils import loadJSON
 from ..utils.logging import get_logger as argos_get_logger
 
@@ -873,6 +875,7 @@ class Trial:
 
     @property
     def designEntitiesTable(self):
+        fill_properties_by_contained(self._metadata['entities'])
         if len(self._metadata['entities']) == 0:
             entities = pandas.DataFrame()
         elif 'key' in self._metadata['entities'][0].keys():
