@@ -875,13 +875,13 @@ class Trial:
 
     @property
     def designEntitiesTable(self):
-        fill_properties_by_contained(self._trialSet.experiment._entitiesTypesDict, self._metadata['entities'])
-        if len(self._metadata['entities']) == 0:
+        filled_entities = fill_properties_by_contained(self._trialSet.experiment._entitiesTypesDict, self._metadata['entities'])
+        if len(filled_entities) == 0:
             entities = pandas.DataFrame()
-        elif 'key' in self._metadata['entities'][0].keys():
-            entities = pandas.DataFrame(self._metadata['entities']).set_index('key')
+        elif 'key' in filled_entities[0].keys():
+            entities = pandas.DataFrame(filled_entities).set_index('key')
         else:
-            entities = pandas.DataFrame(self._metadata['entities'])
+            entities = pandas.DataFrame(filled_entities)
         return self._composeProperties(entities)
 
     @property

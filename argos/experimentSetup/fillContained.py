@@ -1,3 +1,6 @@
+from copy import deepcopy
+
+
 def key_from_name(named_entity):
     t = named_entity.get("deviceTypeName", None)
     n = named_entity.get("deviceItemName", None)
@@ -18,13 +21,14 @@ def get_attrs(entity):
     return [x for x in entity.get("attributes", []) if x.get("name", None) is not None]
 
 
-def fill_properties_by_contained(_entitiesTypesDict, entities):
+def fill_properties_by_contained(entities_types_dict, meta_entities):
 
-    xref_entities = {key_from_name(e): e for e in entities if key_from_name(e) is not None}
+    xref_entities = {key_from_name(e): e for e in meta_entities if key_from_name(e) is not None}
 
-    for entity in entities:
+    filled_entities = deepcopy(meta_entities)
+    for entity in filled_entities:
         if key_from_name(entity) is not None:
-            device_type = _entitiesTypesDict[entity["deviceTypeName"]]
+            device_type = entities_types_dict[entity["deviceTypeName"]]
             type_attrs = device_type._metadata.get("attributeTypes", [])
             attrs_names = [a.get("name", None) for a in type_attrs]
             attrs_names = [a for a in attrs_names if a is not None]
@@ -44,3 +48,5 @@ def fill_properties_by_contained(_entitiesTypesDict, entities):
                 parent = get_parent(xref_entities, parent)
 
             entity["attributes"] = entity_attrs
+    
+    return filled_entities
