@@ -21,6 +21,19 @@ def get_attrs(entity):
     return [x for x in entity.get("attributes", []) if x.get("name", None) is not None]
 
 
+def spread_attributes(entity):
+    if "location" in entity:
+        loc = entity["location"]
+        entity["MapName"] = loc["name"]
+        entity["Latitude"] = loc["coordinates"][0]
+        entity["Longitude"] = loc["coordinates"][1]
+        del entity["location"]
+    if "attributes" in entity:
+        entity_attrs = get_attrs(entity)
+        for attr in entity_attrs:
+            entity[attr["name"]] = attr["value"]
+        del entity["attributes"]
+
 def fill_properties_by_contained(entities_types_dict, meta_entities):
 
     xref_entities = {key_from_name(e): e for e in meta_entities if key_from_name(e) is not None}
@@ -48,5 +61,10 @@ def fill_properties_by_contained(entities_types_dict, meta_entities):
                 parent = get_parent(xref_entities, parent)
 
             entity["attributes"] = entity_attrs
-    
+
+    for entity in filled_entities:
+        if "containedIn" in entity:
+            del entity["containedIn"]
+        spread_attributes(entity)
+
     return filled_entities
