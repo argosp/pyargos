@@ -231,7 +231,7 @@ class Experiment:
         """
         retList = []
 
-        for entitytypeName, entityTypeObj in self._entitiesTypesDict.items():
+        for entitytypeName, entityTypeObj in self.entitiesType.items():
             for entityName, entityData in entityTypeObj.items():
                 retList.append(dict(entityName=entityName, entityTypeName=entityData.entityType.name))
 
@@ -849,7 +849,7 @@ class Trial:
 
     @property
     def designEntitiesTable(self):
-        filled_entities = fill_properties_by_contained(self._trialSet.experiment._entitiesTypesDict, self._metadata['entities'])
+        filled_entities = fill_properties_by_contained(self._trialSet.experiment.entityType, self._metadata['entities'])
         if len(filled_entities) == 0:
             entities = pandas.DataFrame()
         elif 'key' in filled_entities[0].keys():

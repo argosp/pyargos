@@ -34,7 +34,18 @@ def spread_attributes(entity):
             entity[attr["name"]] = attr["value"]
         del entity["attributes"]
 
+def handle_String(value):
+    return value
+
+def handle_Number(value):
+    return float(value)
+
+
+
 def fill_properties_by_contained(entities_types_dict, meta_entities):
+
+    handlerDict = dict(Number=handle_Number,
+                       String=handle_String)
 
     xref_entities = {key_from_name(e): e for e in meta_entities if key_from_name(e) is not None}
 
@@ -45,8 +56,13 @@ def fill_properties_by_contained(entities_types_dict, meta_entities):
             type_attrs = device_type._metadata.get("attributeTypes", [])
             attrs_names = [a.get("name", None) for a in type_attrs]
             attrs_names = [a for a in attrs_names if a is not None]
+            type_attrs_dict = dict((x['name'],x['type']) for x in type_attrs)
 
             entity_attrs = get_attrs(entity)
+            for singleEntityAttrs in entity_attrs:
+                entityName = singleEntityAttrs['name']
+                singleEntityAttrs['value'] = handlerDict[type_attrs_dict[entityName]](singleEntityAttrs['value'])
+
 
             parent = get_parent(xref_entities, entity)
             while parent is not None:
