@@ -13,10 +13,6 @@ from ..utils.logging import get_logger as argos_get_logger
 import numpy
 
 
-DESIGN = 'design'
-DEPLOY = 'deploy'
-
-
 def testNan(x):
     try:
         return numpy.isnan(x)
@@ -266,9 +262,6 @@ class Experiment:
 
 class ExperimentZipFile(Experiment):
 
-    DESIGN = DESIGN
-    DEPLOY = DEPLOY
-
     def __init__(self, setupFileOrData):
         super().__init__(setupFileOrData=setupFileOrData)
 
@@ -364,7 +357,6 @@ class ExperimentZipFile(Experiment):
                 if 'properties' not in trial.keys():
                     trial['properties'] = []
 
-                trial['status'] = 'design'
 
                 if 'state' not in trial.keys():
                     trial['state'] = None
@@ -437,7 +429,7 @@ class TrialSet(dict):
     @property
     def properties(self):
         ret = dict()
-        for prop in self._metadata['properties']:
+        for prop in self._metadata.get('properties',[]):
             ret[prop['label']] = prop
 
         return ret
@@ -527,9 +519,6 @@ class Trial:
     def created(self):
         return self._metadata['created']
 
-    @property
-    def status(self):
-        return self._metadata['status']
 
     @property
     def cloneFrom(self):
@@ -597,15 +586,13 @@ class Trial:
     def toJSON(self):
         val = self.properties
         val['name'] = self.name
-        val['status'] = self.status
-        val['state'] = self.status
         return val
 
     def __str__(self):
         return json.dumps(self.toJSON())
 
     def __repr__(self):
-        return json.dumps(dict(name=self.name, status=self.status, state=self.state))
+        return json.dumps(dict(name=self.name))
 
     def _parseProperty_location(self, property, propertyMetadata):
         """
@@ -802,6 +789,10 @@ class Trial:
         return new_df
 
     @property
+    def entities(self):
+        return self.designEntities
+
+    @property
     def designEntities(self):
         ret = self.designEntitiesTable
         if ret.empty:
@@ -816,34 +807,17 @@ class Trial:
 
     @property
     def deployEntities(self):
-        ret = self.deployEntitiesTable
-        if ret.empty:
-            return dict()
-        else:
-            datadict = ret.set_index("entityName").T.to_dict()
-            resultProperties = dict()
-            for entityName, entityData in datadict.items():
-                resultProperties[entityName] = dict(
-                    [(propName, propData) for propName, propData in entityData.items() if not testNan(propData)])
-            return resultProperties
+        return self.designEntities
 
-    def entities(self, status=DESIGN):
+    @property
+    def entitiesTable(self):
         """
 
         :param status: str
                 design or deploy
         :return:
         """
-        return getattr(self, f"{status}Entities")
-
-    def entitiesTable(self, status=DESIGN):
-        """
-
-        :param status: str
-                design or deploy
-        :return:
-        """
-        return getattr(self, f"{status}EntitiesTable")
+        return self.designEntitiesTable
 
     def getDesignPropertiesTableByEntityID(self, entityID):
         try:
@@ -886,11 +860,7 @@ class Trial:
 
     @property
     def deployEntitiesTable(self):
-        if not self._metadata['deployedEntities']:
-            return pandas.DataFrame()
-        else:
-            entities = pandas.DataFrame(self._metadata['deployedEntities']).set_index('key')
-            return self._composeProperties(entities)
+        return self.designEntitiesTable
 
     def getDeployPropertiesTableByEntityID(self, entityID):
         try:
