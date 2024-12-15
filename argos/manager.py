@@ -5,7 +5,6 @@ try:
 except ImportError:
     print("Thingsboard interface not installed. Use pip install tb_rest_client.")
 from .experimentSetup.dataObjectsFactory import fileExperimentFactory
-from .experimentSetup.dataObjects import DESIGN,DEPLOY
 from .utils.jsonutils import loadJSON
 from .utils.logging import get_classMethod_logger
 
@@ -174,13 +173,13 @@ class experimentManager:
                     logger.debug(f"Device {deviceData['name']} exists... skipping")
 
     def loadTrialDesignToThingsboard(self, trialSetName: str, trialName: str):
-        self.loadTrialToThingsboard(trialSetName, trialName, 'design')
+        self.loadTrialToThingsboard(trialSetName, trialName)
 
     def loadTrialDeployToThingsboard(self, trialSetName: str, trialName: str):
-        self.loadTrialToThingsboard(trialSetName, trialName, 'deploy')
+        self.loadTrialToThingsboard(trialSetName, trialName)
 
 
-    def loadTrialToThingsboard(self, trialSetName: str, trialName: str, state : str):
+    def loadTrialToThingsboard(self, trialSetName: str, trialName: str):
         """
             Loading the data of the trial to things board.
         Parameters
@@ -197,7 +196,7 @@ class experimentManager:
         experiment = self.experiment
         restClient = self.restClient
 
-        for deviceName, deviceData in experiment.trialSet[trialSetName][trialName].entities(state).items():
+        for deviceName, deviceData in experiment.trialSet[trialSetName][trialName].entities().items():
             logger.info(f"Setting up the attributes for device {deviceName}")
 
             logger.debug("Remove the properties")
