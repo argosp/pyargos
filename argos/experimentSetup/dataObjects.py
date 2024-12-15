@@ -5,6 +5,8 @@ import pandas
 import requests
 from io import BytesIO
 import matplotlib.pyplot as plt
+
+from argos.experimentSetup.fillContained import fill_properties_by_contained
 from ..utils.jsonutils import loadJSON
 from ..utils.logging import get_logger as argos_get_logger
 
@@ -344,22 +346,21 @@ class ExperimentZipFile(Experiment):
 
     def _fix_json_version_3_0_0(self, jsonFile):
         oldFormat = dict(experiment={'name': jsonFile['name'],
-                                     'description': jsonFile['description'],
+                                     'description': jsonFile.get('description', ''),
                                      'version': jsonFile['version'],
                                      'startDate': jsonFile['startDate'],
                                      'endDate': jsonFile['endDate']},
-                         entityTypes=jsonFile['deviceTypes'],
-                         trialSets=jsonFile['trialTypes']
+                         entityTypes=jsonFile.get('deviceTypes', []),
+                         trialSets=jsonFile.get('trialTypes', []),
                          )
 
         for entityType in oldFormat['entityTypes']:
             entityType['entities'] = []
-            for entity in jsonFile['deviceTypes']:
-                for device in entity['devices']:
-                    entityType['entities'].append(device)
+            for device in entityType.get('devices', []):
+                entityType['entities'].append(device)
 
         for trialSet in oldFormat['trialSets']:
-            for trial in trialSet['trials']:
+            for trial in trialSet.get('trials', []):
                 if 'properties' not in trial.keys():
                     trial['properties'] = []
 
@@ -367,10 +368,8 @@ class ExperimentZipFile(Experiment):
 
                 if 'state' not in trial.keys():
                     trial['state'] = None
-                if 'devicesOnTrial' in trial.keys():
-                    trial['entities'] = trial['devicesOnTrial']
-                else:
-                    trial['entities'] = []
+
+                trial['entities'] = trial.get('devicesOnTrial', [])
 
         return oldFormat
 
@@ -483,7 +482,7 @@ class TrialSet(dict):
 
     def _initTrials(self):
 
-        for trial in self._metadata['trials']:
+        for trial in self._metadata.get('trials', []):
             self[trial['name']] = Trial(trialSet=self, metadata=trial)
 
 
@@ -570,7 +569,7 @@ class Trial:
         """
         self._trialSet = trialSet
         self._metadata = metadata
-        if metadata['properties']:
+        if len(metadata.get('properties', [])):
             propertiesPandas = pandas.DataFrame(metadata['properties']).set_index('key')
 
             properties = propertiesPandas.merge(trialSet.propertiesTable, left_index=True, right_index=True)[
@@ -593,7 +592,7 @@ class Trial:
             self._properties = dict(parsedValuesList)
         else:
 
-            self._properties = metadata['properties']
+            self._properties = dict()
 
     def toJSON(self):
         val = self.properties
@@ -876,12 +875,13 @@ class Trial:
 
     @property
     def designEntitiesTable(self):
-        if len(self._metadata['entities']) == 0:
+        filled_entities = fill_properties_by_contained(self._trialSet.experiment._entitiesTypesDict, self._metadata['entities'])
+        if len(filled_entities) == 0:
             entities = pandas.DataFrame()
-        elif 'key' in self._metadata['entities'][0].keys():
-            entities = pandas.DataFrame(self._metadata['entities']).set_index('key')
+        elif 'key' in filled_entities[0].keys():
+            entities = pandas.DataFrame(filled_entities).set_index('key')
         else:
-            entities = pandas.DataFrame(self._metadata['entities'])
+            entities = pandas.DataFrame(filled_entities)
         return self._composeProperties(entities)
 
     @property
@@ -988,7 +988,7 @@ class EntityType(dict):
         self._initEntities()
 
     def _initEntities(self):
-        for entity in self._metadata['entities']:
+        for entity in self._metadata.get('entities', []):
             self[entity['name']] = Entity(entityType=self, metadata=entity)
 
     @property

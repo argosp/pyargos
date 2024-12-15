@@ -11,6 +11,7 @@ EXECUTION = 15
 
 ARGOS_DEFAULT_LOG_DIR = pathlib.Path.home() / ".pyargos" / "log"
 
+UNIFY_ALL_LOGS_DEBUG = False
 
 # This function is named to match the style of the stdlib logging module
 # noinspection PyPep8Naming
@@ -20,11 +21,19 @@ def getClassLogger(cls: type):
 
 
 def get_logger(instance, name=None):
+    global UNIFY_ALL_LOGS_DEBUG
+    if UNIFY_ALL_LOGS_DEBUG:
+        return logging.getLogger("")
     return getClassLogger(instance.__class__) if name is None else logging.getLogger(name)
 
 def get_classMethod_logger(instance, name=None):
     lgname = instance.__class__ if name is None else instance.__class__.__module__ + "." + instance.__class__.__qualname__ + "." + name
     return logging.getLogger(lgname)
+
+# This will cause all logs to be the same one, use only in debug
+def unify_all_logs_debug():
+    global UNIFY_ALL_LOGS_DEBUG
+    UNIFY_ALL_LOGS_DEBUG = True
 
 
 
