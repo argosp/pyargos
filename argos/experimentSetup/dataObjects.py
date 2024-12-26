@@ -59,11 +59,6 @@ class Experiment:
         return self._client
 
     @property
-    def id(self):
-        ## DO NOT USE the self._experimentDescription['id']. It is not useful here.
-        return self.setup['project']['id']
-
-    @property
     def name(self):
         return self.setup['name']
 
@@ -231,7 +226,7 @@ class Experiment:
         """
         retList = []
 
-        for entitytypeName, entityTypeObj in self.entitiesType.items():
+        for entitytypeName, entityTypeObj in self.entityType.items():
             for entityName, entityData in entityTypeObj.items():
                 retList.append(dict(entityName=entityName, entityTypeName=entityData.entityType.name))
 
@@ -248,9 +243,7 @@ class Experiment:
         return ret
 
     def getImage(self, imageName: str):
-
         imgUrl = os.path.join(self.setup['experimentsWithData']['url'], "images", f"{imageName}.png")
-
         # maybe we can skip the open(...), didn't want to risk it
         try:
             with open(imgUrl) as imageFile:
@@ -267,12 +260,20 @@ class ExperimentZipFile(Experiment):
 
     def getImage(self, imageName: str):
 
-        imageurl = self._imagesMap[imageName]['imageURL']
+        imageurl = self._imagesMap[imageName]['filename']
 
-        with zipfile.ZipFile(self._setupFileNameOrData) as archive:
-            imageFile = archive.open(os.path.join("images", imageurl))
+        try:
+            # For compliance with the old version.
+            with zipfile.ZipFile(self._setupFileNameOrData) as archive:
+                imageFile = archive.open(os.path.join("images", imageurl))
+        except KeyError:
+            # This is the new version
+            with zipfile.ZipFile(self._setupFileNameOrData) as archive:
+                imageFile = archive.open(os.path.join("images", imageName+".png"))
 
-        return plt.imread(imageFile)
+        img = plt.imread(imageFile)
+        imageFile.close()
+        return img
 
     def refresh(self):
         """
@@ -305,11 +306,8 @@ class ExperimentZipFile(Experiment):
         experimentDict = self.setup
 
         self._imagesMap = dict()
-
-        experimentDatakey = 'experiment' if 'experiment' in experimentDict else 'experimentsWithData'
-
-        for imgs in experimentDict[experimentDatakey].get('maps',[]):
-            imgName = imgs['imageName']
+        for imgs in experimentDict.get('maps',[]):
+            imgName = imgs['name']
             self._imagesMap[imgName] = imgs
 
     def _fix_json_version_1_0_0_(self, jsonFile):
@@ -345,6 +343,8 @@ class ExperimentZipFile(Experiment):
                                      'endDate': jsonFile['endDate']},
                          entityTypes=jsonFile.get('deviceTypes', []),
                          trialSets=jsonFile.get('trialTypes', []),
+                         maps = jsonFile.get("imageStandalone",[]),
+                         shapes=jsonFile.get("shapes",[]),
                          )
 
         for entityType in oldFormat['entityTypes']:
@@ -356,8 +356,6 @@ class ExperimentZipFile(Experiment):
             for trial in trialSet.get('trials', []):
                 if 'properties' not in trial.keys():
                     trial['properties'] = []
-
-
                 if 'state' not in trial.keys():
                     trial['state'] = None
 
@@ -798,7 +796,7 @@ class Trial:
         if ret.empty:
             return dict()
         else:
-            datadict = ret.set_index("entityName").T.to_dict()
+            datadict = ret.set_index("deviceItemName").T.to_dict()
             resultProperties = dict()
             for entityName, entityData in datadict.items():
                 resultProperties[entityName] = dict(
