@@ -98,7 +98,7 @@ class Experiment:
         for entityTypeName, entityTypeData in self.entityType.items():
             for entityTypeDataName, entityData in entityTypeData.items():
                 entityTypeList.append(
-                    pandas.DataFrame(entityData.properties, index=[0]).assign(entityType=entityTypeName))
+                    pandas.DataFrame(entityData.properties).assign(entityType=entityTypeName))
 
         return pandas.concat(entityTypeList, ignore_index=True)
 
@@ -498,20 +498,8 @@ class Trial:
         return self._trialSet.experiment
 
     @property
-    def key(self):
-        return self._metadata['key']
-
-    @property
-    def id(self):
-        return self._metadata['id']
-
-    @property
     def name(self):
         return self._metadata['name']
-
-    @property
-    def trialSetKey(self):
-        return self._metadata['trialSetKey']
 
     @property
     def created(self):
@@ -524,11 +512,7 @@ class Trial:
 
     @property
     def numberOfEntities(self):
-        return self._metadata['numberOfEntities']
-
-    @property
-    def state(self):
-        return self._metadata['state']
+        return len(self._metadata)
 
     @property
     def properties(self):
@@ -552,7 +536,6 @@ class Trial:
         experiment: The experiment object
         trialSet: The trial set object
         desc: A dictionary with information on the trial
-        client: GraphQL client
         """
         self._trialSet = trialSet
         self._metadata = metadata
@@ -860,24 +843,6 @@ class Trial:
     def deployEntitiesTable(self):
         return self.designEntitiesTable
 
-    def getDeployPropertiesTableByEntityID(self, entityID):
-        try:
-            entity = pandas.DataFrame(self._metadata['deployedEntities']).set_index('key').loc[entityID]
-            entityType = self.experiment.getEntitiesTypeByID(entityTypeID=entity.entitiesTypeKey)
-            ret = self._composeEntityProperties(entityType, entity.properties)
-        except KeyError:
-            ret = pandas.DataFrame()
-        return ret
-
-    def getDeployPropertiesByEntityID(self, entityID):
-        ret = self.getDeployPropertiesTableByEntityID(entityID)
-        if ret.empty:
-            return dict()
-        else:
-            return ret.loc[0].T.to_dict()
-
-    def __getitem__(self, item):
-        return self._properties.loc[item].val
 
 
 class EntityType(dict):
@@ -893,41 +858,20 @@ class EntityType(dict):
         return self.experiment.client
 
     @property
-    def keyID(self):
-        return self._metadata['key']
-
-    @property
-    def id(self):
-        return self._metadata['id']
-
-    @property
     def name(self):
         return self._metadata['name']
 
     @property
     def numberOfEntities(self):
-        return self._metadata['numberOfEntities']
-
-    @property
-    def state(self):
-        return self._metadata['state']
+        return len(self)
 
     @property
     def propertiesTable(self):
-        if 'properties' in self._metadata:
-            ret = pandas.DataFrame(self._metadata['properties']).set_index('key')
-        else:
-            ret = pandas.DataFrame()
-
-        return ret
+        return pandas.DataFrame(self.properties)
 
     @property
     def properties(self):
-        ret = dict()
-        for prop in self._metadata['properties']:
-            ret[prop['label']] = prop
-
-        return ret
+        return self._metadata['attributeTypes']
 
     def toJSON(self):
         ret = dict()
@@ -984,46 +928,22 @@ class Entity:
     def client(self):
         return self.experiment.client
 
-    @property
-    def key(self):
-        return self._metadata['key']
-
-    @property
-    def id(self):
-        return self._metadata['id']
 
     @property
     def name(self):
         return self._metadata['name']
 
     @property
-    def entityTypeKey(self):
-        return self._metadata['entitiesTypeKey']
-
-    @property
     def properties(self):
-
-        ret = dict(self._properties)
-        if 'key' in self._metadata.keys():
-            ret['key'] = self.key
-        if 'entitiesTypeKey' in self._metadata.keys():
-            ret['entitiesTypeKey'] = self._metadata['entitiesTypeKey']
-
-        ret['name'] = self.name
-        ret['entityType'] = self.entityType.name
-
-        return ret
+        return self._properties
 
     @property
     def allProperties(self):
         trialsetdict = dict()
-
         for trialsSetsName in self.experiment.trialSet.keys():
             trialsetdict[trialsSetsName] = dict()
             for trialName in self.experiment.trialSet[trialsSetsName].keys():
                 ddp = trialsetdict[trialsSetsName].setdefault(trialName, dict())
-
-                ddp['design'] = self.trialDesign(trialsSetsName, trialName)
                 ddp['deploy'] = self.trialDeploy(trialsSetsName, trialName)
 
         return trialsetdict
@@ -1035,18 +955,10 @@ class Entity:
 
         for trialsSetsName in self.experiment.trialSet.keys():
             for trialName in self.experiment.trialSet[trialsSetsName].keys():
-                design = self.trialDesign(trialsSetsName, trialName)
                 deploy = self.trialDeploy(trialsSetsName, trialName)
-
-                design['trialSetName'] = trialsSetsName
-                design['trialName'] = trialName
-                design['state'] = 'design'
-
                 deploy['trialSetName'] = trialsSetsName
                 deploy['trialName'] = trialName
-                deploy['state'] = 'deploy'
-
-                trialsetlist.append(design)
+                deploy['scope'] = 'trial'
                 trialsetlist.append(deploy)
 
         return trialsetlist
@@ -1057,13 +969,10 @@ class Entity:
 
     @property
     def propertiesTable(self):
-        val = pandas.DataFrame(self.properties, index=[0])
-        val = val.assign(entityName=self.name).drop("name", axis=1)
-        return val
+        return pandas.DataFrame(self.properties)
 
     def toJSON(self):
         ret = dict()
-        ret['properties'] = dict(self._properties)
         ret['name'] = self.name
         ret['entityType'] = self.entityType.name
         ret['trialProperties'] = self.allPropertiesList
@@ -1073,21 +982,12 @@ class Entity:
         return json.dumps(self.toJSON())
 
     def __repr__(self):
-        props = self.properties
-        props['name'] = self.name
-        return json.dumps(props)
+        ret = dict(name=self.name,properties=self.properties)
+        return json.dumps(ret)
 
     @property
     def designProperties(self):
-
-        trialsetdict = dict()
-
-        for trialsSetsName in self.experiment.trialSet.keys():
-            trialsetdict[trialsSetsName] = dict()
-            for trialName in self.experiment.trialSet[trialsSetsName].keys():
-                trialsetdict[trialsSetsName][trialName] = self.trialDesign(trialsSetsName, trialName)
-
-        return trialsetdict
+        return self.deployProperties
 
     @property
     def deployProperties(self):
@@ -1101,20 +1001,11 @@ class Entity:
         return trialsetdict
 
     def trialDesign(self, trialSet, trialName):
-        ret = self.experiment.trialSet[trialSet][trialName].getDesignPropertiesByEntityID(self.key)
-        for fld in ['key', 'name', 'entityType', 'entitiesTypeKey']:
-            if fld in ret:
-                del ret[fld]
-
-        return ret
+        return self.trialDeploy(trialSet, trialName)
 
     def trialDeploy(self, trialSet, trialName):
         properties = self.experiment.trialSet[trialSet][trialName].deployEntities
         ret = properties.get(self.name, dict())
-
-        for fld in ['key', 'name', 'entityType', 'entitiesTypeKey']:
-            if fld in ret:
-                del ret[fld]
 
         return ret
 
@@ -1135,7 +1026,6 @@ class Entity:
         -------
              dict
         """
-
         return getattr(self, f"trial{state.title()}")(trialSet, trialName)
 
     def __init__(self, entityType: EntityType, metadata: dict):
@@ -1150,13 +1040,11 @@ class Entity:
         self._entityType = entityType
         self._metadata = metadata
 
-        if 'properties' in metadata:
-            propertiesPandas = pandas.DataFrame(metadata['properties']).set_index('key')
+        self._properties = []
+        for attr in self._entityType._metadata['attributeTypes']:
+            if attr.get("scope","") == 'Constant':
+                self._properties.append(dict(name=attr['name'],value=attr['defaultValue'],scope="Constant"))
 
-            properties = propertiesPandas.merge(entityType.propertiesTable.query("trialField==False"), left_index=True,
-                                                right_index=True)[['val', 'type', 'label', 'description']] \
-                .set_index("label")
-        else:
-            properties = pandas.DataFrame()
+        for attr in metadata.get('attributes',[]):
+            self._properties.append(dict(name=attr['name'], value=attr['value'],scope="Device"))
 
-        self._properties = dict([(key, data['val']) for key, data in properties.T.to_dict().items()])

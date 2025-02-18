@@ -68,8 +68,6 @@ class fileExperimentFactory:
             self.logger.info(f"Found zip files: {zipfileList}. Taking the first: {zipfileList[0]}")
             experimentDict = zipfileList[0]
 
-
-
         if zipped:
             ret =  ExperimentZipFile(setupFileOrData=experimentDict)
         else:
@@ -80,10 +78,6 @@ class fileExperimentFactory:
 
     def __getitem__(self, item):
         return self.getExperiment(experimentPath=item)
-
-
-
-
 
 
 class webExperimentFactory:
