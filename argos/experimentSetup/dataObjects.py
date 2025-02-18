@@ -396,14 +396,6 @@ class TrialSet(dict):
         return self._experiment
 
     @property
-    def keyID(self):
-        return self._metadata['key']
-
-    @property
-    def id(self):
-        return self._metadata['id']
-
-    @property
     def name(self):
         return self._metadata['name']
 
@@ -413,24 +405,15 @@ class TrialSet(dict):
 
     @property
     def numberOfTrials(self):
-        return self._metadata['numberOfTrials']
+        return len(self._metadata)
 
     @property
     def propertiesTable(self):
-        if 'properties' in self._metadata:
-            ret = pandas.DataFrame(self._metadata['properties']).set_index('key')
-        else:
-            ret = pandas.DataFrame()
-
-        return ret
+        return pandas.DataFrame(self.properties)
 
     @property
     def properties(self):
-        ret = dict()
-        for prop in self._metadata.get('properties',[]):
-            ret[prop['label']] = prop
-
-        return ret
+        return self._metadata['attributeTypes']
 
     def toJSON(self):
         ret = dict()
@@ -447,12 +430,7 @@ class TrialSet(dict):
 
     @property
     def trials(self):
-        retList = []
-        for trialName, trialData in self.items():
-            trialProps = trialData.propertiesTable.assign(trialName=trialName, key=trialData.key)
-            retList.append(trialProps)
-
-        return retList
+        return self.toJSON()['trials']
 
     @property
     def trialsTable(self):
@@ -516,7 +494,12 @@ class Trial:
 
     @property
     def properties(self):
-        return self._properties
+
+        propDict = {}
+        for prop in self._metadata['attributes']:
+            propDict[prop['name']] = prop['value']
+
+        return propDict
 
     @property
     def trialSet(self):
@@ -524,7 +507,7 @@ class Trial:
 
     @property
     def propertiesTable(self):
-        return pandas.DataFrame(self.properties, index=[0])
+        return pandas.DataFrame(self.properties,index=[0])
 
     def __init__(self, trialSet: TrialSet, metadata: dict):
         """
@@ -561,7 +544,6 @@ class Trial:
 
             self._properties = dict(parsedValuesList)
         else:
-
             self._properties = dict()
 
     def toJSON(self):
@@ -800,22 +782,6 @@ class Trial:
         """
         return self.designEntitiesTable
 
-    def getDesignPropertiesTableByEntityID(self, entityID):
-        try:
-            entity = pandas.DataFrame(self._metadata['entities']).set_index('key').loc[entityID]
-            entityType = self.experiment.getEntitiesTypeByID(entityTypeID=entity.entitiesTypeKey)
-            ret = self._composeEntityProperties(entityType, entity.properties)
-        except KeyError:
-            ret = pandas.DataFrame()
-        return ret
-
-    def getDesignPropertiesByEntityID(self, entityID):
-        ret = self.getDesignPropertiesTableByEntityID(entityID)
-        if ret.empty:
-            return dict()
-        else:
-            return ret.loc[0].T.to_dict()
-
     def _prepareEntitiesMetadata(self, metadata):
 
         retList = []
@@ -830,6 +796,10 @@ class Trial:
 
     @property
     def designEntitiesTable(self):
+        return self.deployEntitiesTable
+
+    @property
+    def entitiesTable(self):
         filled_entities = fill_properties_by_contained(self._trialSet.experiment.entityType, self._metadata['entities'])
         if len(filled_entities) == 0:
             entities = pandas.DataFrame()

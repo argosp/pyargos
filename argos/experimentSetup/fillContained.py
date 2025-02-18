@@ -17,7 +17,8 @@ def get_parent(xref_entities, named_entity):
 
 
 def get_attrs(entity):
-    return [x for x in entity.get("attributes", []) if x.get("name", None) is not None]
+    attrsList =  [x for x in entity.get("attributes", []) if x.get("name", None) is not None]
+    return attrsList
 
 
 def spread_attributes(entity):
@@ -47,8 +48,7 @@ def fill_properties_by_contained(entities_types_dict, meta_entities):
                        String=handle_String)
 
     xref_entities = {key_from_name(e): e for e in meta_entities if key_from_name(e) is not None}
-    import pdb
-    pdb.set_trace()
+
     filled_entities = deepcopy(meta_entities)
     for entity in filled_entities:
         if key_from_name(entity) is not None:
@@ -58,6 +58,7 @@ def fill_properties_by_contained(entities_types_dict, meta_entities):
             attrs_names = [a for a in attrs_names if a is not None]
             type_attrs_dict = dict((x['name'],x['type']) for x in type_attrs)
 
+
             entity_attrs = get_attrs(entity)
             for singleEntityAttrs in entity_attrs:
                 entityName = singleEntityAttrs['name']
@@ -65,12 +66,9 @@ def fill_properties_by_contained(entities_types_dict, meta_entities):
 
 
             parent = get_parent(xref_entities, entity)
-            if parent is not None:
-                import pdb
-                pdb.set_trace()
-
             while parent is not None:
                 parent_attrs = get_attrs(parent)
+                entity["location"] = parent.get('location', {})
                 for pa in parent_attrs:
                     pa_name = pa["name"]
                     if pa_name in attrs_names:
