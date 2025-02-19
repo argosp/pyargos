@@ -196,7 +196,7 @@ class experimentManager:
         experiment = self.experiment
         restClient = self.restClient
 
-        for deviceName, deviceData in experiment.trialSet[trialSetName][trialName].entities().items():
+        for deviceName, deviceData in experiment.trialSet[trialSetName][trialName].entitiesTable().items():
             logger.info(f"Setting up the attributes for device {deviceName}")
 
             logger.debug("Remove the properties")

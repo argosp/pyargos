@@ -85,23 +85,16 @@ class Experiment:
 
     @property
     def entitiesTable(self):
-        if 'key' in self.entitiesTableFull.columns:
-            return self.entitiesTableFull.drop(columns=["key", "entitiesTypeKey"])
-        else:
-            return self.entitiesTableFull
-
-    def trialsTable(self, trialsetName):
-        return self.trialSet[trialsetName].trialsTable
-
-    @property
-    def entitiesTableFull(self):
         entityTypeList = []
         for entityTypeName, entityTypeData in self.entityType.items():
             for entityTypeDataName, entityData in entityTypeData.items():
                 entityTypeList.append(
-                    pandas.DataFrame(entityData.properties).assign(entityType=entityTypeName))
+                    pandas.DataFrame(entityData.propertiesList).assign(entityType=entityTypeName,entityName=entityData.name))
 
         return pandas.concat(entityTypeList, ignore_index=True)
+
+    def trialsTable(self, trialsetName):
+        return self.trialSet[trialsetName].trialsTable
 
     def __init__(self, setupFileOrData):
         """
@@ -730,8 +723,8 @@ class Trial:
 
     def _composeProperties(self, entities):
         if 'entitiesTypeKey' in entities.columns:
-            fullData = self.experiment.entitiesTableFull.set_index("key").join(entities, rsuffix="_r",
-                                                                               how="inner").reset_index()
+            fullData = self.experiment._entitiesTableFull.set_index("key").join(entities, rsuffix="_r",
+                                                                                how="inner").reset_index()
 
             dfList = []
             for indx, (entitykey, entitydata) in enumerate(fullData.iterrows()):
@@ -874,8 +867,9 @@ class EntityType(dict):
 
         return ret
 
+
     @property
-    def entities(self):
+    def entitiesTable(self):
         retList = []
         for entityName, entityData in self.items():
             trialProps = entityData.propertiesTable.assign(entityName=entityName).reset_index(drop=True)
@@ -935,26 +929,29 @@ class Entity:
 
     @property
     def properties(self):
+        return {prop['name'] : prop['value'] for prop in self._properties}
+
+    @property
+    def propertiesList(self):
         return self._properties
 
     @property
     def allProperties(self):
-        trialsetdict = self.properties
+        trialsetdict = self.propertiesList
         for trialsSetsName in self.experiment.trialSet.keys():
             trialsetdict[trialsSetsName] = dict()
             for trialName in self.experiment.trialSet[trialsSetsName].keys():
                 ddp = trialsetdict[trialsSetsName].setdefault(trialName, dict())
-                ddp[trialName] = self.trialDeploy(trialsSetsName, trialName)
+                ddp[trialName] = self.trialProperties(trialsSetsName, trialName)
 
         return trialsetdict
 
     @property
     def allPropertiesList(self):
-        trialsetlist = []
-
+        trialsetlist = self.propertiesList
         for trialsSetsName in self.experiment.trialSet.keys():
             for trialName in self.experiment.trialSet[trialsSetsName].keys():
-                deploy = self.trialDeploy(trialsSetsName, trialName)
+                deploy = self.trialProperties(trialsSetsName, trialName)
                 deploy['trialSetName'] = trialsSetsName
                 deploy['trialName'] = trialName
                 deploy['scope'] = 'trial'
@@ -973,7 +970,7 @@ class Entity:
         return json.dumps(self.toJSON())
 
     def __repr__(self):
-        ret = dict(name=self.name,properties=self.properties)
+        ret = dict(name=self.name, properties=self.propertiesList)
         return json.dumps(ret)
 
 
@@ -986,7 +983,7 @@ class Entity:
 
     @property
     def propertiesTable(self):
-        return pandas.DataFrame(self.properties).pivot(index="name", columns=[], values="value").reset_index().set_index("name").T
+        return pandas.DataFrame(self.propertiesList).pivot(index="name", columns=[], values="value").reset_index().set_index("name").T
 
     @property
     def allTrialPropertiesTable(self):
@@ -1012,7 +1009,7 @@ class Entity:
         return trialsetdict
 
     def trialProperties(self, trialSetName, trialName):
-        properties = self.experiment.trialSet[trialSetName][trialName].entities
+        properties = self.experiment.trialSet[trialSetName][trialName].entitiesTable
         ret = properties.get(self.name, dict())
         return ret
 
@@ -1041,12 +1038,12 @@ class Entity:
     @property
     def designProperties(self):
         warnings.warn("designProperties is deprecated. Use allTriealProperties", DeprecationWarning, stacklevel=2)
-        return self.properties
+        return self.propertiesList
 
     @property
     def deployProperties(self):
         warnings.warn("deployProperties is deprecated. Use allTriealProperties", DeprecationWarning, stacklevel=2)
-        return self.properties
+        return self.propertiesList
 
     def trialDesign(self, trialSet, trialName):
         warnings.warn("trialDesign is deprecated. Use trialProperties", DeprecationWarning, stacklevel=2)

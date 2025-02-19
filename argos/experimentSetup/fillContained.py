@@ -34,6 +34,10 @@ def spread_attributes(entity):
             entity[attr["name"]] = attr["value"]
         del entity["attributes"]
 
+    if "containedIn"  in entity:
+        entity["containedInType"] = entity["containedIn"]["deviceTypeName"]
+        entity["containedIn"] = entity["containedIn"]["deviceItemName"]
+
 def handle_String(value):
     return value
 
@@ -58,7 +62,6 @@ def fill_properties_by_contained(entities_types_dict, meta_entities):
             attrs_names = [a for a in attrs_names if a is not None]
             type_attrs_dict = dict((x['name'],x['type']) for x in type_attrs)
 
-
             entity_attrs = get_attrs(entity)
             for singleEntityAttrs in entity_attrs:
                 entityName = singleEntityAttrs['name']
@@ -81,8 +84,8 @@ def fill_properties_by_contained(entities_types_dict, meta_entities):
             entity["attributes"] = entity_attrs
 
     for entity in filled_entities:
-        if "containedIn" in entity:
-            del entity["containedIn"]
+        # if "containedIn" in entity:
+        #     del entity["containedIn"]
         spread_attributes(entity)
 
     return filled_entities
