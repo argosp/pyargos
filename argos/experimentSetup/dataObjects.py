@@ -819,6 +819,24 @@ class EntityType(dict):
     _experiment = None
     _metadata = None
 
+
+    def __init__(self, experiment: Experiment, metadata: dict):
+        """
+        EntityType object contains information on a specific entity type
+
+        :param experiment: The experiment object
+        :param metadata: dict
+                The metadata of the entity type (the properties and ect).
+        """
+        self._experiment = experiment
+        self._metadata = metadata
+
+        self._initEntities()
+
+    def _initEntities(self):
+        for entity in self._metadata.get('entities', []):
+            self[entity['name']] = Entity(entityType=self, metadata=entity)
+
     @property
     def experiment(self):
         return self._experiment
@@ -856,30 +874,21 @@ class EntityType(dict):
 
         return ret
 
-    def __init__(self, experiment: Experiment, metadata: dict):
-        """
-        EntityType object contains information on a specific entity type
-
-        :param experiment: The experiment object
-        :param metadata: dict
-                The metadata of the entity type (the properties and ect).
-        """
-        self._experiment = experiment
-        self._metadata = metadata
-
-        self._initEntities()
-
-    def _initEntities(self):
-        for entity in self._metadata.get('entities', []):
-            self[entity['name']] = Entity(entityType=self, metadata=entity)
-
     @property
     def entities(self):
         retList = []
         for entityName, entityData in self.items():
-            trialProps = entityData.propertiesTable.assign(entityName=entityName, key=entityData.key)
+            trialProps = entityData.propertiesTable.assign(entityName=entityName).reset_index(drop=True)
             retList.append(trialProps)
-        return pandas.concat(retList, ignore_index=True)
+        return pandas.concat(retList).set_index("entityName")
+
+    @property
+    def entitiesAllProperties(self):
+        retList = []
+        for entityName, entityData in self.items():
+            trialProps = entityData.allPropertiesTable.assign(entityName=entityName).reset_index(drop=True)
+            retList.append(trialProps)
+        return pandas.concat(retList).set_index(["entityName","trialName"])
 
 
 class Entity:
@@ -970,14 +979,14 @@ class Entity:
 
     @property
     def allPropertiesTable(self):
-        constantProperties = self.propertiesTable.pivot(index="name", columns=[], values="value").reset_index().set_index("name")
+        constantProperties = self.propertiesTable
         with pandas.option_context('future.no_silent_downcasting', True):
-            ret = self.allTrialPropertiesTable.join(constantProperties.T).ffill().infer_objects(copy=False)
+            ret = self.allTrialPropertiesTable.join(constantProperties).ffill().infer_objects(copy=False)
         return ret
 
     @property
     def propertiesTable(self):
-        return pandas.DataFrame(self.properties)
+        return pandas.DataFrame(self.properties).pivot(index="name", columns=[], values="value").reset_index().set_index("name").T
 
     @property
     def allTrialPropertiesTable(self):
