@@ -24,9 +24,9 @@ def get_attrs(entity):
 def spread_attributes(entity):
     if "location" in entity:
         loc = entity["location"]
-        entity["MapName"] = loc["name"]
-        entity["Latitude"] = loc["coordinates"][0]
-        entity["Longitude"] = loc["coordinates"][1]
+        entity["mapName"] = loc["name"]
+        entity["latitude"] = loc["coordinates"][1]
+        entity["longitude"] = loc["coordinates"][0]
         del entity["location"]
     if "attributes" in entity:
         entity_attrs = get_attrs(entity)
