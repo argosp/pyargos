@@ -86,7 +86,7 @@ class Experiment:
         for entityTypeName, entityTypeData in self.entityType.items():
             for entityTypeDataName, entityData in entityTypeData.items():
                 entityTypeList.append(
-                    pandas.DataFrame(entityData.properties, index=[0]).assign(entityType=entityTypeName))
+                    pandas.DataFrame(entityData.propertiesList, index=[0]).assign(entityType=entityTypeName))
 
         return pandas.concat(entityTypeList, ignore_index=True)
 
@@ -789,7 +789,7 @@ class Trial:
         try:
             entity = pandas.DataFrame(self._metadata['entities']).set_index('key').loc[entityID]
             entityType = self.experiment.getEntitiesTypeByID(entityTypeID=entity.entitiesTypeKey)
-            ret = self._composeEntityProperties(entityType, entity.properties)
+            ret = self._composeEntityProperties(entityType, entity.propertiesList)
         except KeyError:
             ret = pandas.DataFrame()
         return ret
@@ -830,7 +830,7 @@ class Trial:
         try:
             entity = pandas.DataFrame(self._metadata['deployedEntities']).set_index('key').loc[entityID]
             entityType = self.experiment.getEntitiesTypeByID(entityTypeID=entity.entitiesTypeKey)
-            ret = self._composeEntityProperties(entityType, entity.properties)
+            ret = self._composeEntityProperties(entityType, entity.propertiesList)
         except KeyError:
             ret = pandas.DataFrame()
         return ret

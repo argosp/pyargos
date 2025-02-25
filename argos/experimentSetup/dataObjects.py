@@ -5,6 +5,7 @@ import pandas
 import requests
 from io import BytesIO
 import matplotlib.pyplot as plt
+import warnings
 
 from argos.experimentSetup.fillContained import fill_properties_by_contained
 from ..utils.jsonutils import loadJSON
@@ -84,23 +85,16 @@ class Experiment:
 
     @property
     def entitiesTable(self):
-        if 'key' in self.entitiesTableFull.columns:
-            return self.entitiesTableFull.drop(columns=["key", "entitiesTypeKey"])
-        else:
-            return self.entitiesTableFull
-
-    def trialsTable(self, trialsetName):
-        return self.trialSet[trialsetName].trialsTable
-
-    @property
-    def entitiesTableFull(self):
         entityTypeList = []
         for entityTypeName, entityTypeData in self.entityType.items():
             for entityTypeDataName, entityData in entityTypeData.items():
                 entityTypeList.append(
-                    pandas.DataFrame(entityData.properties, index=[0]).assign(entityType=entityTypeName))
+                    pandas.DataFrame(entityData.propertiesList).assign(entityType=entityTypeName,entityName=entityData.name))
 
         return pandas.concat(entityTypeList, ignore_index=True)
+
+    def trialsTable(self, trialsetName):
+        return self.trialSet[trialsetName].trialsTable
 
     def __init__(self, setupFileOrData):
         """
@@ -396,14 +390,6 @@ class TrialSet(dict):
         return self._experiment
 
     @property
-    def keyID(self):
-        return self._metadata['key']
-
-    @property
-    def id(self):
-        return self._metadata['id']
-
-    @property
     def name(self):
         return self._metadata['name']
 
@@ -413,24 +399,15 @@ class TrialSet(dict):
 
     @property
     def numberOfTrials(self):
-        return self._metadata['numberOfTrials']
+        return len(self._metadata)
 
     @property
     def propertiesTable(self):
-        if 'properties' in self._metadata:
-            ret = pandas.DataFrame(self._metadata['properties']).set_index('key')
-        else:
-            ret = pandas.DataFrame()
-
-        return ret
+        return pandas.DataFrame(self.properties)
 
     @property
     def properties(self):
-        ret = dict()
-        for prop in self._metadata.get('properties',[]):
-            ret[prop['label']] = prop
-
-        return ret
+        return self._metadata['attributeTypes']
 
     def toJSON(self):
         ret = dict()
@@ -447,12 +424,7 @@ class TrialSet(dict):
 
     @property
     def trials(self):
-        retList = []
-        for trialName, trialData in self.items():
-            trialProps = trialData.propertiesTable.assign(trialName=trialName, key=trialData.key)
-            retList.append(trialProps)
-
-        return retList
+        return self.toJSON()['trials']
 
     @property
     def trialsTable(self):
@@ -498,20 +470,8 @@ class Trial:
         return self._trialSet.experiment
 
     @property
-    def key(self):
-        return self._metadata['key']
-
-    @property
-    def id(self):
-        return self._metadata['id']
-
-    @property
     def name(self):
         return self._metadata['name']
-
-    @property
-    def trialSetKey(self):
-        return self._metadata['trialSetKey']
 
     @property
     def created(self):
@@ -524,15 +484,16 @@ class Trial:
 
     @property
     def numberOfEntities(self):
-        return self._metadata['numberOfEntities']
-
-    @property
-    def state(self):
-        return self._metadata['state']
+        return len(self._metadata)
 
     @property
     def properties(self):
-        return self._properties
+
+        propDict = {}
+        for prop in self._metadata['attributes']:
+            propDict[prop['name']] = prop['value']
+
+        return propDict
 
     @property
     def trialSet(self):
@@ -540,7 +501,7 @@ class Trial:
 
     @property
     def propertiesTable(self):
-        return pandas.DataFrame(self.properties, index=[0])
+        return pandas.DataFrame(self.properties,index=[0])
 
     def __init__(self, trialSet: TrialSet, metadata: dict):
         """
@@ -552,7 +513,6 @@ class Trial:
         experiment: The experiment object
         trialSet: The trial set object
         desc: A dictionary with information on the trial
-        client: GraphQL client
         """
         self._trialSet = trialSet
         self._metadata = metadata
@@ -578,7 +538,6 @@ class Trial:
 
             self._properties = dict(parsedValuesList)
         else:
-
             self._properties = dict()
 
     def toJSON(self):
@@ -764,8 +723,8 @@ class Trial:
 
     def _composeProperties(self, entities):
         if 'entitiesTypeKey' in entities.columns:
-            fullData = self.experiment.entitiesTableFull.set_index("key").join(entities, rsuffix="_r",
-                                                                               how="inner").reset_index()
+            fullData = self.experiment._entitiesTableFull.set_index("key").join(entities, rsuffix="_r",
+                                                                                how="inner").reset_index()
 
             dfList = []
             for indx, (entitykey, entitydata) in enumerate(fullData.iterrows()):
@@ -788,11 +747,7 @@ class Trial:
 
     @property
     def entities(self):
-        return self.designEntities
-
-    @property
-    def designEntities(self):
-        ret = self.designEntitiesTable
+        ret = self.entitiesTable
         if ret.empty:
             return dict()
         else:
@@ -803,35 +758,17 @@ class Trial:
                     [(propName, propData) for propName, propData in entityData.items() if not testNan(propData)])
             return resultProperties
 
-    @property
-    def deployEntities(self):
-        return self.designEntities
 
     @property
     def entitiesTable(self):
-        """
-
-        :param status: str
-                design or deploy
-        :return:
-        """
-        return self.designEntitiesTable
-
-    def getDesignPropertiesTableByEntityID(self, entityID):
-        try:
-            entity = pandas.DataFrame(self._metadata['entities']).set_index('key').loc[entityID]
-            entityType = self.experiment.getEntitiesTypeByID(entityTypeID=entity.entitiesTypeKey)
-            ret = self._composeEntityProperties(entityType, entity.properties)
-        except KeyError:
-            ret = pandas.DataFrame()
-        return ret
-
-    def getDesignPropertiesByEntityID(self, entityID):
-        ret = self.getDesignPropertiesTableByEntityID(entityID)
-        if ret.empty:
-            return dict()
+        filled_entities = fill_properties_by_contained(self._trialSet.experiment.entityType, self._metadata['entities'])
+        if len(filled_entities) == 0:
+            entities = pandas.DataFrame()
+        elif 'key' in filled_entities[0].keys():
+            entities = pandas.DataFrame(filled_entities).set_index('key')
         else:
-            return ret.loc[0].T.to_dict()
+            entities = pandas.DataFrame(filled_entities)
+        return self._composeProperties(entities)
 
     def _prepareEntitiesMetadata(self, metadata):
 
@@ -845,102 +782,36 @@ class Trial:
 
         return pandas.concat(retList, ignore_index=True)
 
-    @property
-    def designEntitiesTable(self):
-        filled_entities = fill_properties_by_contained(self._trialSet.experiment.entityType, self._metadata['entities'])
-        if len(filled_entities) == 0:
-            entities = pandas.DataFrame()
-        elif 'key' in filled_entities[0].keys():
-            entities = pandas.DataFrame(filled_entities).set_index('key')
-        else:
-            entities = pandas.DataFrame(filled_entities)
-        return self._composeProperties(entities)
+
+################################### Depreacted part of trial
 
     @property
     def deployEntitiesTable(self):
-        return self.designEntitiesTable
+        warnings.warn("deployEntitiesTable is deprecated. Use entitiesTable", DeprecationWarning, stacklevel=2)
+        return self.entitiesTable
 
-    def getDeployPropertiesTableByEntityID(self, entityID):
-        try:
-            entity = pandas.DataFrame(self._metadata['deployedEntities']).set_index('key').loc[entityID]
-            entityType = self.experiment.getEntitiesTypeByID(entityTypeID=entity.entitiesTypeKey)
-            ret = self._composeEntityProperties(entityType, entity.properties)
-        except KeyError:
-            ret = pandas.DataFrame()
-        return ret
+    @property
+    def designEntities(self):
+        warnings.warn("designEntities is deprecated. Use entities", DeprecationWarning, stacklevel=2)
+        return self.entities
 
-    def getDeployPropertiesByEntityID(self, entityID):
-        ret = self.getDeployPropertiesTableByEntityID(entityID)
-        if ret.empty:
-            return dict()
-        else:
-            return ret.loc[0].T.to_dict()
+    @property
+    def designEntitiesTable(self):
+        warnings.warn("designEntitiesTable is deprecated. Use entitiesTable", DeprecationWarning, stacklevel=2)
+        return self.entitiesTable
 
-    def __getitem__(self, item):
-        return self._properties.loc[item].val
+    @property
+    def deployEntities(self):
+        warnings.warn("deployEntities is deprecated. Use entitiesTable", DeprecationWarning, stacklevel=2)
+        return self.entities
+
+##################################################################
 
 
 class EntityType(dict):
     _experiment = None
     _metadata = None
 
-    @property
-    def experiment(self):
-        return self._experiment
-
-    @property
-    def client(self):
-        return self.experiment.client
-
-    @property
-    def keyID(self):
-        return self._metadata['key']
-
-    @property
-    def id(self):
-        return self._metadata['id']
-
-    @property
-    def name(self):
-        return self._metadata['name']
-
-    @property
-    def numberOfEntities(self):
-        return self._metadata['numberOfEntities']
-
-    @property
-    def state(self):
-        return self._metadata['state']
-
-    @property
-    def propertiesTable(self):
-        if 'properties' in self._metadata:
-            ret = pandas.DataFrame(self._metadata['properties']).set_index('key')
-        else:
-            ret = pandas.DataFrame()
-
-        return ret
-
-    @property
-    def properties(self):
-        ret = dict()
-        for prop in self._metadata['properties']:
-            ret[prop['label']] = prop
-
-        return ret
-
-    def toJSON(self):
-        ret = dict()
-        ret['name'] = self.name
-        ret['properties'] = self.properties
-
-        entityJSON = {}
-        for entityName, entityData in self.items():
-            entityJSON[entityName] = entityData.toJSON()
-
-        ret['entities'] = entityJSON
-
-        return ret
 
     def __init__(self, experiment: Experiment, metadata: dict):
         """
@@ -960,17 +831,84 @@ class EntityType(dict):
             self[entity['name']] = Entity(entityType=self, metadata=entity)
 
     @property
-    def entities(self):
+    def experiment(self):
+        return self._experiment
+
+    @property
+    def client(self):
+        return self.experiment.client
+
+    @property
+    def name(self):
+        return self._metadata['name']
+
+    @property
+    def numberOfEntities(self):
+        return len(self)
+
+    @property
+    def propertiesTable(self):
+        return pandas.DataFrame(self.properties)
+
+    @property
+    def properties(self):
+        return self._metadata['attributeTypes']
+
+    def toJSON(self):
+        ret = dict()
+        ret['name'] = self.name
+        ret['properties'] = self.properties
+
+        entityJSON = {}
+        for entityName, entityData in self.items():
+            entityJSON[entityName] = entityData.toJSON()
+
+        ret['entities'] = entityJSON
+
+        return ret
+
+
+    @property
+    def entitiesTable(self):
         retList = []
         for entityName, entityData in self.items():
-            trialProps = entityData.propertiesTable.assign(entityName=entityName, key=entityData.key)
+            trialProps = entityData.propertiesTable.assign(entityName=entityName).reset_index(drop=True)
             retList.append(trialProps)
-        return pandas.concat(retList, ignore_index=True).drop(columns=["key", "entitiesTypeKey"])
+        return pandas.concat(retList).set_index("entityName")
+
+    @property
+    def entitiesAllProperties(self):
+        retList = []
+        for entityName, entityData in self.items():
+            trialProps = entityData.allPropertiesTable.assign(entityName=entityName).reset_index(drop=True)
+            retList.append(trialProps)
+        return pandas.concat(retList).set_index(["entityName","trialName"])
 
 
 class Entity:
     _entityType = None
     _metadata = None
+
+    def __init__(self, entityType: EntityType, metadata: dict):
+        """
+
+        :param entityType: EntityType
+                The entity type
+
+        :param metadata : dict
+                The metadata of the
+        """
+        self._entityType = entityType
+        self._metadata = metadata
+
+        self._properties = []
+        for attr in self._entityType._metadata['attributeTypes']:
+            if attr.get("scope","") == 'Constant':
+                self._properties.append(dict(name=attr['name'],value=attr['defaultValue'],scope="Constant"))
+
+        for attr in metadata.get('attributes',[]):
+            self._properties.append(dict(name=attr['name'], value=attr['value'],scope="Device"))
+
 
     @property
     def entityType(self):
@@ -984,86 +922,45 @@ class Entity:
     def client(self):
         return self.experiment.client
 
-    @property
-    def key(self):
-        return self._metadata['key']
-
-    @property
-    def id(self):
-        return self._metadata['id']
 
     @property
     def name(self):
         return self._metadata['name']
 
     @property
-    def entityTypeKey(self):
-        return self._metadata['entitiesTypeKey']
+    def properties(self):
+        return {prop['name'] : prop['value'] for prop in self._properties}
 
     @property
-    def properties(self):
-
-        ret = dict(self._properties)
-        if 'key' in self._metadata.keys():
-            ret['key'] = self.key
-        if 'entitiesTypeKey' in self._metadata.keys():
-            ret['entitiesTypeKey'] = self._metadata['entitiesTypeKey']
-
-        ret['name'] = self.name
-        ret['entityType'] = self.entityType.name
-
-        return ret
+    def propertiesList(self):
+        return self._properties
 
     @property
     def allProperties(self):
-        trialsetdict = dict()
-
+        trialsetdict = self.propertiesList
         for trialsSetsName in self.experiment.trialSet.keys():
             trialsetdict[trialsSetsName] = dict()
             for trialName in self.experiment.trialSet[trialsSetsName].keys():
                 ddp = trialsetdict[trialsSetsName].setdefault(trialName, dict())
-
-                ddp['design'] = self.trialDesign(trialsSetsName, trialName)
-                ddp['deploy'] = self.trialDeploy(trialsSetsName, trialName)
+                ddp[trialName] = self.trialProperties(trialsSetsName, trialName)
 
         return trialsetdict
 
     @property
     def allPropertiesList(self):
-
-        trialsetlist = []
-
+        trialsetlist = self.propertiesList
         for trialsSetsName in self.experiment.trialSet.keys():
             for trialName in self.experiment.trialSet[trialsSetsName].keys():
-                design = self.trialDesign(trialsSetsName, trialName)
-                deploy = self.trialDeploy(trialsSetsName, trialName)
-
-                design['trialSetName'] = trialsSetsName
-                design['trialName'] = trialName
-                design['state'] = 'design'
-
+                deploy = self.trialProperties(trialsSetsName, trialName)
                 deploy['trialSetName'] = trialsSetsName
                 deploy['trialName'] = trialName
-                deploy['state'] = 'deploy'
-
-                trialsetlist.append(design)
+                deploy['scope'] = 'trial'
                 trialsetlist.append(deploy)
 
         return trialsetlist
 
-    @property
-    def allPropertiesTable(self):
-        return pandas.DataFrame(self.allPropertiesList)
-
-    @property
-    def propertiesTable(self):
-        val = pandas.DataFrame(self.properties, index=[0])
-        val = val.assign(entityName=self.name).drop("name", axis=1)
-        return val
-
     def toJSON(self):
         ret = dict()
-        ret['properties'] = dict(self._properties)
         ret['name'] = self.name
         ret['entityType'] = self.entityType.name
         ret['trialProperties'] = self.allPropertiesList
@@ -1073,50 +970,50 @@ class Entity:
         return json.dumps(self.toJSON())
 
     def __repr__(self):
-        props = self.properties
-        props['name'] = self.name
-        return json.dumps(props)
+        ret = dict(name=self.name, properties=self.propertiesList)
+        return json.dumps(ret)
+
 
     @property
-    def designProperties(self):
-
-        trialsetdict = dict()
-
-        for trialsSetsName in self.experiment.trialSet.keys():
-            trialsetdict[trialsSetsName] = dict()
-            for trialName in self.experiment.trialSet[trialsSetsName].keys():
-                trialsetdict[trialsSetsName][trialName] = self.trialDesign(trialsSetsName, trialName)
-
-        return trialsetdict
-
-    @property
-    def deployProperties(self):
-        trialsetdict = dict()
-
-        for trialsSetsName in self.experiment.trialSet.keys():
-            trialsetdict[trialsSetsName] = dict()
-            for trialName in self.experiment.trialSet[trialsSetsName].keys():
-                trialsetdict[trialsSetsName][trialName] = self.trialDeploy(trialsSetsName, trialName)
-
-        return trialsetdict
-
-    def trialDesign(self, trialSet, trialName):
-        ret = self.experiment.trialSet[trialSet][trialName].getDesignPropertiesByEntityID(self.key)
-        for fld in ['key', 'name', 'entityType', 'entitiesTypeKey']:
-            if fld in ret:
-                del ret[fld]
-
+    def allPropertiesTable(self):
+        constantProperties = self.propertiesTable
+        with pandas.option_context('future.no_silent_downcasting', True):
+            ret = self.allTrialPropertiesTable.join(constantProperties).ffill().infer_objects(copy=False)
         return ret
 
-    def trialDeploy(self, trialSet, trialName):
-        properties = self.experiment.trialSet[trialSet][trialName].deployEntities
+    @property
+    def propertiesTable(self):
+        return pandas.DataFrame(self.propertiesList).pivot(index="name", columns=[], values="value").reset_index().set_index("name").T
+
+    @property
+    def allTrialPropertiesTable(self):
+        retList = []
+        for trialsSetsName in self.experiment.trialSet.keys():
+            for trialName in self.experiment.trialSet[trialsSetsName].keys():
+                trProp = self.trialProperties(trialsSetsName, trialName)
+                trProp['trialSetName'] =trialsSetsName
+                trProp['trialName'] = trialName
+                retList.append(trProp)
+
+        return pandas.DataFrame(retList)
+
+    @property
+    def allTrialProperties(self):
+        trialsetdict = dict()
+
+        for trialsSetsName in self.experiment.trialSet.keys():
+            trialsetdict[trialsSetsName] = dict()
+            for trialName in self.experiment.trialSet[trialsSetsName].keys():
+                trialsetdict[trialsSetsName][trialName] = self.trialProperties(trialsSetsName, trialName)
+
+        return trialsetdict
+
+    def trialProperties(self, trialSetName, trialName):
+        properties = self.experiment.trialSet[trialSetName][trialName].entitiesTable
         ret = properties.get(self.name, dict())
-
-        for fld in ['key', 'name', 'entityType', 'entitiesTypeKey']:
-            if fld in ret:
-                del ret[fld]
-
         return ret
+
+    #################################### Deprecated entity interface ##################################
 
     def trial(self, trialSet, trialName, state):
         """
@@ -1135,28 +1032,29 @@ class Entity:
         -------
              dict
         """
-
+        warnings.warn("trial is deprecated. Use trialProperties", DeprecationWarning, stacklevel=2)
         return getattr(self, f"trial{state.title()}")(trialSet, trialName)
 
-    def __init__(self, entityType: EntityType, metadata: dict):
-        """
+    @property
+    def designProperties(self):
+        warnings.warn("designProperties is deprecated. Use allTriealProperties", DeprecationWarning, stacklevel=2)
+        return self.propertiesList
 
-        :param entityType: EntityType
-                The entity type
+    @property
+    def deployProperties(self):
+        warnings.warn("deployProperties is deprecated. Use allTriealProperties", DeprecationWarning, stacklevel=2)
+        return self.propertiesList
 
-        :param metadata : dict
-                The metadata of the
-        """
-        self._entityType = entityType
-        self._metadata = metadata
+    def trialDesign(self, trialSet, trialName):
+        warnings.warn("trialDesign is deprecated. Use trialProperties", DeprecationWarning, stacklevel=2)
+        return self.trialDeploy(trialSet, trialName)
 
-        if 'properties' in metadata:
-            propertiesPandas = pandas.DataFrame(metadata['properties']).set_index('key')
+    def trialDeploy(self, trialSet, trialName):
+        warnings.warn("trialDeploy is deprecated. Use trialProperties", DeprecationWarning, stacklevel=2)
+        properties = self.experiment.trialSet[trialSet][trialName].deployEntities
+        ret = properties.get(self.name, dict())
 
-            properties = propertiesPandas.merge(entityType.propertiesTable.query("trialField==False"), left_index=True,
-                                                right_index=True)[['val', 'type', 'label', 'description']] \
-                .set_index("label")
-        else:
-            properties = pandas.DataFrame()
+        return ret
 
-        self._properties = dict([(key, data['val']) for key, data in properties.T.to_dict().items()])
+
+####################################################################################################

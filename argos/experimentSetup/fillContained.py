@@ -1,6 +1,5 @@
 from copy import deepcopy
 
-
 def key_from_name(named_entity):
     t = named_entity.get("deviceTypeName", None)
     n = named_entity.get("deviceItemName", None)
@@ -18,21 +17,26 @@ def get_parent(xref_entities, named_entity):
 
 
 def get_attrs(entity):
-    return [x for x in entity.get("attributes", []) if x.get("name", None) is not None]
+    attrsList =  [x for x in entity.get("attributes", []) if x.get("name", None) is not None]
+    return attrsList
 
 
 def spread_attributes(entity):
     if "location" in entity:
         loc = entity["location"]
-        entity["MapName"] = loc["name"]
-        entity["Latitude"] = loc["coordinates"][0]
-        entity["Longitude"] = loc["coordinates"][1]
+        entity["mapName"] = loc["name"]
+        entity["latitude"] = loc["coordinates"][1]
+        entity["longitude"] = loc["coordinates"][0]
         del entity["location"]
     if "attributes" in entity:
         entity_attrs = get_attrs(entity)
         for attr in entity_attrs:
             entity[attr["name"]] = attr["value"]
         del entity["attributes"]
+
+    if "containedIn"  in entity:
+        entity["containedInType"] = entity["containedIn"]["deviceTypeName"]
+        entity["containedIn"] = entity["containedIn"]["deviceItemName"]
 
 def handle_String(value):
     return value
@@ -67,6 +71,7 @@ def fill_properties_by_contained(entities_types_dict, meta_entities):
             parent = get_parent(xref_entities, entity)
             while parent is not None:
                 parent_attrs = get_attrs(parent)
+                entity["location"] = parent.get('location', {})
                 for pa in parent_attrs:
                     pa_name = pa["name"]
                     if pa_name in attrs_names:
@@ -79,8 +84,8 @@ def fill_properties_by_contained(entities_types_dict, meta_entities):
             entity["attributes"] = entity_attrs
 
     for entity in filled_entities:
-        if "containedIn" in entity:
-            del entity["containedIn"]
+        # if "containedIn" in entity:
+        #     del entity["containedIn"]
         spread_attributes(entity)
 
     return filled_entities
