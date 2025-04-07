@@ -88,8 +88,7 @@ class Experiment:
         entityTypeList = []
         for entityTypeName, entityTypeData in self.entityType.items():
             for entityTypeDataName, entityData in entityTypeData.items():
-                entityTypeList.append(
-                    pandas.DataFrame(entityData.propertiesList).assign(entityType=entityTypeName,entityName=entityData.name))
+                entityTypeList.append(entityData.propertiesTable.assign(entityType=entityTypeName,entityName=entityData.name))
 
         return pandas.concat(entityTypeList, ignore_index=True)
 
@@ -1009,7 +1008,7 @@ class Entity:
         return trialsetdict
 
     def trialProperties(self, trialSetName, trialName):
-        properties = self.experiment.trialSet[trialSetName][trialName].entitiesTable
+        properties = self.experiment.trialSet[trialSetName][trialName].entities
         ret = properties.get(self.name, dict())
         return ret
 

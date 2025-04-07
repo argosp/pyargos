@@ -25,6 +25,7 @@ if __name__ == "__main__":
     nodered_subparser = nodered_parser.add_subparsers(help='Handles nodered')
 
     nodered_devices = nodered_subparser.add_parser('createDeviceMap', help='Creates the device name -> device type mapping')
+    nodered_devices.add_argument('--fullNumber',action="store_true" , default=False, help='Use the full number as device name. If does not appear, use conver the number to int. i.e. Sonic_0010 -> Sonic_10')
     nodered_devices.set_defaults(func=managerCLI.nodered_createDeviceMap)
 
     ################
@@ -37,10 +38,6 @@ if __name__ == "__main__":
     thingsboard_load_subparser = thingsboard_load_parser.add_subparsers(help='Handles simulation group')
 
     #---- Load to Thingsboard.
-    ##### load Devices
-    thingsboard_load_devices = thingsboard_load_subparser.add_parser('devices', help='Pring the JS function for mapping')
-    thingsboard_load_devices.add_argument('--directory', type=str, default=None, help='The expeirment directory, ')
-    thingsboard_load_devices.set_defaults(func=managerCLI.thingsboard_loadTrial)
 
     ##### load Trial
     thingsboard_load_trial = thingsboard_load_subparser.add_parser('trial', help='Loads the attributes of a device to a trial (either design or deploy)')
