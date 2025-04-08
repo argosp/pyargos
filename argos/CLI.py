@@ -99,7 +99,7 @@ def nodered_createDeviceMap(arguments):
             origName = ent['entityName']
             first_digit = re.search("\d", ent['entityName'])
             indxStart = first_digit.start()
-            newName = origName[:indxStart] + str(int(origName[indxStart:]))
+            newName = f"{ent['entityType']} {str(int(origName[indxStart:]))}"
         else:
             newName = ent['entityName']
         logger.debug(f"\t{newName} : {origName} -> {item_desc} ")
