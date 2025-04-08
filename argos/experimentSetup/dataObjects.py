@@ -88,10 +88,17 @@ class Experiment:
         entityTypeList = []
         for entityTypeName, entityTypeData in self.entityType.items():
             for entityTypeDataName, entityData in entityTypeData.items():
-                entityTypeList.append(
-                    pandas.DataFrame(entityData.propertiesList).assign(entityType=entityTypeName,entityName=entityData.name))
+                entityTypeList.append(entityData.propertiesTable.assign(entityType=entityTypeName,entityName=entityData.name))
 
         return pandas.concat(entityTypeList, ignore_index=True)
+
+    @property
+    def trialsTableAllSets(self):
+        tableList = []
+        for trialSetName in self.trialSet:
+            tableList.append(self.trialsTable(trialSetName).assign(trialSet=trialSetName))
+        return pandas.concat(tableList)
+
 
     def trialsTable(self, trialsetName):
         return self.trialSet[trialsetName].trialsTable
@@ -490,7 +497,9 @@ class Trial:
     def properties(self):
 
         propDict = {}
-        for prop in self._metadata['attributes']:
+        propList = self._metadata['attributes'] if 'attributes' in self._metadata else self._metadata['properties']
+
+        for prop in propList:
             propDict[prop['name']] = prop['value']
 
         return propDict
@@ -912,16 +921,11 @@ class Entity:
 
     @property
     def entityType(self):
-        return self._entityType
+        return self._entityType.name
 
     @property
     def experiment(self):
-        return self.entityType.experiment
-
-    @property
-    def client(self):
-        return self.experiment.client
-
+        return self._entityType.experiment
 
     @property
     def name(self):
@@ -937,7 +941,7 @@ class Entity:
 
     @property
     def allProperties(self):
-        trialsetdict = self.propertiesList
+        trialsetdict = dict() #$self.propertiesList
         for trialsSetsName in self.experiment.trialSet.keys():
             trialsetdict[trialsSetsName] = dict()
             for trialName in self.experiment.trialSet[trialsSetsName].keys():
@@ -983,7 +987,7 @@ class Entity:
 
     @property
     def propertiesTable(self):
-        return pandas.DataFrame(self.propertiesList).pivot(index="name", columns=[], values="value").reset_index().set_index("name").T
+        return pandas.DataFrame(self.propertiesList)
 
     @property
     def allTrialPropertiesTable(self):
@@ -997,6 +1001,7 @@ class Entity:
 
         return pandas.DataFrame(retList)
 
+
     @property
     def allTrialProperties(self):
         trialsetdict = dict()
@@ -1009,7 +1014,7 @@ class Entity:
         return trialsetdict
 
     def trialProperties(self, trialSetName, trialName):
-        properties = self.experiment.trialSet[trialSetName][trialName].entitiesTable
+        properties = self.experiment.trialSet[trialSetName][trialName].entities
         ret = properties.get(self.name, dict())
         return ret
 

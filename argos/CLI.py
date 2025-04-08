@@ -1,3 +1,4 @@
+import re
 import os
 import json
 import pandas
@@ -8,6 +9,7 @@ from kafka import KafkaConsumer,KafkaProducer
 import threading
 from .kafka.consumer import consume_topic,consume_topic_server
 from .manager import experimentManager
+from .experimentSetup import fileExperimentFactory
 
 def experiment_createDirectory(arguments):
     logger = logging.getLogger("argos.bin.experiment_createDirectory")
@@ -50,15 +52,58 @@ print("Experiment loaded into variable {arguments.experimentName} ")
         codeFile.write(argos_basic)
 
 def nodered_createDeviceMap(arguments):
+    """
+        Creates the map for the node-red application.
+
+        The maps is used to translate the device name -> device type and therefore find the right parquet file.
+
+        The map format is
+
+            entityKey -> { entityType : type , entityName}
+
+        entityKey is determined by the value of the arguments.fullName.
+
+        If False (default)
+            entity names are converted to integer form.
+
+            That is
+                if the entity name is Sonic_0010 then the entityKey is Sonic_10.
+
+        If True:
+                Then entityKey is the entity name
+
+
+
+    Parameters
+    ----------
+    arguments : a struct
+        if .fullName is True, use the full name of the deivce.
+
+    Returns
+    -------
+
+    """
+
+
     logger = logging.getLogger("argos.bin.nodered_createDeviceList")
     logger.info("--------- Start ---------")
+
+
 
     expr = fileExperimentFactory().getExperiment()
     entDict = []
     logger.debug("Iterating over devices: ")
     for endID,ent in expr.entitiesTable.iterrows():
-        logger.debug(f"\t{ent['name']} -> {ent['entityType']} ")
-        entDict.append( (ent['name'],ent['entityType'] ) )
+        item_desc = dict(entityType=ent['entityType'], entityName=ent['entityName'])
+        if not arguments.fullNumber:
+            origName = ent['entityName']
+            first_digit = re.search("\d", ent['entityName'])
+            indxStart = first_digit.start()
+            newName = f"{ent['entityType']} {str(int(origName[indxStart:]))}"
+        else:
+            newName = ent['entityName']
+        logger.debug(f"\t{newName} : {origName} -> {item_desc} ")
+        entDict.append( (newName,item_desc) )
 
     deviceMapFileName = os.path.join(os.getcwd(),"runtimeExperimentData","deviceMap.json")
     logger.info(f"Writing file {deviceMapFileName}")
