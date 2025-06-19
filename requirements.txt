@@ -19,5 +19,5 @@ requests==2.32.3
 six==1.16.0
 tzdata==2024.2
 Unum==4.2.1
-urllib3==2.2.3
+urllib3==2.5.0
 zipp==3.20.2
