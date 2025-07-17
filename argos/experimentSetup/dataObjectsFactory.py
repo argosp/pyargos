@@ -1,11 +1,15 @@
 import glob
-from gql import gql, Client
-from gql.transport.aiohttp import AIOHTTPTransport
+try:
+    from gql import gql, Client
+    from gql.transport.aiohttp import AIOHTTPTransport
+except:
+    print("qgl is not installed")
+
 import pandas
-from.dataObjects import webExperiment,Experiment,ExperimentZipFile
+from argos.experimentSetup.dataObjects import webExperiment,Experiment,ExperimentZipFile
 import os
-from ..utils.jsonutils import loadJSON
-from ..utils.logging import get_logger as argos_get_logger
+from argos.utils.jsonutils import loadJSON
+from argos.utils.logging import get_logger as argos_get_logger
 
 class fileExperimentFactory:
     """
