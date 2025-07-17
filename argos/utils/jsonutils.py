@@ -1,4 +1,8 @@
-from unum.units import *
+try:
+    from unum.units import *
+except ImportError:
+    pass
+
 import os
 import json
 import pandas
