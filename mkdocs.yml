@@ -90,6 +90,7 @@ nav:
       - Architecture:
           - Core Concepts: developer_guide/architecture/core_concepts.md
           - Data Flow: developer_guide/architecture/data_flow.md
+          - Experiment Setup: developer_guide/architecture/experiment_setup.md
       - API Reference:
           - Overview: developer_guide/api/index.md
           - Experiment Setup: developer_guide/api/experiment_setup.md
