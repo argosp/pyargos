@@ -87,6 +87,7 @@ nav:
       - Troubleshooting: user_guide/troubleshooting.md
   - Developer Guide:
       - Overview: developer_guide/index.md
+      - Data Model Reference: developer_guide/data_model.md
       - Experiment Setup:
           - Overview: developer_guide/experiment_setup_index.md
           - Architecture: developer_guide/architecture/experiment_setup.md

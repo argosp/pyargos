@@ -72,14 +72,32 @@ The user guide covers the **practical usage** -- how to create experiments, defi
 
 ---
 
+## Data Model
+
+The data model reference documents the **domain concepts** and **file formats** that the experimentSetup code operates on.
+
+- [**Data Model Reference**](data_model.md)
+    - What experiments, trials, entities, and entity types are
+    - ZIP file structure (`data.json`, `shapes.geojson`, `images/`)
+    - JSON schema for all versions (1.0.0, 2.0.0, 3.0.0)
+    - Property types (Boolean, Number, String, location, datetime, etc.)
+    - Property scopes (Constant, Device, Trial)
+    - Version migration paths
+    - Experiment directory structure
+
+---
+
 ## Quick Navigation
 
 | I want to... | Go to |
 |--------------|-------|
+| Understand what trials and entities are | [Data Model](data_model.md) |
+| See the ZIP/JSON file format | [Data Model → ZIP File Format](data_model.md#zip-file-format) |
+| Understand property types and scopes | [Data Model → Property Types](data_model.md#property-types) |
 | Understand the class hierarchy and design | [Architecture](architecture/experiment_setup.md) |
 | Look up a specific method or property | [API Reference](api/experiment_setup.md) |
 | See how data flows through the system | [Architecture → Data Flow](architecture/data_flow.md) |
 | Create and configure an experiment | [User Guide](../user_guide/experiment_setup.md) |
 | Understand how containment works | [Architecture → Containment](architecture/experiment_setup.md#containment-hierarchy-resolution) |
 | See all DataFrame properties | [Architecture → DataFrame Map](architecture/experiment_setup.md#pandas-dataframe-interface) |
-| Understand version migrations | [Architecture → Version Migration](architecture/experiment_setup.md#version-migration-detail) |
+| Understand version migrations | [Data Model → Version Migration](data_model.md#version-migration-summary) |
