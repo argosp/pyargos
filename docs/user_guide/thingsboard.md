@@ -113,6 +113,9 @@ When loading a trial, pyArgos clears all three scopes before writing new `SERVER
 
 ## Workflow
 
+![Diagram](../images/diagrams/user_guide_thingsboard_0_077eb606.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 graph TD
     A[Define Experiment] --> B[Load Devices to TB]
@@ -121,3 +124,4 @@ graph TD
     D --> E[Run Experiment]
     E --> F[Stream data via Kafka]
 ```
+-->

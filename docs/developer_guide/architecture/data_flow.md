@@ -6,6 +6,9 @@ This page documents how data flows through the pyArgos system in different scena
 
 ## Local Experiment Loading
 
+![Diagram](../../images/diagrams/developer_guide_architecture_data_flow_0_f3f63982.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 sequenceDiagram
     participant Client
@@ -29,11 +32,15 @@ sequenceDiagram
     Exp->>Exp: Build EntityType hierarchy
     Factory-->>Client: Return Experiment
 ```
+-->
 
 ---
 
 ## Remote Experiment Loading
 
+![Diagram](../../images/diagrams/developer_guide_architecture_data_flow_1_ff8aacf7.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 sequenceDiagram
     participant Client
@@ -51,11 +58,15 @@ sequenceDiagram
     Factory->>Exp: Create webExperiment
     Factory-->>Client: Return webExperiment
 ```
+-->
 
 ---
 
 ## Kafka to Parquet Pipeline
 
+![Diagram](../../images/diagrams/developer_guide_architecture_data_flow_2_bfa05a42.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 sequenceDiagram
     participant Device as IoT Device
@@ -78,6 +89,7 @@ sequenceDiagram
         Consumer->>PQ: writeToParquet()
     end
 ```
+-->
 
 ### Parquet Write Strategy
 
@@ -95,6 +107,9 @@ The `appendToParquet` function uses a safe write pattern:
 
 ## ThingsBoard Setup Flow
 
+![Diagram](../../images/diagrams/developer_guide_architecture_data_flow_3_8036da00.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 sequenceDiagram
     participant Manager as experimentManager
@@ -123,6 +138,7 @@ sequenceDiagram
         Manager->>TB: Save SERVER_SCOPE attributes
     end
 ```
+-->
 
 ---
 
@@ -130,6 +146,9 @@ sequenceDiagram
 
 ### Cassandra
 
+![Diagram](../../images/diagrams/developer_guide_architecture_data_flow_4_265874ee.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 graph TD
     A[CassandraBag] --> B[Query device keys]
@@ -139,9 +158,13 @@ graph TD
     E --> F[Pivot: rows=timestamps, cols=keys]
     F --> G[Return DataFrame]
 ```
+-->
 
 ### MongoDB
 
+![Diagram](../../images/diagrams/developer_guide_architecture_data_flow_5_ae1b1c36.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 graph TD
     A[MongoBag] --> B[Create date range partitions]
@@ -150,5 +173,6 @@ graph TD
     D --> E[Filter by MongoDB query]
     E --> F[Return DataFrame]
 ```
+-->
 
 Both use Dask for distributed processing, splitting time ranges into partitions for parallel reads from the database.

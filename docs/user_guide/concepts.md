@@ -92,6 +92,9 @@ trial.propertiesTable
 
 The typical data flow in a pyArgos experiment:
 
+![Diagram](../images/diagrams/user_guide_concepts_0_504f7274.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 graph LR
     A[Configure Experiment] --> B[Setup on ThingsBoard]
@@ -100,6 +103,7 @@ graph LR
     D --> E[Store in Parquet]
     E --> F[Analyze with Pandas]
 ```
+-->
 
 1. **Configure** - Define entities and trials in JSON or via ArgosWEB
 2. **Setup** - Upload device profiles and entities to ThingsBoard

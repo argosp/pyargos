@@ -34,6 +34,9 @@ argos/experimentSetup/
 
 The `Experiment` base class defines the full interface for accessing experiment data. Two subclasses override only the data-loading and image-fetching behavior:
 
+![Diagram](../../images/diagrams/developer_guide_architecture_experiment_setup_0_f2b553c6.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 classDiagram
     class Experiment {
@@ -92,6 +95,7 @@ classDiagram
     note for ExperimentZipFile "◄ = overridden method"
     note for webExperiment "◄ = overridden method"
 ```
+-->
 
 **Key override points:**
 
@@ -105,6 +109,9 @@ classDiagram
 
 Both `TrialSet` and `EntityType` extend Python's `dict`, enabling dictionary-style access to their children:
 
+![Diagram](../../images/diagrams/developer_guide_architecture_experiment_setup_1_2838b743.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 classDiagram
     class dict {
@@ -150,6 +157,7 @@ classDiagram
     dict <|-- TrialSet : extends
     dict <|-- EntityType : extends
 ```
+-->
 
 This means:
 
@@ -163,6 +171,9 @@ entity = experiment.entityType["Sensor"]["Sensor_01"]
 
 ### Full Object Composition
 
+![Diagram](../../images/diagrams/developer_guide_architecture_experiment_setup_2_df5898ee.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 graph TD
     subgraph "Experiment (root)"
@@ -202,6 +213,7 @@ graph TD
     T1 -.->|references via entities| E2
     T2 -.->|references via entities| E1
 ```
+-->
 
 ---
 
@@ -209,6 +221,9 @@ graph TD
 
 ### Decision Flow
 
+![Diagram](../../images/diagrams/developer_guide_architecture_experiment_setup_3_8d93df22.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 flowchart TD
     A[Client calls getExperimentSetup or factory directly] --> B{Source type?}
@@ -247,11 +262,15 @@ flowchart TD
 
     R --> X[Return Experiment object]
 ```
+-->
 
 ### Version Migration Detail
 
 When `ExperimentZipFile.refresh()` loads a ZIP archive, it detects the schema version and applies the appropriate migration:
 
+![Diagram](../../images/diagrams/developer_guide_architecture_experiment_setup_4_4c893096.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 flowchart LR
     A[data.json from ZIP] --> B{version field?}
@@ -267,6 +286,7 @@ flowchart LR
     G -->|"Flatten: trials[] → trialSets[].trials[]<br>entities[] → entityTypes[].entities[]"| I
     H -->|"Rename: deviceTypes → entityTypes<br>trialTypes → trialSets<br>devices → entities<br>devicesOnTrial → entities"| I
 ```
+-->
 
 **Internal standard format** (what all versions are normalized to):
 
@@ -298,6 +318,9 @@ flowchart LR
 
 ### Experiment Construction
 
+![Diagram](../../images/diagrams/developer_guide_architecture_experiment_setup_5_2c0573b6.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 sequenceDiagram
     participant Client
@@ -336,11 +359,15 @@ sequenceDiagram
     IMG->>IMG: Build image URL map
     Exp-->>Client: Fully initialized Experiment
 ```
+-->
 
 ### Entity Property Collection
 
 When an `Entity` is created, it collects properties from two sources:
 
+![Diagram](../../images/diagrams/developer_guide_architecture_experiment_setup_6_a7408c10.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 flowchart TD
     A[Entity.__init__] --> B[Scan EntityType attributeTypes]
@@ -358,6 +385,7 @@ flowchart TD
     H --> J["propertiesList: [{name, value, scope}]"]
     H --> K["propertiesTable: DataFrame"]
 ```
+-->
 
 ---
 
@@ -367,6 +395,9 @@ flowchart TD
 
 When a `Trial` is initialized, each property value is parsed according to its type. The type is defined in the parent `TrialSet`'s `attributeTypes`:
 
+![Diagram](../../images/diagrams/developer_guide_architecture_experiment_setup_7_e1a14d9e.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 flowchart TD
     A[Trial.__init__] --> B[Merge raw properties with TrialSet.attributeTypes]
@@ -389,6 +420,7 @@ flowchart TD
     J --> L
     K --> L
 ```
+-->
 
 **Parser contract:** Every `_parseProperty_*` method returns `(columns: list[str], values: list)`. For most types this is a single column/value pair. For `location`, it expands to three columns.
 
@@ -396,6 +428,9 @@ flowchart TD
 
 Properties exist at different scopes throughout the hierarchy:
 
+![Diagram](../../images/diagrams/developer_guide_architecture_experiment_setup_8_bb1e9867.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 graph TD
     subgraph "EntityType level"
@@ -418,6 +453,7 @@ graph TD
     D -->|"per-trial overlay"| F[Entity.allPropertiesTable]
     E -->|"constant base"| F
 ```
+-->
 
 | Scope | Source | Changes per trial? | Access |
 |-------|--------|--------------------|--------|
@@ -436,6 +472,9 @@ In ArgosWEB, entities can be "contained in" other entities (e.g., a sensor mount
 
 ### The Solution: `fillContained`
 
+![Diagram](../../images/diagrams/developer_guide_architecture_experiment_setup_9_7656d845.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 flowchart TD
     A["Input: raw entity list from trial"] --> B["Build cross-reference map<br/>key_from_name(entity) → entity"]
@@ -474,6 +513,7 @@ flowchart TD
     Q --> V
     T --> V
 ```
+-->
 
 ### Walk Example
 
@@ -510,6 +550,9 @@ After `fill_properties_by_contained`:
 
 Every major object exposes one or more DataFrame properties. This diagram shows how they are computed:
 
+![Diagram](../../images/diagrams/developer_guide_architecture_experiment_setup_10_77c968ef.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 flowchart TD
     subgraph "Experiment level"
@@ -541,9 +584,13 @@ flowchart TD
         N["entity.allPropertiesTable"] --> N1["allTrialPropertiesTable.join(propertiesTable)<br/>.ffill()"]
     end
 ```
+-->
 
 ### Relationship Between DataFrames
 
+![Diagram](../../images/diagrams/developer_guide_architecture_experiment_setup_11_b46026cf.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 graph LR
     A["entity.propertiesTable<br/>(constant props)"] -->|join| C["entity.allPropertiesTable<br/>(constant + trial)"]
@@ -555,6 +602,7 @@ graph LR
     F["experiment.entitiesTable"] -->|"concat of"| D
     G["experiment.entityTypeTable"] -->|"concat of"| H["entityType.propertiesTable"]
 ```
+-->
 
 ---
 
@@ -562,6 +610,9 @@ graph LR
 
 Each object can be serialized back to a JSON-compatible dict. The serialization is hierarchical:
 
+![Diagram](../../images/diagrams/developer_guide_architecture_experiment_setup_12_64f84197.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 flowchart TD
     A["experiment.toJSON()"] --> B["entityType dict"]
@@ -580,6 +631,7 @@ flowchart TD
     L --> M["trial.toJSON()"]
     M --> N["properties + name"]
 ```
+-->
 
 ---
 

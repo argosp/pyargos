@@ -75,6 +75,9 @@ Sends a batch of data covering a specified time period all at once. Useful for:
 
 ### Via Node-RED (recommended)
 
+![Diagram](../images/diagrams/user_guide_testing_0_daf23499.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 graph LR
     A[Mock Device] -->|MQTT| B[Node-RED]
@@ -82,17 +85,22 @@ graph LR
     C --> D[pyArgos Consumer]
     D --> E[Parquet]
 ```
+-->
 
 This tests the full pipeline including device routing.
 
 ### Direct to Kafka
 
+![Diagram](../images/diagrams/user_guide_testing_1_5f04b4a3.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 graph LR
     A[Mock Device] --> B[Kafka Topic]
     B --> C[pyArgos Consumer]
     C --> D[Parquet]
 ```
+-->
 
 For testing without Node-RED, mock devices write directly to Kafka topics.
 

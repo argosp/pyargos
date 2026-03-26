@@ -8,6 +8,9 @@ This page describes the architecture and design patterns that underpin pyArgos.
 
 pyArgos organizes experiment data in a hierarchical object model:
 
+![Diagram](../../images/diagrams/developer_guide_architecture_core_concepts_0_d46b2a03.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 classDiagram
     class Experiment {
@@ -74,6 +77,7 @@ classDiagram
     EntityType "1" --> "*" Entity
     Trial --> Entity : references
 ```
+-->
 
 ---
 
@@ -81,6 +85,9 @@ classDiagram
 
 pyArgos uses the Factory pattern to abstract experiment loading from different sources:
 
+![Diagram](../../images/diagrams/developer_guide_architecture_core_concepts_1_187433b0.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 graph TD
     A[Client Code] --> B{Source Type?}
@@ -91,6 +98,7 @@ graph TD
     E --> G[Unified Experiment Interface]
     F --> G
 ```
+-->
 
 ### `fileExperimentFactory`
 
