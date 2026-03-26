@@ -12,9 +12,10 @@ Understanding the core concepts behind pyArgos will help you work with the platf
 5. [The Three Kinds of Property Values](#5-the-three-kinds-of-property-values)
 6. [How It All Fits Together in the JSON](#6-how-it-all-fits-together-in-the-json)
 7. [Containment — Devices Inside Devices](#7-containment-devices-inside-devices)
-8. [A Note on Terminology](#8-a-note-on-terminology)
-9. [Data Flow](#9-data-flow)
-10. [Experiment Directory Structure](#10-experiment-directory-structure)
+8. [Image Maps — Devices on a Site Plan](#8-image-maps-devices-on-a-site-plan)
+9. [A Note on Terminology](#9-a-note-on-terminology)
+10. [Data Flow](#10-data-flow)
+11. [Experiment Directory Structure](#11-experiment-directory-structure)
 
 ---
 
@@ -457,7 +458,178 @@ location unless they define their own.
 
 ---
 
-## 8. A Note on Terminology
+## 8. Image Maps — Devices on a Site Plan
+
+Experiments often take place at a physical site — a field, a building, an
+industrial facility. ArgosWEB lets you upload an **image of the site** (a
+satellite photo, a floor plan, an aerial photograph) and define its
+**geographic bounding box** so that device coordinates can be mapped onto it.
+
+### What an image map is
+
+An image map is a picture of the experiment site with a known coordinate
+system. It has:
+
+- An **image file** (PNG) — the visual background
+- **Bounding coordinates** — the latitude/longitude of the image edges
+  (`lower`, `upper`, `left`, `right`)
+- **Dimensions** — the image size in pixels (`width`, `height`)
+- A **name** — an identifier for the map (e.g., `"FieldMap"`, `"OSMMap"`)
+
+When a device has a `location` property with coordinates, those coordinates
+refer to a position **on this image**. The bounding box defines the mapping
+between real-world coordinates and pixel positions.
+
+```
+Image: "FieldMap.png" (1024 x 768 pixels)
+
+    upper = 32.20 ┌─────────────────────┐
+                   │                     │
+                   │    ● Sensor_01      │
+                   │       (32.08, 34.94)│
+                   │                     │
+                   │         ● Sensor_02 │
+                   │          (32.09, 34.95)
+                   │                     │
+    lower = 32.00 └─────────────────────┘
+              left = 34.80       right = 35.00
+```
+
+### How image maps are defined in the JSON
+
+In v3.0.0, image maps appear under `imageStandalone` (for images stored as
+separate files in the ZIP) or `imageEmbedded` (for base64-encoded images
+inside the JSON):
+
+```json
+"imageStandalone": [
+    {
+        "name": "FieldMap",
+        "imageUrl": "images/fieldMap.png",
+        "lower": 32.00,
+        "upper": 32.20,
+        "left": 34.80,
+        "right": 35.00,
+        "width": 1024,
+        "height": 768,
+        "embedded": false
+    }
+]
+```
+
+In v2.0.0, the same data appears under `experiment.maps`:
+
+```json
+"experiment": {
+    "maps": [
+        {
+            "imageName": "FieldMap",
+            "imageUrl": "images/fieldMap.png",
+            "lower": 32.00,
+            "upper": 32.20,
+            "left": 34.80,
+            "right": 35.00,
+            "width": 1024,
+            "height": 768
+        }
+    ]
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `name` / `imageName` | Identifier for the map |
+| `imageUrl` | Path to the image file (relative to ZIP root or server) |
+| `lower`, `upper` | Latitude bounds of the image |
+| `left`, `right` | Longitude bounds of the image |
+| `width`, `height` | Image dimensions in pixels |
+| `embedded` | Whether the image is base64-encoded in the JSON |
+
+### Accessing images in pyArgos
+
+```python
+experiment = fileExperimentFactory("/path/to/exp").getExperiment()
+
+# List all available maps
+print(experiment.imageMap.keys())   # e.g., dict_keys(['FieldMap'])
+
+# Get the metadata (bounding box, dimensions, URL)
+metadata = experiment.getImageMetadata("FieldMap")
+print(metadata['lower'], metadata['upper'])   # 32.0, 32.2
+print(metadata['left'], metadata['right'])    # 34.8, 35.0
+
+# Load the image as a NumPy array (for plotting with matplotlib)
+img = experiment.getImage("FieldMap")
+```
+
+### Coordinate mapping
+
+The bounding box allows you to convert between real-world coordinates and
+image pixel positions. pyArgos provides a helper that generates the
+JavaScript mapping function used by ThingsBoard dashboards:
+
+```python
+js_code = experiment.getImageJSMappingFunction("FieldMap")
+print(js_code)
+```
+
+This outputs JavaScript that converts `(origXPos, origYPos)` in real-world
+coordinates to `(image_x, image_y)` in normalized 0..1 coordinates:
+
+```javascript
+image_x = (origXPos - (34.8)) / 0.2;
+image_y = ((32.2) - origYPos) / 0.2;
+return {x: image_x, y: image_y};
+```
+
+For Python analysis, you can compute the same mapping directly:
+
+```python
+import matplotlib.pyplot as plt
+
+img = experiment.getImage("FieldMap")
+meta = experiment.getImageMetadata("FieldMap")
+
+# Plot the site image
+fig, ax = plt.subplots()
+ax.imshow(img, extent=[meta['left'], meta['right'], meta['lower'], meta['upper']])
+
+# Overlay device positions from a trial
+trial = experiment.trialSet["design"]["Trial_01"]
+for name, props in trial.entities.items():
+    if 'latitude' in props and 'longitude' in props:
+        ax.plot(props['longitude'], props['latitude'], 'ro', markersize=8)
+        ax.annotate(name, (props['longitude'], props['latitude']),
+                    fontsize=8, ha='left')
+
+ax.set_xlabel("Longitude")
+ax.set_ylabel("Latitude")
+plt.title("Device Positions — Trial_01")
+plt.show()
+```
+
+### Where device coordinates come from
+
+When you place a device on the map in ArgosWEB, the UI stores the
+coordinates in the device's `location` property within `devicesOnTrial`:
+
+```json
+"location": {
+    "name": "FieldMap",
+    "coordinates": [32.08, 34.94]
+}
+```
+
+The `name` field refers to the image map the device was placed on. The
+`coordinates` are `[latitude, longitude]` within that map's bounding box.
+
+If a device has no `location` but is `containedIn` another device that does,
+it inherits the parent's location (see
+[Containment](#7-containment-devices-inside-devices) above).
+
+---
+
+## 9. A Note on Terminology
 
 The terms **device** and **entity** refer to the same concept. The terminology
 changed between versions of the format:
@@ -476,7 +648,7 @@ of which version of the JSON it reads.
 
 ---
 
-## 9. Data Flow
+## 10. Data Flow
 
 The typical data flow in a pyArgos experiment:
 
@@ -502,7 +674,7 @@ graph LR
 
 ---
 
-## 10. Experiment Directory Structure
+## 11. Experiment Directory Structure
 
 Every pyArgos experiment follows a standard directory layout:
 
