@@ -1,48 +1,86 @@
-site_name: pyArgos
-site_description: Python wrappings for the Argos IoT experiment management platform
+site_name: pyArgos Documentation
+site_description: Documentation for the pyArgos IoT experiment management platform
 site_url: https://argosp.github.io/pyargos/
 repo_url: https://github.com/argosp/pyargos
 repo_name: argosp/pyargos
 
 theme:
   name: material
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.instant
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
   palette:
     - scheme: default
       primary: indigo
-      accent: indigo
+      accent: teal
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - scheme: slate
       primary: indigo
-      accent: indigo
+      accent: teal
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
-  features:
-    - navigation.sections
-    - navigation.expand
-    - navigation.top
-    - content.code.copy
-    - search.suggest
+  icon:
+    repo: fontawesome/brands/github
 
-nav:
-  - Home: index.md
-  - Getting Started: getting-started.md
-  - CLI Reference: cli.md
-  - Kafka: kafka.md
-  - ThingsBoard: thingsboard.md
-  - Testing: testing.md
-  - Changelog: changelog.md
+plugins:
+  - search
 
 markdown_extensions:
   - admonition
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
+  - pymdownx.snippets
   - pymdownx.tabbed:
       alternate_style: true
+  - tables
+  - attr_list
+  - md_in_html
   - toc:
       permalink: true
+
+nav:
+  - Home: index.md
+  - User Guide:
+      - Overview: user_guide/index.md
+      - Installation & Setup: user_guide/installation.md
+      - Key Concepts: user_guide/concepts.md
+      - Experiment Setup: user_guide/experiment_setup.md
+      - Kafka Integration: user_guide/kafka.md
+      - ThingsBoard Integration: user_guide/thingsboard.md
+      - Node-RED Integration: user_guide/nodered.md
+      - Testing & Mock Devices: user_guide/testing.md
+      - CLI Reference: user_guide/cli.md
+      - Configuration Reference: user_guide/configuration.md
+      - Troubleshooting: user_guide/troubleshooting.md
+  - Developer Guide:
+      - Overview: developer_guide/index.md
+      - Architecture:
+          - Core Concepts: developer_guide/architecture/core_concepts.md
+          - Data Flow: developer_guide/architecture/data_flow.md
+      - API Reference:
+          - Overview: developer_guide/api/index.md
+          - Experiment Setup: developer_guide/api/experiment_setup.md
+          - Experiment Manager: developer_guide/api/manager.md
+          - Kafka Consumer: developer_guide/api/kafka.md
+          - Node-RED: developer_guide/api/nodered.md
+          - NoSQL (Cassandra & MongoDB): developer_guide/api/nosql.md
+          - Utilities: developer_guide/api/utils.md
+      - Changelog: changelog.md
