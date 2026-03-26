@@ -8,12 +8,16 @@ This section collects all developer documentation for this module in one place.
 
 ## Documentation Map
 
+![Diagram](../images/diagrams/developer_guide_experiment_setup_index_0_5f433f57.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 graph LR
     A["<b>Architecture</b><br/>Inheritance, lifecycle,<br/>property system,<br/>containment resolution"] --> D[experimentSetup<br/>module]
     B["<b>API Reference</b><br/>Class roles, swimlane<br/>workflows, autodoc<br/>for every class/method"] --> D
     C["<b>User Guide</b><br/>Step-by-step experiment<br/>creation and loading"] --> D
 ```
+-->
 
 ---
 

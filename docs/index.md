@@ -23,6 +23,9 @@ print(experiment.trialSet["design"]["myTrial"].entitiesTable())
 
 ## High-Level Architecture
 
+![Diagram](images/diagrams/index_0_e98baeb4.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 graph TD
     A[ArgosWEB / File Config] --> B[pyArgos]
@@ -34,6 +37,7 @@ graph TD
     C --> G[IoT Devices]
     G --> E
 ```
+-->
 
 ---
 

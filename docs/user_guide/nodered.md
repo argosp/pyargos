@@ -8,12 +8,16 @@ pyArgos provides tools for integrating with [Node-RED](https://nodered.org/), a 
 
 Node-RED sits between IoT devices and Kafka in the data pipeline:
 
+![Diagram](../images/diagrams/user_guide_nodered_0_f4a83be4.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 graph LR
     A[IoT Devices] -->|MQTT/UDP| B[Node-RED]
     B -->|Device mapping| C[Kafka Topics]
     C --> D[pyArgos Consumer]
 ```
+-->
 
 pyArgos provides:
 

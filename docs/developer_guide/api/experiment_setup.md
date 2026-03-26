@@ -30,6 +30,9 @@ Each class in this module has a distinct responsibility in the experiment lifecy
 
 `Experiment` is the base class. Two subclasses override only the data-loading and image-fetching behavior, keeping the rest of the interface identical:
 
+![Diagram](../../images/diagrams/developer_guide_api_experiment_setup_0_a46b01b4.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 classDiagram
     class Experiment {
@@ -60,6 +63,7 @@ classDiagram
     Experiment <|-- ExperimentZipFile : "reads from ZIP archive"
     Experiment <|-- webExperiment : "fetches images via HTTP"
 ```
+-->
 
 **What each subclass changes:**
 
@@ -70,6 +74,9 @@ classDiagram
 
 `TrialSet` and `EntityType` extend Python's built-in `dict`, so they work as both typed objects with properties **and** dictionaries for accessing children by name:
 
+![Diagram](../../images/diagrams/developer_guide_api_experiment_setup_1_e83be745.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 classDiagram
     class dict {
@@ -119,6 +126,7 @@ classDiagram
     EntityType "1" *-- "*" Entity : contains
     Trial ..> Entity : references via entities
 ```
+-->
 
 This means you can write:
 
@@ -138,6 +146,9 @@ experiment.entityType["Sensor"].entitiesTable  # DataFrame of all sensors
 
 This swimlane diagram shows the complete call chain when a user loads an experiment from local files, from the initial factory call through object construction and the resulting object graph:
 
+![Diagram](../../images/diagrams/developer_guide_api_experiment_setup_2_e0a76e17.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 sequenceDiagram
     actor User
@@ -202,11 +213,15 @@ sequenceDiagram
     User->>Exp: experiment.trialSet["design"]["trial1"].entities
     User->>EN: entity.trialProperties("design", "trial1")
 ```
+-->
 
 ---
 
 ## Call Workflow: Loading an Experiment from Web
 
+![Diagram](../../images/diagrams/developer_guide_api_experiment_setup_3_fde07684.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 sequenceDiagram
     actor User
@@ -250,6 +265,7 @@ sequenceDiagram
     GQL-->>Exp: Image bytes
     Exp-->>User: numpy.ndarray
 ```
+-->
 
 ---
 
@@ -257,6 +273,9 @@ sequenceDiagram
 
 When you access `trial.entities` or `trial.entitiesTable`, the containment hierarchy is resolved on-the-fly:
 
+![Diagram](../../images/diagrams/developer_guide_api_experiment_setup_4_20df2591.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 sequenceDiagram
     actor User
@@ -294,6 +313,7 @@ sequenceDiagram
     CP-->>TR: Combined DataFrame
     TR-->>User: DataFrame with all entity properties
 ```
+-->
 
 ---
 

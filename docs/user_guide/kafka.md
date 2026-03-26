@@ -102,6 +102,9 @@ Runs consumers in an infinite loop, polling periodically. The `delay` parameter 
 
 ## Data Pipeline
 
+![Diagram](../images/diagrams/user_guide_kafka_0_3874d317.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 graph TD
     A[IoT Devices] -->|MQTT/UDP| B[Node-RED]
@@ -110,6 +113,7 @@ graph TD
     D -->|JSON to DataFrame| E[Parquet Files]
     E --> F[data/ directory]
 ```
+-->
 
 ### What happens during consumption
 

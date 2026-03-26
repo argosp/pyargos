@@ -63,6 +63,9 @@ Trials contain:
 
 ### How They Relate
 
+![Diagram](../images/diagrams/developer_guide_data_model_0_9895bf47.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 erDiagram
     EXPERIMENT ||--o{ ENTITY_TYPE : "has"
@@ -76,6 +79,7 @@ erDiagram
     DEVICE_ON_TRIAL }o--|| ENTITY : "references"
     ENTITY }o--o| ENTITY : "containedIn"
 ```
+-->
 
 ---
 
@@ -289,6 +293,9 @@ Properties (attributes) in pyArgos are typed. The type is defined in the `attrib
 
 Properties exist at different levels in the hierarchy:
 
+![Diagram](../images/diagrams/developer_guide_data_model_1_0366d1e9.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 graph TD
     A["<b>Constant</b> scope<br/>(EntityType attributeTypes)<br/>defaultValue applied to all entities"] --> D[Entity.properties]
@@ -297,6 +304,7 @@ graph TD
     D --> F["Entity.allPropertiesTable<br/>(all scopes combined)"]
     E --> F
 ```
+-->
 
 | Scope | Defined in | Changes per trial? | Example |
 |-------|-----------|-------------------|---------|
@@ -355,12 +363,16 @@ The structure matches version 2.0.0's `entityTypes`/`trialSets` with nested enti
 
 ## Version Migration Summary
 
+![Diagram](../images/diagrams/developer_guide_data_model_2_241ce9e6.svg)
+
+<!-- mermaid source (for editing, paste into mermaid.live):
 ```mermaid
 flowchart LR
     A["v1.0.0<br/>(original)"] -->|pass-through| D[Internal Format]
     B["v2.0.0<br/>(flat refs)"] -->|"nest entities into types<br/>nest trials into sets"| D
     C["v3.0.0<br/>(current)"] -->|"rename deviceTypes→entityTypes<br/>trialTypes→trialSets<br/>devices→entities<br/>devicesOnTrial→entities"| D
 ```
+-->
 
 The internal format that all versions are normalized to:
 
