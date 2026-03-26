@@ -14,7 +14,7 @@ Understanding the core concepts behind pyArgos will help you work with the platf
 7. [Containment — Devices Inside Devices](#7-containment-devices-inside-devices)
 8. [Image Maps — Devices on a Site Plan](#8-image-maps-devices-on-a-site-plan)
 9. [A Note on Terminology](#9-a-note-on-terminology)
-10. [Data Flow](#10-data-flow)
+10. [Experiment Lifecycle](#10-experiment-lifecycle)
 11. [Experiment Directory Structure](#11-experiment-directory-structure)
 
 ---
@@ -648,29 +648,234 @@ of which version of the JSON it reads.
 
 ---
 
-## 10. Data Flow
+## 10. Experiment Lifecycle
 
-The typical data flow in a pyArgos experiment:
+An experiment moves through three distinct phases. Each phase involves
+different tools, different people, and different data flows.
 
-![Diagram](../images/diagrams/user_guide_concepts_0_504f7274.svg)
-
-<!-- mermaid source (for editing, paste into mermaid.live):
-```mermaid
-graph LR
-    A[Configure Experiment] --> B[Setup on ThingsBoard]
-    B --> C[Deploy Devices]
-    C --> D[Stream Data via Kafka]
-    D --> E[Store in Parquet]
-    E --> F[Analyze with Pandas]
 ```
--->
+    Phase 1                    Phase 2                      Phase 3
+   PLANNING                  EXECUTION                  POST-PROCESSING
 
-1. **Configure** - Define entities and trials in JSON or via ArgosWEB
-2. **Setup** - Upload device profiles and entities to ThingsBoard
-3. **Deploy** - Load trial attributes to devices
-4. **Stream** - Consume device data from Kafka topics
-5. **Store** - Write data to Parquet files (partitioned by time)
-6. **Analyze** - Load Parquet files into Pandas DataFrames
+  ┌───────────┐         ┌────────────────┐          ┌───────────────┐
+  │ ArgosWEB  │         │ Field / Lab    │          │ Analysis      │
+  │           │         │                │          │               │
+  │ Design    │────────>│ Run trials     │─────────>│ Combine data  │
+  │ experiment│         │ Collect data   │          │ with metadata │
+  │           │         │ Update config  │          │ Visualize     │
+  └───────────┘         └────────────────┘          └───────────────┘
+       │                      │    │                       │
+       ▼                      ▼    ▼                       ▼
+    ZIP file              Kafka  Parquet            Jupyter + Hera
+    (data.json)           topics  files             experiment toolkit
+```
+
+### Phase 1 — Planning (ArgosWEB)
+
+Before any physical device is deployed, the experiment is **designed** in
+ArgosWEB. This is where all the metadata is created:
+
+**Define the structure:**
+
+- Create the experiment (name, description, dates)
+- Define **device types** — the kinds of devices used (Sensor, Pole, Camera,
+  etc.) and their property schemas
+- Add **device instances** — the individual devices (Sensor_01, Sensor_02, ...)
+- Define **device groups** — logical groupings of devices that share a common
+  purpose or location
+- Create **trial types** — categories of trials (Preliminary, Real, Calibration)
+- Create **trials** within each type — each with its own conditions and
+  per-device configuration
+
+**Place devices on maps:**
+
+- Upload **site images** (satellite photos, floor plans, aerial views)
+- Define the **bounding coordinates** of each image
+- **Drag and drop** devices onto the map to set their coordinates
+- Set up **containment** — which devices are physically inside others
+  (sensor on pole, pole at location)
+
+**Set properties:**
+
+- Configure **type-level constants** (defaults that apply to all devices of
+  a type)
+- Set **trial-level values** for each device in each trial (position,
+  threshold, calibration, operational mode)
+
+**Export:**
+
+- Download the entire experiment definition as a **ZIP file** containing
+  `data.json` and map images
+- This ZIP is the input to pyArgos and the bridge to all downstream systems
+
+At the end of Phase 1, you have a complete **plan** — the intended positions,
+configurations, and conditions for every trial. Nothing has been measured yet.
+
+### Phase 2 — Execution (Field / Lab)
+
+The experiment is now **running**. Devices are deployed in the field or lab,
+and data flows through the system.
+
+**Update the plan to match reality:**
+
+The planned positions and configurations from Phase 1 may not exactly match
+what happens in the field. Devices may be moved, conditions may change, trials
+may be added or modified. ArgosWEB is updated to reflect the **actual**
+state of the experiment — the real positions, the real trial parameters, the
+real start and end times.
+
+**Data collection pipeline:**
+
+```
+Devices                 Node-RED                Kafka                pyArgos
+   │                       │                      │                    │
+   │  raw data (MQTT/UDP)  │                      │                    │
+   ├──────────────────────>│                      │                    │
+   │                       │  normalize:          │                    │
+   │                       │  - add timestamp     │                    │
+   │                       │  - parse fields      │                    │
+   │                       │  - route by device   │                    │
+   │                       ├─────────────────────>│                    │
+   │                       │                      │  one topic per     │
+   │                       │                      │  device type       │
+   │                       │                      │                    │
+   │                       │                      │  consume & save    │
+   │                       │                      ├───────────────────>│
+   │                       │                      │                    │
+   │                       │                      │              Parquet files
+   │                       │                      │              (data/ dir)
+```
+
+1. **Devices** send raw data over MQTT or UDP to a **Node-RED** instance.
+
+2. **Node-RED** acts as the normalization layer:
+    - Adds a consistent **timestamp** to each message
+    - Parses the raw device-specific data format into a standard structure
+    - Routes each message to the correct **Kafka topic** based on device type
+
+3. **Kafka** stores messages in topics — **one topic per device type**
+   (e.g., `Sensor`, `Gateway`). This gives clean separation between different
+   data streams.
+
+4. **pyArgos consumers** read from Kafka topics and write to **Parquet files**
+   in the experiment's `data/` directory. The file names are determined by
+   the registration script that reads the ZIP file
+   (`<device_type>.parquet`).
+
+!!! warning "Known limitation"
+    The current Kafka-to-Parquet pipeline has limitations with **duplicate
+    messages** and **out-of-order data**. The consumer deduplicates by
+    timestamp within a single run, but does not handle duplicates across
+    restarts or out-of-order delivery robustly. This is a known issue and
+    is being addressed in future versions.
+
+**Live analysis during the experiment:**
+
+While the experiment is running, researchers can access the data in real time:
+
+- Data is available in Parquet files as soon as a consumer batch completes
+- **Jupyter notebooks** are the typical analysis environment
+- The **Hera experiment toolkit** combines the Parquet data with the
+  experiment metadata from the ZIP file, providing a unified interface for
+  querying device data by trial, entity, and time range
+
+### Phase 3 — Post-Processing (Analysis)
+
+After the experiment ends, the focus shifts to analysis and publication.
+
+**Combining data with metadata:**
+
+The raw Parquet files contain time-series data organized by device type. To
+make sense of this data, it must be combined with the experiment metadata —
+which device was where, what trial was running, what conditions were set.
+
+This combination is done by the **Hera experiment toolkit**, which:
+
+- Reads the experiment ZIP (via pyArgos) for metadata
+- Reads the Parquet files for time-series data
+- Joins them by device name and time range
+- Provides a unified query interface: "give me all Sensor data from Trial_02
+  between 10:00 and 10:30"
+
+**Typical post-processing workflow:**
+
+```python
+# In a Jupyter notebook, using the Hera experiment toolkit:
+
+# 1. Load experiment metadata (via pyArgos under the hood)
+experiment = load_experiment("/path/to/experiment")
+
+# 2. Query data by trial and device
+data = experiment.get_data(
+    trial="Trial_02",
+    device_type="Sensor",
+    time_range=("2024-01-15 10:00", "2024-01-15 10:30")
+)
+
+# 3. Analyze
+data.plot(x="timestamp", y=["temperature", "humidity"])
+
+# 4. Compare across trials
+for trial_name in ["Trial_01", "Trial_02", "Trial_03"]:
+    trial_data = experiment.get_data(trial=trial_name, device_type="Sensor")
+    # ... compute statistics, generate plots
+```
+
+**Post-processing includes:**
+
+- Quality checks (sensor drift, outliers, missing data)
+- Cross-trial comparisons (how does the result change with conditions?)
+- Statistical analysis (means, variances, confidence intervals)
+- Visualization (maps, time series, heatmaps)
+- Report generation
+
+### Lifecycle Summary
+
+| Phase | Where | Who | Key Output |
+|-------|-------|-----|------------|
+| **1. Planning** | ArgosWEB (browser) | Experiment designer | ZIP file with metadata |
+| **2. Execution** | Field/Lab + servers | Operators + automated pipelines | Parquet files with device data |
+| **3. Post-processing** | Jupyter + Hera | Researchers | Analysis results, publications |
+
+### System Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                         PLANNING                                    │
+│                                                                     │
+│  ArgosWEB UI ──> design experiment ──> export ZIP                   │
+│                  (device types, devices, trials,                    │
+│                   maps, groups, containment)                        │
+└───────────────────────────┬─────────────────────────────────────────┘
+                            │ ZIP file (data.json + images)
+                            ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                         EXECUTION                                   │
+│                                                                     │
+│  Devices ──MQTT/UDP──> Node-RED ──> Kafka (1 topic per device type) │
+│                        (normalize,   │                              │
+│                         timestamp,   │                              │
+│                         route)       ▼                              │
+│                                   pyArgos consumer ──> Parquet      │
+│                                                        (data/ dir)  │
+│                                                                     │
+│  ArgosWEB UI ──> update positions & trial parameters (actual state) │
+└───────────────────────────┬─────────────────────────────────────────┘
+                            │ Parquet files + updated ZIP
+                            ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                       POST-PROCESSING                               │
+│                                                                     │
+│  Jupyter notebook                                                   │
+│    └── Hera experiment toolkit                                      │
+│          ├── reads ZIP metadata (via pyArgos)                       │
+│          ├── reads Parquet data                                     │
+│          ├── joins by device + time range                           │
+│          └── unified query interface                                │
+│                                                                     │
+│  Output: analysis, visualizations, reports, publications            │
+└─────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
