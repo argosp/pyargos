@@ -8,60 +8,39 @@ This page covers the utility modules: JSON parsing, Parquet I/O, and logging.
 
 **Module:** `argos.utils.jsonutils`
 
-### `loadJSON(jsonData)`
+### loadJSON
 
-Flexible JSON loader that accepts multiple input formats.
-
-```python
-from argos.utils.jsonutils import loadJSON
-
-data = loadJSON("/path/to/file.json")          # From file path
-data = loadJSON('{"key": "value"}')            # From JSON string
-data = loadJSON(open("file.json"))             # From file object
-data = loadJSON({"key": "value"})              # From dict (passthrough)
-```
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `jsonData` | `str`, `dict`, or file-like | JSON source |
-
-**Returns:** `dict`
-
-**Raises:** `ValueError` if format is unrecognized or file not found.
+::: argos.utils.jsonutils.loadJSON
+    options:
+      show_root_heading: true
+      heading_level: 4
 
 ---
 
-### `processJSONToPandas(jsonData, nameColumn, valueColumn)`
+### processJSONToPandas
 
-Flattens JSON into a 2-column DataFrame.
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `jsonData` | `dict` | JSON data to flatten |
-| `nameColumn` | `str` | Name for the path column |
-| `valueColumn` | `str` | Name for the value column |
-
-**Returns:** `DataFrame` with path and value columns. Lists are expanded as `name_0`, `name_1`, etc.
+::: argos.utils.jsonutils.processJSONToPandas
+    options:
+      show_root_heading: true
+      heading_level: 4
 
 ---
 
-### `convertJSONtoPandas(jsonData, nameColumn, valueColumn)`
+### convertJSONtoPandas
 
-Deep recursive JSON to Pandas conversion using dot notation.
+::: argos.utils.jsonutils.convertJSONtoPandas
+    options:
+      show_root_heading: true
+      heading_level: 4
 
-```python
-from argos.utils.jsonutils import convertJSONtoPandas
+---
 
-df = convertJSONtoPandas(
-    {"sensor": {"temp": 25.0, "location": {"lat": 32.0}}},
-    "path", "value"
-)
-# path                | value
-# sensor.temp         | 25.0
-# sensor.location.lat | 32.0
-```
+### convertJSONtoConf
 
-Fully flattens all nested dicts and lists until all values are scalars.
+::: argos.utils.jsonutils.convertJSONtoConf
+    options:
+      show_root_heading: true
+      heading_level: 4
 
 ---
 
@@ -69,45 +48,21 @@ Fully flattens all nested dicts and lists until all values are scalars.
 
 **Module:** `argos.utils.parquetUtils`
 
-### `writeToParquet(parquetFile, data, datetimeColumn='datetime')`
+### writeToParquet
 
-Creates a new Parquet file from a DataFrame.
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `parquetFile` | `str` | - | Output file path |
-| `data` | `DataFrame` | - | Pandas or Dask DataFrame |
-| `datetimeColumn` | `str` | `'datetime'` | Column to use as datetime index |
-
-**Returns:** `True` on success.
-
-**Behavior:**
-
-1. Converts to Pandas if needed
-2. Creates a Dask DataFrame
-3. Sets datetime column as index
-4. Writes with fastparquet engine
+::: argos.utils.parquetUtils.writeToParquet
+    options:
+      show_root_heading: true
+      heading_level: 4
 
 ---
 
-### `appendToParquet(toBeAppended, additionalData, datetimeColumn='datetime')`
+### appendToParquet
 
-Appends data to an existing Parquet file.
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `toBeAppended` | `str` | - | Existing Parquet file path |
-| `additionalData` | `DataFrame` | - | New data to append |
-| `datetimeColumn` | `str` | `'datetime'` | Datetime column name |
-
-**Behavior:**
-
-1. Loads existing file with Dask
-2. Concatenates with new data
-3. Auto-repartitions if:
-    - Last partition exceeds 100MB
-    - Total partitions exceed 10
-4. Writes to temporary file, then atomic rename
+::: argos.utils.parquetUtils.appendToParquet
+    options:
+      show_root_heading: true
+      heading_level: 4
 
 ---
 
@@ -115,67 +70,54 @@ Appends data to an existing Parquet file.
 
 **Module:** `argos.utils.logging.helpers`
 
-### Custom Log Level
+### initialize_logging
 
-pyArgos defines a custom `EXECUTION` log level:
-
-| Level | Value | Use Case |
-|-------|-------|----------|
-| DEBUG | 10 | Detailed debugging |
-| **EXECUTION** | **15** | **Step-by-step execution progress** |
-| INFO | 20 | General information |
-
-```python
-logger.execution("Creating experiment directories")
-```
+::: argos.utils.logging.helpers.initialize_logging
+    options:
+      show_root_heading: true
+      heading_level: 4
 
 ---
 
-### `initialize_logging(*logger_overrides, disable_existing_loggers=True)`
+### with_logger
 
-Sets up the logging system from configuration.
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `*logger_overrides` | `dict` | - | Override configs (from `with_logger()`) |
-| `disable_existing_loggers` | `bool` | `True` | Disable pre-existing loggers |
-
-Reads config from `~/.pyargos/log/argosLogging.config`. Creates the directory if needed.
+::: argos.utils.logging.helpers.with_logger
+    options:
+      show_root_heading: true
+      heading_level: 4
 
 ---
 
-### `get_logger(instance, name=None)`
+### get_logger
 
-Get a logger for a class instance.
-
-```python
-logger = get_logger(self, "myMethod")
-```
-
----
-
-### `get_classMethod_logger(instance, name=None)`
-
-Get a logger for a class method with qualified name.
-
-```python
-logger = get_classMethod_logger(self, "loadDevices")
-# Logger name: "argos.manager.experimentManager.loadDevices"
-```
+::: argos.utils.logging.helpers.get_logger
+    options:
+      show_root_heading: true
+      heading_level: 4
 
 ---
 
-### `with_logger(logger_name, level, handlers, propagate)`
+### get_classMethod_logger
 
-Build a logger configuration dict for use as an override with `initialize_logging()`.
-
-```python
-override = with_logger("argos.kafka", level="DEBUG", handlers=["console"])
-initialize_logging(override)
-```
+::: argos.utils.logging.helpers.get_classMethod_logger
+    options:
+      show_root_heading: true
+      heading_level: 4
 
 ---
 
-### `unify_all_logs_debug()`
+### getClassLogger
 
-Merges all logs to the root logger at DEBUG level. Useful for debugging.
+::: argos.utils.logging.helpers.getClassLogger
+    options:
+      show_root_heading: true
+      heading_level: 4
+
+---
+
+### unify_all_logs_debug
+
+::: argos.utils.logging.helpers.unify_all_logs_debug
+    options:
+      show_root_heading: true
+      heading_level: 4

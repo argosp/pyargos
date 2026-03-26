@@ -1,3 +1,10 @@
+"""
+Kafka consumer for ingesting device data into Parquet files.
+
+This module provides functions to consume messages from Kafka topics
+(one per device type) and write them to Parquet files for offline analysis.
+"""
+
 import os.path
 import time
 import numpy
@@ -11,18 +18,25 @@ import logging
 
 def consume_topic(topic,dataDirectory):
     """
-        Reads from the kafka topic and saves the data back to the
+    Consume all available messages from a Kafka topic and write to Parquet.
+
+    Connects to Kafka, polls messages until no more are available,
+    converts them to a Pandas DataFrame, and writes/appends to a
+    Parquet file named ``<topic>.parquet`` in the data directory.
+
+    The data pipeline applies:
+
+    1. JSON deserialization of each message
+    2. Timezone-aware datetime column (Israel timezone) from ``timestamp``
+    3. Numeric casting for ``Temperature`` and ``RH`` fields
+    4. Duplicate removal based on timestamp
+
     Parameters
     ----------
-    topic
-    frequency : float
-            The number of messages that the devices emits every second.
-            used to estimate the number of messages we have to retrieve
-    dataDirectory
-
-    Returns
-    -------
-
+    topic : str
+        The Kafka topic name to consume from (typically a device type name).
+    dataDirectory : str
+        Directory where the Parquet file will be created/appended.
     """
     max_poll_records = 5000
     logger = logging.getLogger("argos.kafka.kafkaToParquet")
@@ -87,18 +101,27 @@ def consume_topic(topic,dataDirectory):
 
 def consume_topic_server(topic, dataDirectory,delayInSeconds):
     """
-        Reads from the kafka topic and saves the data back to the
+    Continuously consume from a Kafka topic with periodic polling.
+
+    Runs in an infinite loop, polling the topic and writing data to Parquet.
+    Designed for long-running server-mode operation.
+
+    Each cycle:
+
+    1. Polls messages until none are received or 10,000+ accumulated
+    2. Commits offsets
+    3. Writes/appends to Parquet
+    4. If fewer than ``max_poll_records`` received, waits ``delayInSeconds``
+
     Parameters
     ----------
-    topic
-    frequency : float
-            The number of messages that the devices emits every second.
-            used to estimate the number of messages we have to retrieve
-    dataDirectory
-
-    Returns
-    -------
-
+    topic : str
+        The Kafka topic name to consume from.
+    dataDirectory : str
+        Directory where the Parquet file will be created/appended.
+    delayInSeconds : float
+        Seconds to wait between poll cycles when data rate is low.
+        Checks every 5 seconds during the wait period.
     """
     logger = logging.getLogger("argos.kafka.kafkaToParquet")
     mxRcrd = 5000
@@ -171,24 +194,4 @@ def consume_topic_server(topic, dataDirectory,delayInSeconds):
         logger.info(f"Topic {topic}: Waiting for {delayInSeconds} seconds, check every 5s")
         for i in range(int(delayInSeconds/5)+1):
             logger.info(f"Topic {topic}:  Waiting for {i*5} sec out of {delayInSeconds}")
-            # activation = consumer.poll()
-            # if numpy.sum([len(x) for x in activation.values()]) > 0:
-            #     logger.info(f"Topic {topic}: Got reuest for consume")
-            #     break
             time.sleep(5)
-
-
-
-    #
-    # for msg in L:
-    #     print(f"Received message: {msg}")
-#
-#thread1 = threading.Thread(target=consume_topic, args=('Sonic',"data"))
-#thread2 = threading.Thread(target=consume_topic, args=('TTT',"data"))
-#
-#thread1.start()
-#thread2.start()
-#
-# # Wait for the threads to finish
-#thread1.join()
-#thread2.join()

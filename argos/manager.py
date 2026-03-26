@@ -1,3 +1,11 @@
+"""
+Experiment manager with ThingsBoard integration.
+
+This module provides the ``experimentManager`` class, which acts as the
+unified interface between experiment configuration (loaded from files)
+and the ThingsBoard IoT platform for device management and trial deployment.
+"""
+
 import os
 import json
 try:
@@ -9,25 +17,33 @@ from .utils.jsonutils import loadJSON
 from .utils.logging import get_classMethod_logger
 
 
-
+#: ThingsBoard attribute scope: server-side attributes.
 SERVER_SCOPE = "SERVER_SCOPE"
+#: ThingsBoard attribute scope: shared between server and device.
 SHARED_SCOPE = "SHARED_SCOPE"
+#: ThingsBoard attribute scope: device-side attributes.
 CLIENT_SCOPE = "CLIENT_SCOPE"
 
 class experimentManager:
     """
-        Manages the experiment.
+    Unified interface for managing experiments and ThingsBoard devices.
 
-        Provides interface to work with experiment setup (either file or web).
+    Provides methods to load experiment definitions from local files,
+    create devices and profiles on ThingsBoard, upload trial attributes,
+    and query device credentials.
 
-        contains the:
+    Parameters
+    ----------
+    experimentDirectory : str
+        Path to the experiment root directory. Must contain
+        ``runtimeExperimentData/Datasources_Configurations.json``.
 
-        - Interface to the Thingsboard (TB).
-        - Provides information on the shadow (computed) devices and their time window for operation.
-
-        The structure of the configuration file:
-
-
+    Examples
+    --------
+    >>> from argos.manager import experimentManager
+    >>> manager = experimentManager("/path/to/experiment")
+    >>> manager.loadDevicesToThingsboard()
+    >>> manager.loadTrialDesignToThingsboard("design", "myTrial")
     """
     experimentDirectory = None
 
@@ -35,40 +51,59 @@ class experimentManager:
 
     def __init__(self, experimentDirectory):
         """
-            Initializes the experiment manager
+        Initialize the experiment manager.
+
+        Loads the datasources configuration from the experiment directory.
 
         Parameters
         ----------
-        directory : str,
-                The directory to the exeriment.
-                The path to the zipfile is <directory>/runtimeExperimentData/Datasources_Configurations.json
-
-        autoRefresh : bool
-            If true, refresh the data every access to the experiment layer.
-            Else, use the state when loaded.
-
+        experimentDirectory : str
+            Path to the experiment root directory. The configuration file
+            is expected at ``<dir>/runtimeExperimentData/Datasources_Configurations.json``.
         """
         self.experimentDirectory = experimentDirectory
         self.loadConfigutation()
 
     def loadConfigutation(self):
+        """
+        Reload the datasources configuration from disk.
+
+        Reads ``Datasources_Configurations.json`` from the experiment's
+        ``runtimeExperimentData/`` directory and stores it in
+        ``self.configuration``.
+        """
         confFile = os.path.join(self.experimentDirectory, "runtimeExperimentData", "Datasources_Configurations.json")
         self.configuration = loadJSON(confFile)
 
 
     @property
     def TBConfiguration(self):
+        """
+        The ThingsBoard section of the datasources configuration.
+
+        Returns
+        -------
+        dict
+            A dictionary with ``restURL``, ``username``, and ``password`` keys.
+        """
         return self.configuration['Thingsboard']
 
     @property
     def restClient(self):
         """
-            Returns the rest client.
-             Reads the configuration from the
+        Create and return an authenticated ThingsBoard REST client.
+
+        A new client is created and authenticated on each access.
 
         Returns
         -------
+        RestClientCE
+            An authenticated ThingsBoard Community Edition REST client.
 
+        Raises
+        ------
+        NameError
+            If ``tb_rest_client`` is not installed.
         """
         tbConfiguration = self.TBConfiguration
 
@@ -79,19 +114,25 @@ class experimentManager:
     @property
     def experiment(self):
         """
-            Returns the experiment factory from the ZIP file.
+        Load and return the experiment object from local files.
+
+        Uses ``fileExperimentFactory`` to load the experiment from the
+        experiment directory on each access.
+
         Returns
         -------
-
+        Experiment
+            The loaded experiment object.
         """
         return fileExperimentFactory(self.experimentDirectory).getExperiment()
 
     def clearDevicesFromThingsboard(self):
         """
-            Removes all the devices from Thingsboard.
-        Returns
-        -------
+        Remove all tenant devices from the ThingsBoard server.
 
+        .. warning::
+            This removes **all** devices belonging to the tenant, not just
+            those in the current experiment. Use with caution.
         """
         logger = get_classMethod_logger(self,"loadThingsboardDevices")
 
@@ -105,15 +146,20 @@ class experimentManager:
 
     def getDeviceMap(self,deviceType=None):
         """
-            Returns a map of deviceName -> { 'credential' : .. , 'type' : ... }
+        Get a map of device names to their credentials and types.
+
         Parameters
         ----------
-        deviceType : str
-            Query one device type. Return all if None.
+        deviceType : str, optional
+            Filter by device type name. If None, returns all devices.
 
         Returns
         -------
+        dict[str, dict]
+            A dictionary mapping device names to dicts with ``credential``
+            and ``type`` keys. Example::
 
+                {"Sensor_01": {"credential": "abc123", "type": "Sensor"}}
         """
         logger = get_classMethod_logger(self, "loadThingsboardDevices")
         restClient = self.restClient
@@ -132,14 +178,14 @@ class experimentManager:
 
     def loadDevicesToThingsboard(self):
         """
-            Create all the computed devices in the TB.
+        Create all experiment entities as devices on ThingsBoard.
 
-            Returns a list of computed devices with their TB credentials.
+        For each entity type in the experiment:
 
+        1. Checks if a device profile exists on ThingsBoard; creates one if not.
+        2. For each entity, checks if the device already exists; creates it if not.
 
-        :return:
-               list of computed devices with their credentials.
-
+        Existing devices are skipped (not updated).
         """
         logger = get_classMethod_logger(self,"loadThingsboardDevices")
         experiment = self.experiment
@@ -173,24 +219,51 @@ class experimentManager:
                     logger.debug(f"Device {deviceData['name']} exists... skipping")
 
     def loadTrialDesignToThingsboard(self, trialSetName: str, trialName: str):
+        """
+        Upload a trial design to ThingsBoard.
+
+        Delegates to :meth:`loadTrialToThingsboard`.
+
+        Parameters
+        ----------
+        trialSetName : str
+            The trial set name (e.g., ``"design"``).
+        trialName : str
+            The trial name.
+        """
         self.loadTrialToThingsboard(trialSetName, trialName)
 
     def loadTrialDeployToThingsboard(self, trialSetName: str, trialName: str):
+        """
+        Upload a trial deployment to ThingsBoard.
+
+        Delegates to :meth:`loadTrialToThingsboard`.
+
+        Parameters
+        ----------
+        trialSetName : str
+            The trial set name (e.g., ``"deploy"``).
+        trialName : str
+            The trial name.
+        """
         self.loadTrialToThingsboard(trialSetName, trialName)
 
 
     def loadTrialToThingsboard(self, trialSetName: str, trialName: str):
         """
-            Loading the data of the trial to things board.
+        Upload trial entity attributes to ThingsBoard.
+
+        For each entity in the trial:
+
+        1. Clears existing attributes in all scopes (SERVER, SHARED, CLIENT).
+        2. Saves the trial's entity data as SERVER_SCOPE attributes.
+
         Parameters
         ----------
-        trialSetName
-        trialName
-        state
-
-        Returns
-        -------
-
+        trialSetName : str
+            The trial set name.
+        trialName : str
+            The trial name within the set.
         """
         logger = get_classMethod_logger(self,"loadThingsboardDevices")
         experiment = self.experiment
@@ -206,14 +279,3 @@ class experimentManager:
                 restClient.delete_device_attributes(device.id, scope=scopeName, keys=keysList)
 
             restClient.save_device_attributes(device.id, "SERVER_SCOPE",deviceData)
-
-
-
-
-
-
-
-
-
-
-
