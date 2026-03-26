@@ -1,4 +1,4 @@
-__version__ = '1.2.3'
+__version__ = '1.3.0'
 from .experimentSetup import WEB,FILE
 
 from .manager import experimentManager
@@ -9,12 +9,27 @@ initialize_logging(disable_existing_loggers=False)
 
 
 """
+Version 1.3.0
+-------------
+
+    * Added MkDocs documentation with GitHub Pages (User Guide + Developer Guide)
+    * Added mkdocstrings autodoc for all modules (experimentSetup, manager, kafka, nodered, nosql, utils)
+    * Added comprehensive numpy-style docstrings to all public classes, methods, and properties
+    * Added Data Model Reference documenting ZIP file format, JSON schemas (v1/v2/v3), and domain concepts
+    * Added experiment lifecycle documentation (planning, execution, post-processing)
+    * Added architecture documentation: class dependencies, swimlane diagrams, and implementation notes for all modules
+    * Pre-rendered all mermaid diagrams to SVG with render_diagrams.py (Docker-based)
+    * Added Makefile with install, env, and docs targets
+    * Added make env-persist to configure PYTHONPATH with shell profile prompt
+    * Updated README and installation guide with correct Python version and make workflow
+    * Fixed CI: removed requirements.txt from docs workflow (pillow build failure on Python 3.14)
+
 Version 1.2.3
 -------------
 
-    * Added the thingsboard interface. 
-    * Remove depdnecey on the thingsboard interface library 
-    * fixed the case when maps does not appear.  
+    * Added the thingsboard interface.
+    * Remove depdnecey on the thingsboard interface library
+    * fixed the case when maps does not appear.
 
 Version 1.2.2
 -------------
