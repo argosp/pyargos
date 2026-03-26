@@ -1,61 +1,77 @@
 # pyArgos
 
-Python wrappings for the [Argos](https://github.com/argosp) IoT experiment management platform.
+**Python wrappings for the Argos IoT experiment management platform**
 
-## Overview
+---
 
-pyArgos is a comprehensive toolkit for managing IoT experiments with support for:
+## What is pyArgos?
 
-- **Experiment Management** - Create, configure, and run IoT experiments
-- **Kafka Integration** - Stream data with Kafka consumers and producers
-- **ThingsBoard Integration** - Manage devices and assets via ThingsBoard
-- **Node-RED Support** - Device mapping for Node-RED workflows
-- **Data Processing** - Convert Kafka messages to Parquet format for analysis
+pyArgos is a Python toolkit for managing IoT experiments end-to-end. It provides a unified interface for experiment configuration, device management via ThingsBoard, real-time data streaming via Kafka, and data storage in Parquet format.
 
-## Quick Start
+```python
+from argos.experimentSetup import fileExperimentFactory
 
-```bash
-# Install dependencies
-pip install paho-mqtt numpy pandas urllib3 requests
+# Load an experiment from local files
+experiment = fileExperimentFactory("/path/to/experiment").getExperiment()
 
-# Add pyargos to your PYTHONPATH
-export PYTHONPATH=$PYTHONPATH:/path/to/pyargos
-
-# Create a new experiment
-python -m argos.bin.trialManager --expConf experimentConfiguration.json --setup
+# Access entities and trials
+print(experiment.entitiesTable)
+print(experiment.trialSet["design"]["myTrial"].entitiesTable())
 ```
 
-See the [Getting Started](getting-started.md) guide for detailed installation and setup instructions.
+---
 
-## Architecture
+## High-Level Architecture
 
-pyArgos integrates several systems to provide a complete IoT experiment workflow:
-
+```mermaid
+graph TD
+    A[ArgosWEB / File Config] --> B[pyArgos]
+    B --> C[ThingsBoard]
+    B --> D[Kafka]
+    B --> E[Node-RED]
+    D --> F[Parquet Files]
+    E --> D
+    C --> G[IoT Devices]
+    G --> E
 ```
-ArgosWEB / File Config
-        |
-        v
-   pyArgos CLI
-   /    |     \
-  v     v      v
-Kafka  TB   Node-RED
-  |     |
-  v     v
-Parquet  Devices & Assets
-```
+
+---
+
+## Documentation Sections
+
+| Section | Description |
+|---------|-------------|
+| [**User Guide**](user_guide/index.md) | Installation, configuration, experiment setup, and CLI usage |
+| [**Developer Guide**](developer_guide/index.md) | Architecture, API reference, data flow, and module internals |
+
+---
+
+## Key Features
+
+| Feature | Description |
+|---------|-------------|
+| **Experiment Management** | Create, configure, and run IoT experiments from file or web |
+| **ThingsBoard Integration** | Manage devices, assets, and attributes via REST API |
+| **Kafka Streaming** | Consume device data topics and write to Parquet |
+| **Node-RED Support** | Device mapping and flow management |
+| **NoSQL Support** | Query Cassandra and MongoDB via Dask for parallel processing |
+| **Data Processing** | JSON to Pandas conversion, Parquet I/O with partitioning |
+
+---
 
 ## Project Structure
 
 ```
 pyargos/
   argos/
+    __init__.py             # Package entry point (v1.2.3)
     CLI.py                  # Command-line interface
-    manager.py              # Experiment manager
-    experimentSetup/        # Experiment data objects and factories
-    kafka/                  # Kafka consumer/producer
-    thingsboard/            # ThingsBoard integration
-    nodered/                # Node-RED integration
-    noSQLdask/              # NoSQL database support (Cassandra, MongoDB)
+    manager.py              # Experiment manager + ThingsBoard interface
+    experimentSetup/        # Experiment data objects and factory pattern
+    kafka/                  # Kafka consumer for data ingestion
+    thingsboard/            # ThingsBoard mock devices
+    nodered/                # Node-RED integration and custom nodes
+    noSQLdask/              # Cassandra and MongoDB via Dask
     utils/                  # Logging, JSON, and Parquet utilities
     examples/               # Example configurations
 ```
