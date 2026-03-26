@@ -1,73 +1,73 @@
-# pyargos
-Python wrappings for the argos project
+# pyArgos
 
-## Install 
-==========
+Python wrappings for the [Argos](https://github.com/argosp) IoT experiment management platform.
 
-- Install anaconda 3 with python 3.7
-- Create a virtual enviroment. 
+**[Full Documentation](https://argosp.github.io/pyargos/)**
+
+## Features
+
+- **Experiment Management** - Create, configure, and run IoT experiments
+- **Kafka Integration** - Stream data with Kafka consumers and producers
+- **ThingsBoard Integration** - Manage devices and assets via ThingsBoard
+- **Node-RED Support** - Device mapping for Node-RED workflows
+- **Data Processing** - Convert Kafka messages to Parquet format for analysis
+
+## Install
+
+- Install Anaconda 3 with Python 3.7
+- Create a virtual environment:
+  ```bash
+  conda create -n Argos python=3.6.5
+  conda activate Argos
+  pip install paho-mqtt numpy pandas urllib3 requests
   ```
-   conda create -n Argos python=3.6.5 
-   conda activate Argos 
-   pip install paho-mqtt numpy pandas urllib3 requests
-  ```
-- Add the pyargos to the PYTHONPATH 
-- Activate the enviroment before executing 
-  ```
-    conda activate Argos
+- Add pyargos to the PYTHONPATH
+- Activate the environment before executing:
+  ```bash
+  conda activate Argos
   ```
 
+## Quick Start
 
-## Loading a trial using the CLI
-===================================
+See the [Getting Started](https://argosp.github.io/pyargos/getting-started/) guide for detailed setup instructions.
 
-1. You need to make a directory like ExpExample (it will be your experiment directory).
+## Loading a Trial Using the CLI
 
-2. In ExpExample you can find experimentConfiguration.json which configures the thingsboard you work on(IP, port and account information).
-   Change it to your configurations.
+1. Create a directory for your experiment (see `ExpExample`).
 
-3. In ExpExampe/experimentData you can find ExperimentData.json which contains the information about the entities(devices/assets) you want to create.
-   - The "properties"/"claculationWindows" part creates another devices of each type specified, with 
-   the name "{deviceName}_{window}s" for each window specified. 
-   This device is used for the streaming calculations. 
-      
-   - "Entities":  specify the entities (currently only devices and assets) to create.
-   
-         - entityType: The entity type ("DEVICE" or "ASSET")
-         - "Number": How many entities like this you want. 
-         - "Type": The type of the device/asset.
-         - "nameFormat": The format of the name. {id} will be replaced by the running number of the device. (start at 1)
-         (For example, if Number=3 and namFormat="name_{id:02d}", you will get 3 devices with names: "name_01", "name_02", "name_03")
+2. Edit `experimentConfiguration.json` to configure your ThingsBoard connection (IP, port, account).
 
-4. Now after you done all the configurations, you are ready to setup the experiment.
-   Setup your current directory as ExpExample(you must be under an experiment directory)
-   You setup with this line: 
-   ```
+3. In `experimentData/ExperimentData.json`, define the entities (devices/assets) to create:
+   - `entityType`: `"DEVICE"` or `"ASSET"`
+   - `Number`: How many entities to create
+   - `Type`: The device/asset type
+   - `nameFormat`: Name format string (`{id}` is replaced by the running number, starting at 1).
+     For example, `Number=3` and `nameFormat="name_{id:02d}"` creates: `name_01`, `name_02`, `name_03`
+
+4. Setup the experiment:
+   ```bash
    python yourpath/pyargos/bin/trialManager.py --expConf experimentConfiguration.json --setup
    ```
-   Where "yourpath" is the path to the directory which contains pyargos. 
-   This creates a json file, which called "trialTemplate.json", under ExpExample/experimentData/trials.
+   This creates `trialTemplate.json` under `experimentData/trials/`.
 
-5. Copy the trialTemplate.json to the ExpExample/experimentData/trials/design directory.
-   The name of the file will be the name of the trial. 
-   Now edit trialTemplate.json to add the attributes and relations that are related to the trial. 
-   
-   You can edit for each entity the "Name"/ "Type"/ "attributes"/ "entityType"/ "contains"(*Under "contains" you have a list of lists like [entityType, entityName] which set a relation of type "Contains" from your current entity to the entities in the list)
+5. Copy `trialTemplate.json` to `experimentData/trials/design/` and rename it to your trial name. Edit it to add attributes and relations.
 
-6. Upload the trial to thingsboard.
+6. Upload the trial to ThingsBoard:
+   ```bash
+   python yourpath/pyargos/bin/trialManager.py --expConf experimentConfiguration.json --load trialName
    ```
-    python yourpath/pyargos/bin/trialManager.py --expConf experimentConfiguration.json --load trialName
-   ```
-   where trialName is the name of the trial you chose last step.
 
-## Running a demo device 
-=========================
+## Documentation
 
-Install the [paho package](https://anaconda.org/wheeler-microfluidics/paho-mqtt) in conda environment.
+Full documentation is available at **[argosp.github.io/pyargos](https://argosp.github.io/pyargos/)**:
 
-Run the demoDevice from the CLI. 
+- [Getting Started](https://argosp.github.io/pyargos/getting-started/) - Installation and setup
+- [CLI Reference](https://argosp.github.io/pyargos/cli/) - All available commands
+- [Kafka Integration](https://argosp.github.io/pyargos/kafka/) - Streaming data setup
+- [ThingsBoard Integration](https://argosp.github.io/pyargos/thingsboard/) - Device management
+- [Testing](https://argosp.github.io/pyargos/testing/) - Mock devices and testing
+- [Changelog](https://argosp.github.io/pyargos/changelog/) - Version history
 
+## Running a Demo Device
 
-
-
-
+Install the [paho-mqtt package](https://anaconda.org/wheeler-microfluidics/paho-mqtt) in your conda environment, then run the demoDevice from the CLI.
