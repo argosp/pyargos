@@ -35,6 +35,21 @@ theme:
 
 plugins:
   - search
+  - mkdocstrings:
+      enabled: true
+      default_handler: python
+      handlers:
+        python:
+          paths:
+            - .
+          options:
+            show_source: true
+            show_root_heading: true
+            heading_level: 3
+            docstring_style: numpy
+            show_signature_annotations: true
+            members_order: source
+            allow_inspection: true
 
 markdown_extensions:
   - admonition
