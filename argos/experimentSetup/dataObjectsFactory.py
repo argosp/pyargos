@@ -1,3 +1,15 @@
+"""
+Factory classes for loading experiments from different data sources.
+
+This module provides two factories:
+
+- ``fileExperimentFactory`` -- loads experiments from local files (JSON or ZIP).
+- ``webExperimentFactory`` -- fetches experiments from an ArgosWEB server via GraphQL.
+
+Both factories return ``Experiment`` (or subclass) objects that provide a
+unified interface to the experiment data.
+"""
+
 import glob
 try:
     from gql import gql, Client
@@ -13,44 +25,58 @@ from argos.utils.logging import get_logger as argos_get_logger
 
 class fileExperimentFactory:
     """
-        Loads the experiment data from the directory.
+    Factory that loads experiment data from the local filesystem.
 
-        There are 2 options:
+    Scans the experiment directory's ``runtimeExperimentData/`` folder for
+    either a ``.zip`` file or an ``experiment.json`` file, and returns the
+    appropriate Experiment object.
 
-        - the directory includes the .json file and the img subdirectory
-        - the directory includes a zip file that includes both.
+    Parameters
+    ----------
+    experimentPath : str, optional
+        Path to the experiment root directory. Defaults to the current
+        working directory if not specified.
 
-        If it is extracted directory:
-            - Load the json file:
-                    - Fix structure to the standard format.
-            - Initialize the Experiment object
-
-        If it is a .zip file.
-            - Load the json file from the zip
-            - fix structure to the standard format.
-            - Initialize the zipExperiment object.
-
+    Examples
+    --------
+    >>> factory = fileExperimentFactory("/path/to/experiment")
+    >>> experiment = factory.getExperiment()
+    >>> print(experiment.name)
     """
 
     basePath = None
 
     def __init__(self, experimentPath=None):
+        """
+        Initialize the file experiment factory.
+
+        Parameters
+        ----------
+        experimentPath : str, optional
+            Path to the experiment root directory. If None, uses the
+            current working directory.
+        """
         self.basePath = os.getcwd() if experimentPath is None else experimentPath
         self.logger = argos_get_logger(self)
 
     def getExperiment(self):
         """
-            Loading the experimen.
-            Searches the path [experimentPath]/runtimeExperimentData
+        Load the experiment from the filesystem.
 
-            If founds a zip file, loads it and return it.
-
-        Parameters
-        ----------
+        Searches ``[experimentPath]/runtimeExperimentData`` for experiment data.
+        If a ``.zip`` file is found, returns an ``ExperimentZipFile``.
+        Otherwise, attempts to load ``experiment.json`` and returns an ``Experiment``.
 
         Returns
         -------
-            Experiment
+        Experiment or ExperimentZipFile
+            The loaded experiment object.
+
+        Raises
+        ------
+        ValueError
+            If neither a ZIP file nor ``experiment.json`` can be found in the
+            experiment data directory.
         """
         experimentAbsPath = os.path.abspath(os.path.join(self.basePath,"runtimeExperimentData"))
 
@@ -81,13 +107,42 @@ class fileExperimentFactory:
         return ret
 
     def __getitem__(self, item):
+        """
+        Load an experiment by path using dictionary-style access.
+
+        Parameters
+        ----------
+        item : str
+            The experiment path.
+
+        Returns
+        -------
+        Experiment or ExperimentZipFile
+            The loaded experiment object.
+        """
         return self.getExperiment(experimentPath=item)
 
 
 class webExperimentFactory:
     """
-        Loads the experiment data from the argos web
+    Factory that fetches experiment data from an ArgosWEB server via GraphQL.
 
+    Connects to the server's GraphQL endpoint and provides methods to list,
+    describe, and fully load experiments.
+
+    Parameters
+    ----------
+    url : str
+        The base URL of the ArgosWEB server (e.g., ``"http://localhost:3000"``).
+    token : str
+        The authorization token for the server. Use an empty string for
+        unauthenticated access.
+
+    Examples
+    --------
+    >>> factory = webExperimentFactory("http://argos-server:3000", "my-token")
+    >>> experiment = factory.getExperiment("MyExperiment")
+    >>> print(factory.listExperimentsNames())
     """
 
     _client = None
@@ -95,19 +150,38 @@ class webExperimentFactory:
 
     @property
     def url(self):
+        """
+        The base URL of the ArgosWEB server.
+
+        Returns
+        -------
+        str
+            The server URL.
+        """
         return self._url
 
     @property
     def client(self):
+        """
+        The GraphQL client used for server communication.
+
+        Returns
+        -------
+        Client
+            The GQL client instance.
+        """
         return self._client
 
     def __init__(self, url: str, token: str):
         """
+        Initialize the web experiment factory.
 
-        url: str
-            The url of the server.
-        token: str
-            The token to access the server.
+        Parameters
+        ----------
+        url : str
+            The base URL of the ArgosWEB server.
+        token : str
+            The authorization token. Use an empty string for unauthenticated access.
         """
 
         graphqlUrl = f"{url}/graphql"
@@ -121,10 +195,21 @@ class webExperimentFactory:
 
     def getExperimentMetadata(self,experimentName):
         """
-            Goes to the web server and gets all the JSONs.
+        Fetch the full metadata for an experiment from the server.
 
-        :param experimentName:
-        :return:
+        Queries the GraphQL API to retrieve entity types, entities, trial sets,
+        and trials with all their properties and relationships.
+
+        Parameters
+        ----------
+        experimentName : str
+            The name of the experiment to fetch.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the full experiment metadata with keys
+            ``experimentsWithData``, ``entitiesTypes``, and ``trialSets``.
         """
         experimentDesc = self.getExperimentDescriptor(experimentName)
 
@@ -215,11 +300,11 @@ class webExperimentFactory:
                             key
                         }
                         key
-                        containsEntities                        
+                        containsEntities
                     }
                     deployedEntities{
                         entitiesTypeKey
-                        properties{ 
+                        properties{
                             val
                             key
                         }
@@ -240,6 +325,22 @@ class webExperimentFactory:
         return ret
 
     def getExperiment(self,experimentName):
+        """
+        Load a full experiment from the server.
+
+        Fetches the experiment metadata via GraphQL and returns a
+        ``webExperiment`` object with the data populated.
+
+        Parameters
+        ----------
+        experimentName : str
+            The name of the experiment to load.
+
+        Returns
+        -------
+        webExperiment
+            The loaded experiment object.
+        """
         experimentDict = self.getExperimentMetadata(experimentName)
         experimentDict['experimentsWithData']['url'] = self.url
         return webExperiment(setupFileOrData=experimentDict)
@@ -248,36 +349,22 @@ class webExperimentFactory:
 
     def getExperimentsDescriptionsList(self):
         """
-            Returns a list of the experiment description as JSON (dict)
+        List all experiments on the server with their metadata.
 
-            The structure of the dict:
-
-            * id: The id of the experiment in the server.
-            * project
-                            id
-
-            * name: The name of the experiment
-            * description: The description of the project
-            * begin:        The beginning of the experiment
-            * end:          The end of the experiment.
-            * numberOfTrials: The number of trial sets that are present in the
-            * maps: descirption of the maps (images) of the project
-                    {
-                    imageUrl
-                    imageName
-                    lower
-                    upper
-                    left
-                    right
-                    width
-                    height
-                    embedded
-                    }
+        Queries the GraphQL API for all experiments and returns their
+        descriptors including name, description, dates, and map definitions.
 
         Returns
         -------
-            The list of experiment descriptions.
+        list[dict]
+            A list of experiment descriptor dicts, each containing:
 
+            - ``name`` : experiment name
+            - ``description`` : experiment description
+            - ``begin``, ``end`` : experiment date range
+            - ``numberOfTrials`` : trial count
+            - ``project.id`` : internal project ID
+            - ``maps`` : list of image map definitions with coordinates
         """
         query = '''
                 {
@@ -289,7 +376,7 @@ class webExperimentFactory:
                         numberOfTrials
                         project {
                             id
-                        }                        
+                        }
                         maps {
                             imageUrl
                             imageName
@@ -308,45 +395,36 @@ class webExperimentFactory:
 
     def getExperimentsDescriptionsTable(self):
         """
-            Returns the table of the
-        :return:
-            Return the pandas
+        Get all experiment descriptions as a Pandas DataFrame.
+
+        Returns
+        -------
+        pandas.DataFrame
+            A flattened DataFrame of all experiments on the server with
+            their metadata.
         """
         return pandas.json_normalize(self.getExperimentsDescriptionsList())
 
 
     def getExperimentDescriptor(self,experimentName):
         """
-            Returns the JSON (dict) descriptor of the requested expeiment.
-
+        Get the descriptor for a specific experiment by name.
 
         Parameters
         ----------
-
-        experimentName: str
+        experimentName : str
+            The name of the experiment.
 
         Returns
         -------
-            the dict that describes the experiment
+        dict
+            The experiment descriptor containing ``name``, ``description``,
+            ``begin``, ``end``, ``numberOfTrials``, ``project.id``, and ``maps``.
 
-            id
-            name
-            description
-            begin
-            end
-            numberOfTrials
-            maps {
-                imageUrl
-                imageName
-                lower
-                upper
-                left
-                right
-                width
-                height
-                embedded
-            }
-
+        Raises
+        ------
+        IndexError
+            If no experiment with the given name is found on the server.
         """
         descs = self.getExperimentsDescriptionsList()
 
@@ -355,20 +433,38 @@ class webExperimentFactory:
 
     def listExperimentsNames(self):
         """
-            Lists the names of all the experiments in the server.
+        List the names of all experiments on the server.
 
         Returns
         -------
-            A list of experiment names.
+        list[str]
+            A list of experiment name strings.
         """
         return [x['name'] for x in self.listExperimentsDescriptions()]
 
     def __getitem__(self, item):
+        """
+        Load an experiment by name using dictionary-style access.
+
+        Parameters
+        ----------
+        item : str
+            The experiment name.
+
+        Returns
+        -------
+        webExperiment
+            The loaded experiment object.
+        """
         return self.getExperiment(experimentName=item)
 
     def keys(self):
         """
-            Return the list of experiment names.
+        Return the names of all experiments on the server.
+
+        Returns
+        -------
+        list[str]
+            A list of experiment name strings.
         """
         return self.listExperiments()['name']
-
