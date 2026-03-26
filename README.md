@@ -14,22 +14,58 @@ Python wrappings for the [Argos](https://github.com/argosp) IoT experiment manag
 
 ## Install
 
-- Install Anaconda 3 with Python 3.7
-- Create a virtual environment:
-  ```bash
-  conda create -n Argos python=3.6.5
-  conda activate Argos
-  pip install paho-mqtt numpy pandas urllib3 requests
-  ```
-- Add pyargos to the PYTHONPATH
-- Activate the environment before executing:
-  ```bash
-  conda activate Argos
-  ```
+### Quick install (with Make)
+
+```bash
+git clone git@github.com:argosp/pyargos.git
+cd pyargos
+make install
+```
+
+This will:
+1. Install Python dependencies from `requirements.txt`
+2. Prompt to add `PYTHONPATH` to your `~/.bashrc` (or `~/.zshrc`)
+
+### Manual install
+
+1. Create a virtual environment:
+   ```bash
+   conda create -n Argos python=3.11
+   conda activate Argos
+   ```
+
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Add pyargos to your PYTHONPATH:
+   ```bash
+   export PYTHONPATH="/path/to/pyargos:$PYTHONPATH"
+   ```
+   To make this permanent, add the line to your `~/.bashrc` or `~/.zshrc`.
+
+4. Verify:
+   ```bash
+   python -c "import argos; print(argos.__version__)"
+   ```
+
+### Optional dependencies
+
+```bash
+# Kafka consumers
+pip install kafka-python
+
+# ThingsBoard integration
+pip install tb_rest_client
+
+# Documentation development
+pip install mkdocs-material mkdocstrings mkdocstrings-python
+```
 
 ## Quick Start
 
-See the [Getting Started](https://argosp.github.io/pyargos/getting-started/) guide for detailed setup instructions.
+See the [Getting Started](https://argosp.github.io/pyargos/user_guide/installation/) guide for detailed setup instructions.
 
 ## Loading a Trial Using the CLI
 
@@ -57,15 +93,29 @@ See the [Getting Started](https://argosp.github.io/pyargos/getting-started/) gui
    python yourpath/pyargos/bin/trialManager.py --expConf experimentConfiguration.json --load trialName
    ```
 
+## Make Targets
+
+```
+make install             Full install (deps + env vars + prompt for .bashrc)
+make install-deps        Install Python dependencies
+make install-dev         Install dev + optional dependencies
+make env                 Print environment variables needed
+make env-persist         Add PYTHONPATH to ~/.bashrc (prompts first)
+make docs-build          Build documentation site
+make docs-serve          Start local docs preview server
+make help                List all targets
+```
+
 ## Documentation
 
 Full documentation is available at **[argosp.github.io/pyargos](https://argosp.github.io/pyargos/)**:
 
-- [Getting Started](https://argosp.github.io/pyargos/getting-started/) - Installation and setup
-- [CLI Reference](https://argosp.github.io/pyargos/cli/) - All available commands
-- [Kafka Integration](https://argosp.github.io/pyargos/kafka/) - Streaming data setup
-- [ThingsBoard Integration](https://argosp.github.io/pyargos/thingsboard/) - Device management
-- [Testing](https://argosp.github.io/pyargos/testing/) - Mock devices and testing
+- [Key Concepts](https://argosp.github.io/pyargos/user_guide/concepts/) - Experiments, trials, devices, and how they connect
+- [Installation](https://argosp.github.io/pyargos/user_guide/installation/) - Detailed setup instructions
+- [CLI Reference](https://argosp.github.io/pyargos/user_guide/cli/) - All available commands
+- [Kafka Integration](https://argosp.github.io/pyargos/user_guide/kafka/) - Streaming data setup
+- [ThingsBoard Integration](https://argosp.github.io/pyargos/user_guide/thingsboard/) - Device management
+- [Developer Guide](https://argosp.github.io/pyargos/developer_guide/) - Architecture, API reference, data model
 - [Changelog](https://argosp.github.io/pyargos/changelog/) - Version history
 
 ## Running a Demo Device

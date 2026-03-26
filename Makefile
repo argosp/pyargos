@@ -1,12 +1,23 @@
 # pyArgos Makefile
 # Usage: make <target>
 
-.PHONY: help \
+PYARGOS_ROOT := $(shell pwd)
+PYTHON       ?= python3
+VENV_NAME    ?= Argos
+
+.PHONY: help install install-deps install-dev env env-persist \
         mermaid-pull render-diagrams render-diagrams-force \
         docs-deps docs-build docs-build-strict docs-serve docs-deploy docs-clean
 
 help:
 	@echo "pyArgos targets:"
+	@echo ""
+	@echo "  Setup:"
+	@echo "    make install             Full install (deps + env vars + prompt for .bashrc)"
+	@echo "    make install-deps        Install Python dependencies from requirements.txt"
+	@echo "    make install-dev         Install dev + optional dependencies (Kafka, TB, docs)"
+	@echo "    make env                 Print the environment variables needed for pyArgos"
+	@echo "    make env-persist         Add PYTHONPATH to ~/.bashrc (prompts for confirmation)"
 	@echo ""
 	@echo "  Documentation:"
 	@echo "    make docs-build          Build full site (render diagrams + mkdocs build)"
@@ -17,6 +28,73 @@ help:
 	@echo "    make render-diagrams-force  Re-render ALL diagrams"
 	@echo "    make mermaid-pull        Pull the mermaid-cli Docker image"
 	@echo "    make docs-deps           Install documentation dependencies"
+
+# --- Setup & Installation ---
+
+install: install-deps env-persist
+	@echo ""
+	@echo "=== pyArgos installed ==="
+	@echo "  Activate with: source ~/.bashrc  (or open a new terminal)"
+	@echo "  Verify with:   $(PYTHON) -c 'import argos; print(argos.__version__)'"
+	@echo "  Docs:          https://argosp.github.io/pyargos/"
+
+install-deps:
+	@echo "Installing Python dependencies..."
+	pip install -r requirements.txt
+	@echo "Done."
+
+install-dev: install-deps
+	@echo "Installing optional/dev dependencies..."
+	pip install kafka-python tb_rest_client mkdocs-material mkdocstrings mkdocstrings-python
+	@echo "Done."
+
+env:
+	@echo ""
+	@echo "=== pyArgos environment variables ==="
+	@echo ""
+	@echo "Add these to your shell profile (~/.bashrc or ~/.zshrc):"
+	@echo ""
+	@echo "  export PYTHONPATH=\"$(PYARGOS_ROOT):\$$PYTHONPATH\""
+	@echo ""
+	@echo "Current PYTHONPATH: $${PYTHONPATH:-<not set>}"
+	@echo ""
+	@if echo "$$PYTHONPATH" | grep -q "$(PYARGOS_ROOT)"; then \
+		echo "  ✓ pyArgos is already in PYTHONPATH"; \
+	else \
+		echo "  ✗ pyArgos is NOT in PYTHONPATH"; \
+		echo "    Run 'make env-persist' to add it to ~/.bashrc"; \
+	fi
+
+env-persist:
+	@SHELL_RC="$$HOME/.bashrc"; \
+	if [ -f "$$HOME/.zshrc" ] && [ "$$SHELL" = "/bin/zsh" -o "$$SHELL" = "/usr/bin/zsh" ]; then \
+		SHELL_RC="$$HOME/.zshrc"; \
+	fi; \
+	EXPORT_LINE="export PYTHONPATH=\"$(PYARGOS_ROOT):\$$PYTHONPATH\"  # pyArgos"; \
+	echo ""; \
+	if grep -q "# pyArgos" "$$SHELL_RC" 2>/dev/null; then \
+		echo "pyArgos is already configured in $$SHELL_RC:"; \
+		grep "# pyArgos" "$$SHELL_RC"; \
+		echo ""; \
+		echo "No changes made."; \
+	else \
+		echo "This will add the following line to $$SHELL_RC:"; \
+		echo ""; \
+		echo "  $$EXPORT_LINE"; \
+		echo ""; \
+		read -p "Add to $$SHELL_RC? [y/N] " confirm; \
+		if [ "$$confirm" = "y" ] || [ "$$confirm" = "Y" ]; then \
+			echo "" >> "$$SHELL_RC"; \
+			echo "$$EXPORT_LINE" >> "$$SHELL_RC"; \
+			echo ""; \
+			echo "Added to $$SHELL_RC"; \
+			echo "Run 'source $$SHELL_RC' or open a new terminal to activate."; \
+		else \
+			echo ""; \
+			echo "Skipped. To set manually, run:"; \
+			echo "  echo '$$EXPORT_LINE' >> $$SHELL_RC"; \
+		fi; \
+	fi
 
 # --- Documentation ---
 
