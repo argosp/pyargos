@@ -8,6 +8,7 @@ This guide covers the internal architecture, design patterns, and API reference 
 
 - [**Core Concepts**](architecture/core_concepts.md) - Class hierarchy, factory pattern, and design decisions
 - [**Data Flow**](architecture/data_flow.md) - How data moves through the system end-to-end
+- [**Experiment Setup**](architecture/experiment_setup.md) - Deep dive: inheritance, object lifecycle, property system, containment resolution
 
 ## API Reference
 
